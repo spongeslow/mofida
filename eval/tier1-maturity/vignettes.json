@@ -1,0 +1,122 @@
+[
+  {
+    "id": "VIG-001",
+    "source": "synthetic",
+    "text": "Salma, a food engineer from Sfax, has an idea for a service that turns olive-pressing waste (margine) into organic fertiliser for smallholder farmers. She has no company yet, no co-founder, and works on the concept evenings after her day job at an agri-food cooperative. She has sketched the process on paper and read two ONAGRI reports about waste volumes in the region, but has not spoken to a single farmer or built anything. There is no prototype, no revenue, and no legal entity. She is unsure whether farmers would pay for the fertiliser or whether the logistics of collecting margine are even feasible. Her immediate plan is to validate that the chemistry works at small scale and to find a technical partner. She estimates she needs three months just to confirm the core assumption before committing further.",
+    "gold_label": "Ideation",
+    "annotator_labels": ["Ideation", "Ideation", "Ideation"],
+    "notes": "Pure concept: no entity, no prototype, no customer contact, no revenue. Founder is still validating the core feasibility assumption — textbook Ideation."
+  },
+  {
+    "id": "VIG-002",
+    "source": "synthetic",
+    "text": "Two recent ESPRIT graduates in Tunis want to build an edtech app that gives bac students AI-generated revision quizzes in Arabic and French. They have a Figma mockup and a one-page pitch, but no code, no users, and no registered company. They have not yet decided on a business model — subscription, freemium, or school licensing — and have done no market research beyond their own experience as former students. They have applied to a university incubator to get mentorship and free workspace. The team is just the two founders, both unpaid, working part-time around freelance gigs. There is no revenue and no legal form. Their next step is to interview teachers and students to understand whether the pain point is real and what people would actually pay for.",
+    "gold_label": "Ideation",
+    "annotator_labels": ["Ideation", "Ideation", "Ideation"],
+    "notes": "Mockup only, no product, no customers, undecided business model. Still testing whether the problem is worth solving — Ideation."
+  },
+  {
+    "id": "VIG-003",
+    "source": "synthetic",
+    "text": "A pharmacist in Sousse wants to launch a digital health platform connecting chronic-disease patients with home-visit nurses. So far it is just an idea backed by his frustration watching diabetic patients struggle with follow-up. He has not built anything, has no team beyond himself, and has not registered a company. He has informally chatted with three nurse friends who liked the idea but made no commitments. He is unsure about Tunisian health-data regulations and whether the model is even legal. There is no prototype, no pilot, no revenue. His plan over the next quarter is to research the regulatory landscape, talk to twenty patients, and decide whether to pursue the project seriously or drop it.",
+    "gold_label": "Ideation",
+    "annotator_labels": ["Ideation", "Ideation", "Ideation"],
+    "notes": "Idea driven by personal observation, no build, no validation, regulatory feasibility unknown. Clear Ideation."
+  },
+  {
+    "id": "VIG-004",
+    "source": "synthetic",
+    "text": "Nour runs an early fintech project in Tunis offering a mobile savings-circle (daret) app. She has a working MVP on Android and has run it with 4 informal groups totalling 60 users over two months. She has conducted 18 structured user interviews and tracks weekly retention, which sits around 45%. The company is a registered SUARL with two co-founders and one part-time developer. There is no revenue yet — the app is free while she tests engagement — but she has a clear hypothesis about charging a small transaction fee later. Her focus right now is proving that users trust the app with money and that retention can be pushed above 60% before she invests in monetisation. She is iterating on the onboarding flow based on interview feedback.",
+    "gold_label": "Market Validation",
+    "annotator_labels": ["Market Validation", "Market Validation", "Market Validation"],
+    "notes": "Working MVP, real users, structured interviews, retention metrics, registered entity — but no revenue and the focus is proving demand/retention. Market Validation."
+  },
+  {
+    "id": "VIG-005",
+    "source": "synthetic",
+    "text": "An agri-food startup near Bizerte sells a prototype IoT sensor that tells greenhouse tomato growers when to irrigate. They have deployed the device free in 6 pilot farms and collected three months of data showing a 20% water saving. The team of three (an agronomist and two engineers) is registered as a SUARL. They have 25 documented customer interviews and a waiting list of 12 farmers who say they would buy. Revenue is essentially zero — only one farmer has paid a token 200 TND for the pilot hardware. The founders are still refining the value proposition and pricing, unsure whether to sell hardware, charge a subscription, or both. Their current priority is converting pilot interest into paid commitments and validating that farmers will pay recurring fees.",
+    "gold_label": "Market Validation",
+    "annotator_labels": ["Market Validation", "Market Validation", "Structuration"],
+    "notes": "Prototype in pilots with strong evidence and a waiting list, but pricing/model unproven and near-zero paid revenue. Validating willingness to pay — Market Validation. One annotator leaned Structuration given the org maturity."
+  },
+  {
+    "id": "VIG-006",
+    "source": "synthetic",
+    "text": "A Tunis edtech team has built a web platform for coding bootcamps and tested it with two private training centres over a semester. 140 students used it; instructors gave detailed feedback and NPS was measured at 32. The startup is a registered SARL with four people. They have signed no paid contracts yet but have two letters of intent from the pilot centres. Revenue remains zero. The founders are analysing usage data to decide which features to keep and how to price institutional licences. They are explicitly in a learning phase: confirming the product solves a real pain for training centres before locking the commercial model and scaling sales.",
+    "gold_label": "Market Validation",
+    "annotator_labels": ["Market Validation", "Market Validation", "Market Validation"],
+    "notes": "Real pilots, usage data, NPS, LOIs but no paid contracts and model not yet locked. Demand-validation phase."
+  },
+  {
+    "id": "VIG-007",
+    "source": "synthetic",
+    "text": "A digital health startup in Tunis has 9 paying clinics on a monthly subscription for its appointment-and-records system, generating about 6,000 TND MRR. The company is a SUARL with six employees, including a dedicated support person and a part-time accountant. They have written SOPs for onboarding new clinics and have a basic GDPR-style data policy in place. Growth is steady but the founders feel operations are fragile: onboarding still depends heavily on the CTO, and there is no clear org chart. Their current priority is structuring the company — defining roles, documenting processes, putting proper accounting and contracts in place — so the business can scale without breaking. They are not yet raising external funds and are reinvesting revenue.",
+    "gold_label": "Structuration",
+    "annotator_labels": ["Structuration", "Structuration", "Structuration"],
+    "notes": "Paying customers and recurring revenue exist; the active work is building internal structure, processes, and roles to scale. Structuration."
+  },
+  {
+    "id": "VIG-008",
+    "source": "synthetic",
+    "text": "An agri-food company in Kairouan processes and packages organic dates for export. It has steady orders from two European distributors and roughly 18,000 TND monthly revenue. The firm is a SARL with eleven employees across production and admin. The founders are formalising the organisation: hiring an operations manager, obtaining HACCP and organic certifications, documenting the supply chain, and setting up proper inventory and quality-control systems. They have no outside investors and are not currently fundraising. The bottleneck is operational maturity — production is somewhat ad hoc and depends on a few key workers. Their stated goal this year is to professionalise operations and compliance so they can reliably meet larger export contracts.",
+    "gold_label": "Structuration",
+    "annotator_labels": ["Structuration", "Structuration", "Structuration"],
+    "notes": "Revenue and customers established; focus is org/process/compliance maturity (certifications, ops manager, QC). Structuration."
+  },
+  {
+    "id": "VIG-009",
+    "source": "synthetic",
+    "text": "A Tunis fintech with a B2B payments product has 30 paying SME clients, 22,000 TND MRR, and a stable team of twelve. Processes are documented, the company is a structured SA, and gross margins are healthy. The founders have decided the model is proven and repeatable, and they now want to accelerate. They are preparing a seed round of roughly 1.5M TND: building a data room, refining financial projections, and pitching to local VCs and a regional fund. Most of the leadership's energy goes into investor meetings, due-diligence preparation, and negotiating the cap table. Product and operations are stable enough to run while the founders focus on closing capital to fund aggressive expansion across the Maghreb.",
+    "gold_label": "Fundraising",
+    "annotator_labels": ["Fundraising", "Fundraising", "Fundraising"],
+    "notes": "Proven, structured, profitable-enough business whose dominant current activity is raising a seed round (data room, pitching, due diligence). Fundraising."
+  },
+  {
+    "id": "VIG-010",
+    "source": "synthetic",
+    "text": "An edtech scale-up in Tunis serving universities has 40,000 TND MRR, 16 institutional clients, and a 14-person team with clear departments. The business is structured and operations run smoothly. The founders are mid-way through a pre-seed-to-seed raise: they have a signed term sheet from one investor and are negotiating with two others to fill a 2M TND round intended to fund international expansion. Day-to-day, the CEO and CFO are consumed by investor due diligence, legal structuring, and financial modelling. The product roadmap is paused on major bets until the round closes. Their explicit milestone for the quarter is signing the round and bringing a lead investor onto the board.",
+    "gold_label": "Fundraising",
+    "annotator_labels": ["Fundraising", "Fundraising", "Fundraising"],
+    "notes": "Structured, revenue-generating business actively closing a financing round (term sheet, due diligence, board negotiation). Fundraising."
+  },
+  {
+    "id": "VIG-011",
+    "source": "synthetic",
+    "text": "A digital health startup in Tunis has just closed a 1.2M TND seed round and finished building its v1 platform for pharmacy inventory management. It has 5 design-partner pharmacies but has not yet opened general availability. The team of ten is now preparing a national launch: finalising pricing tiers, setting up a sales playbook, hiring two sales reps, planning marketing for the launch event, and stress-testing the platform for scale. Revenue is small and limited to design partners. Everything is oriented around a concrete go-live date in two months — onboarding capacity, support staffing, and a marketing campaign across pharmacist networks. The core question is execution of the launch, not whether the product or model works.",
+    "gold_label": "Launch Planning",
+    "annotator_labels": ["Launch Planning", "Launch Planning", "Fundraising"],
+    "notes": "Funded, product built, model validated; all activity is preparing a concrete general-availability launch (pricing, sales playbook, hiring, marketing). Launch Planning. One annotator over-weighted the recent raise."
+  },
+  {
+    "id": "VIG-012",
+    "source": "synthetic",
+    "text": "An agri-food D2C brand in Tunis selling premium harissa and condiments online has completed product development, branding, packaging, and a registered trademark. The SARL has eight people and modest revenue from a soft pre-launch to friends and an Instagram following of 9,000. They are now finalising the public launch: locking supplier contracts for scale production, setting up fulfilment and delivery partners, scheduling an influencer campaign, and building landing pages for a launch-week promotion. The leadership's whole focus is the go-to-market mechanics and hitting a specific launch date next month. Product-market fit signals from the pre-launch are positive; the work left is operational and marketing readiness for a high-volume opening.",
+    "gold_label": "Launch Planning",
+    "annotator_labels": ["Launch Planning", "Launch Planning", "Launch Planning"],
+    "notes": "Product/brand ready, validated demand signals, work is entirely launch logistics and go-to-market execution toward a fixed date. Launch Planning."
+  },
+  {
+    "id": "VIG-013",
+    "source": "synthetic",
+    "text": "A Tunis fintech offering SME invoicing and credit has 320 paying customers, 75,000 TND MRR growing 12% month-over-month, and a 28-person team with established sales, product, and support functions. The SA is profitable at the unit level, has repeatable acquisition channels, and is expanding into Algeria and Morocco. Leadership is focused on scaling: hiring across regions, optimising CAC/LTV, building partnerships with banks, and entering new segments. The product and business model are proven and the company is executing a growth playbook. They raised a Series A last year and are not currently fundraising; the priority is sustainable, efficient expansion of an already-working machine.",
+    "gold_label": "Growth",
+    "annotator_labels": ["Growth", "Growth", "Growth"],
+    "notes": "Large paying base, growing MRR, repeatable channels, regional expansion, proven model. Scaling a working business — Growth."
+  },
+  {
+    "id": "VIG-014",
+    "source": "synthetic",
+    "text": "An edtech company headquartered in Tunis serves 60 schools across Tunisia and has begun selling in Morocco. It has 95,000 TND MRR, a 35-person team organised into departments, and strong retention above 90%. The model is validated and operations are mature with documented processes and a real management layer. The founders are focused purely on growth: scaling the sales engine, localising content for new markets, optimising marketing spend, and recruiting country managers. They are reinvesting profits and a prior raise into expansion. There is no current fundraising effort and no major product-market-fit risk; the work is about efficiently growing an established, repeatable business.",
+    "gold_label": "Growth",
+    "annotator_labels": ["Growth", "Growth", "Growth"],
+    "notes": "Multi-market, high retention, mature org, validated model, scaling the engine. Growth."
+  },
+  {
+    "id": "VIG-015",
+    "source": "synthetic",
+    "text": "A digital health platform from Tunis connecting patients with teleconsultations has 12,000 active users, 50,000 TND MRR from a mix of subscriptions and per-consult fees, and a 24-person team. Growth is 10% month-over-month and the company is expanding its doctor network and entering two new governorates plus a pilot in Libya. The SA has mature operations, proven unit economics, and repeatable acquisition. Leadership spends its time on scaling: partnerships with insurers, expanding supply (doctors), optimising the funnel, and hiring. The company is not raising right now and has no fundamental validation risk left — execution against a growth plan for an established service is the whole game.",
+    "gold_label": "Growth",
+    "annotator_labels": ["Growth", "Growth", "Growth"],
+    "notes": "Established service, growing revenue and users, repeatable acquisition, geographic expansion, no validation risk. Growth."
+  }
+]
