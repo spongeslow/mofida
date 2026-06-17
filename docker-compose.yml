@@ -1,6 +1,6 @@
-# Moufida full local stack. `docker compose up` boots every backend service.
-# The Tauri desktop frontend runs on the host (needs a display) -- see
-# frontend/README; it is intentionally not containerised here.
+# Moufida full local stack. `docker compose up` boots every service.
+# The Tauri desktop binary still runs on the host — it connects to the
+# frontend container's Vite dev server at http://localhost:5173.
 name: moufida
 
 x-axis-env: &axis-env
@@ -8,13 +8,15 @@ x-axis-env: &axis-env
   REDIS_URL: ${REDIS_URL}
 
 services:
+  # --- Infrastructure --------------------------------------------------------
   postgres:
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports: ["5432:5432"]
+    # Host port intentionally omitted — services connect via the compose network.
+    # To access from the host: docker compose exec postgres psql -U $POSTGRES_USER
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/migrations:/docker-entrypoint-initdb.d:ro
@@ -26,7 +28,8 @@ services:
 
   redis:
     image: redis:7-alpine
-    ports: ["6379:6379"]
+    # Host port intentionally omitted — services connect via the compose network.
+    # To access from the host: docker compose exec redis redis-cli
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -35,16 +38,11 @@ services:
 
   qdrant:
     image: qdrant/qdrant:latest
-    ports: ["6333:6333"]
+    # Host port intentionally omitted — services connect via the compose network.
     volumes:
       - qdrantdata:/qdrant/storage
 
-  ollama:
-    image: ollama/ollama:latest
-    ports: ["11434:11434"]
-    volumes:
-      - ./models/ollama:/root/.ollama
-
+  # --- Core backend ----------------------------------------------------------
   orchestrator:
     build:
       context: .
@@ -61,11 +59,13 @@ services:
     build:
       context: .
       dockerfile: rag/Dockerfile
-    environment: {QDRANT_URL: "${QDRANT_URL}", OLLAMA_URL: "${OLLAMA_URL}"}
+    environment:
+      QDRANT_URL: ${QDRANT_URL}
+      OLLAMA_URL: ${OLLAMA_URL}
     ports: ["8300:8300"]
     volumes:
       - ./rag/knowledge-base:/srv/knowledge-base:ro
-    depends_on: [qdrant, ollama]
+    depends_on: [qdrant]
 
   daemon:
     build:
@@ -73,11 +73,38 @@ services:
       dockerfile: daemon/Dockerfile
     environment:
       REDIS_URL: ${REDIS_URL}
-      RAG_URL: http://rag:8300
+      REDIS_METRICS_CHANNEL: ${REDIS_METRICS_CHANNEL}
+      RAG_URL: ${RAG_URL}
     depends_on:
       redis: {condition: service_healthy}
 
-  # --- Axis services (8101-8110) -------------------------------------------
+  # --- Scoring engine (standalone HTTP API) ----------------------------------
+  scoring-engine:
+    build:
+      context: .
+      dockerfile: scoring-engine/Dockerfile
+    ports: ["8200:8200"]
+    # No external dependencies — pure scoring library with no datastores.
+
+  # --- Frontend (Vite dev server — web layer only, opt-in) ------------------
+  # NOT started by default — `docker compose up` only starts the backend.
+  # For the desktop app, run `npm run tauri dev` on the host (see README).
+  # To access the UI in a browser without Tauri:
+  #   docker compose --profile web up frontend
+  frontend:
+    profiles: [web]
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      target: dev
+    ports: ["5174:5173"]
+    volumes:
+      # Mount source so Vite hot-reload works without rebuilding the image.
+      - ./frontend/src:/app/src:ro
+      - ./frontend/index.html:/app/index.html:ro
+      - ./frontend/vite.config.ts:/app/vite.config.ts:ro
+
+  # --- Axis services (8101-8110) --------------------------------------------
   ideation-service:
     build: {context: ., dockerfile: services/ideation-service/Dockerfile}
     environment: *axis-env

@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 WORKDIR /srv
-COPY affinitree /srv/affinitree
+COPY scoring-engine /srv/affinitree
 RUN pip install --no-cache-dir ./affinitree fastapi "uvicorn[standard]" httpx redis "psycopg[binary]"
 COPY orchestrator/app /srv/app
 ENV PYTHONUNBUFFERED=1
