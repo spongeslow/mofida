@@ -38,14 +38,17 @@ def axis_host(slug: str) -> str:
     return f"http://{host}:{info['port']}"
 
 
-def diagnostic_order() -> list[list[str]]:
-    """Dependency-ordered waves for the STATE_EXISTING diagnostic pass.
+# Dependency-ordered waves for the STATE_EXISTING diagnostic pass.
+#   Wave 0 (ideation/market/product) runs first and in parallel;
+#   Wave 1 (brand) consumes wave-0 outputs;
+#   Wave 2 (the remaining scoring axes) runs in parallel.
+DIAGNOSTIC_WAVES: list[list[str]] = [
+    ["ideation", "market", "product"],
+    ["brand"],
+    ["business-model", "legal", "operations", "marketing", "sales"],
+]
 
-    Wave 1 runs first (ideation/market/product), wave 2 (brand) consumes their
-    outputs, wave 3 (the remaining scoring axes) runs in parallel.
-    """
-    return [
-        ["ideation", "market", "product"],
-        ["brand"],
-        ["business-model", "legal", "operations", "marketing", "sales"],
-    ]
+
+def diagnostic_order() -> list[list[str]]:
+    """The dependency-ordered diagnostic waves (see ``DIAGNOSTIC_WAVES``)."""
+    return DIAGNOSTIC_WAVES
