@@ -12,6 +12,7 @@ x-axis-env: &axis-env
   OLLAMA_URL: ${OLLAMA_URL}
   OLLAMA_BASE_URL: ${OLLAMA_BASE_URL}
   OLLAMA_MODEL: ${OLLAMA_MODEL}
+  OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL}
   REDIS_URL: ${REDIS_URL}
 
 x-host-gateway: &host-gateway
