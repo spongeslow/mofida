@@ -20,7 +20,7 @@ from .graph.state import MoufidaState
 
 router = APIRouter()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://moufida:moufida@postgres:5432/moufida")
+DATABASE_URL = os.environ["DATABASE_URL"]
 
 # DB state column  <->  MoufidaState.mode
 _DB_TO_MODE = {"NEW": "STATE_NEW", "EXISTING": "STATE_EXISTING"}

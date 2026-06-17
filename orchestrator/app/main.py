@@ -21,8 +21,8 @@ from .intake_router import router as intake_router
 from .lang_detect import detect_language
 from .state_router import close_pool, get_pool, router as state_router
 
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
-OLLAMA_CHAT_MODEL = os.getenv("OLLAMA_CHAT_MODEL", "mistral")
+OLLAMA_BASE_URL = os.environ["OLLAMA_BASE_URL"]
+OLLAMA_CHAT_MODEL = os.environ["OLLAMA_CHAT_MODEL"]
 
 app = FastAPI(title="Moufida Orchestrator")
 app.include_router(state_router, prefix="/api/v1")
