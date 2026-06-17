@@ -17,8 +17,8 @@ app = FastAPI(title="Moufida Axis 01 - Ideation")
 
 logger = logging.getLogger("moufida.ideation")
 
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "mistral")
+OLLAMA_BASE_URL = os.environ["OLLAMA_BASE_URL"]
+OLLAMA_MODEL = os.environ["OLLAMA_MODEL"]
 OLLAMA_TIMEOUT = float(os.getenv("OLLAMA_TIMEOUT", "120"))
 
 STAGES = [
