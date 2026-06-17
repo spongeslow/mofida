@@ -2,7 +2,7 @@
 
 **An intelligent, voice-first entrepreneurial companion for Tunisian founders.**
 
-Moufida (Arabic for "useful") lives in your system tray. You wake it by saying *"Hey Moufida"*, describe your startup by voice, and it replies by speaking back — in French or Arabic. Everything runs on your own machine. No data leaves your computer.
+Moufida (Arabic for "useful") lives in your system tray. You wake it by saying *"Hey Moufida"*, describe your startup by voice, and it replies by speaking back — in French or English. Everything runs on your own machine. No data leaves your computer.
 
 Built for Team Makrouna Kadheba · June 2026 hackathon submission.
 
@@ -30,10 +30,10 @@ After the first diagnosis, Moufida stays alive in the background. A lightweight 
 
 | Principle | How it is implemented |
 |---|---|
-| 100% local | All LLMs run via Ollama (Mistral 7B, Llama 3.1, nomic-embed-text). Voice models (Whisper, Piper, Kokoro-82M) run locally. |
+| 100% local | All LLMs run via Ollama (llama3.1:8b, nomic-embed-text). Voice models (Whisper, Piper, Kokoro-82M) run locally. |
 | Explainable scoring | Every score decomposes to a formula: `ci = wi × vi × mi` where `mi` reflects the evidence quality (declared × 0.6, verified document × 1.0, daemon-observed × 1.2). |
 | Traceable resources | Every roadmap action links to a real, verified source URL. No hallucinated programme names. |
-| Bilingual first-class | French and Tunisian Arabic (Derja) both supported throughout the voice pipeline. The LLM output defaults to French or MSA (Derja generation is not attempted — disclosed on first launch). |
+| Bilingual first-class | French and English supported throughout the voice pipeline. STT uses Whisper large-v2; TTS uses Piper (FR) and Kokoro-82M (EN). Language is auto-detected per utterance via fastText. |
 | Liveness | The system updates itself from real-world signals even when you're not interacting with it. |
 
 ---
@@ -75,8 +75,8 @@ After the first diagnosis, Moufida stays alive in the background. A lightweight 
 └──────────────────────┘
 
 Datastores: PostgreSQL · Redis · Qdrant
-Models: Ollama (Mistral 7B · Llama 3.1 · nomic-embed)
-        Whisper TuniSpeech · Piper FR · Kokoro-82M AR
+Ollama (host): llama3.1:8b · nomic-embed-text
+Voice (host):  Whisper large-v2 · Piper FR · Kokoro-82M EN · fastText LID
 ```
 
 ---
@@ -104,51 +104,132 @@ Phases 0 and 1 are complete. See [`docs/omar.md`](docs/omar.md) for a detailed b
 - Anomaly detection passes 10/10 contradiction recall cases
 - Determinism test passes 100% (identical results on 10 repeated runs)
 - PostgreSQL schema is in place (profiles, diagnostic history, score snapshots, roadmap versions, alerts)
-- Frontend scaffold builds with system-tray menu and language toggle
+- Frontend scaffold builds with system-tray menu and language toggle (FR/EN)
 
 **Coming next (Phase 2):** adaptive intake questionnaire, maturity classifier (Axis 01 / ideation-service), LangGraph diagnostic pass orchestration, and the orchestrator's Redis consumer.
 
 ---
 
-## Quick start
+## Setup
+
+### 1. Install prerequisites
+
+| Tool | Purpose | Install |
+|---|---|---|
+| Docker + Compose | Runs all backend services | [docs.docker.com](https://docs.docker.com/get-docker/) |
+| Ollama | Serves LLM and embeddings locally | [ollama.com/download](https://ollama.com/download) |
+| Node.js 20+ | Builds the Tauri frontend | [nodejs.org](https://nodejs.org/) |
+| Rust + Cargo | Required by Tauri | [rustup.rs](https://rustup.rs/) |
+| Tauri CLI | `tauri dev` / `tauri build` | `cargo install tauri-cli` |
 
 ```bash
-# 1. Copy and fill in environment variables
-cp .env.example .env
+# Ollama (Linux)
+curl -fsSL https://ollama.com/install.sh | sh
 
-# 2. Boot the backend (first run pulls Docker images — ~4 GB)
-docker compose up --build
+# Rust (if not already installed)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
 
-# 3. Pull Ollama models (needs the ollama service to be running)
-./scripts/download-models.sh
+# Tauri CLI
+cargo install tauri-cli
 
-# 4. Run the desktop app (on the host, needs a display)
-cd frontend
-npm install
-npm run tauri dev
+# Node.js 20 via nvm (recommended)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+nvm install 20 && nvm use 20
 ```
 
-Every backend service exposes `GET /health`. Check them:
+### 2. Configure environment
+
+```bash
+cp .env.example .env
+```
+
+### 3. Pull models and download voice assets
+
+Run once after setting up `.env`. This pulls Ollama models and downloads all local voice files:
+
+```bash
+./scripts/setup.sh
+```
+
+Add `--skip-whisper` to defer the 1.1 GB Whisper download and finish in ~150 MB first:
+
+```bash
+./scripts/setup.sh --skip-whisper
+```
+
+What the script handles automatically:
+
+| Asset | File | Size |
+|---|---|---|
+| LLM | `llama3.1:8b` via Ollama | ~4.7 GB |
+| Embeddings | `nomic-embed-text` via Ollama | ~274 MB |
+| Language ID | `models/lid.176.ftz` | ~1 MB |
+| French TTS | `models/piper-fr.onnx` + `.onnx.json` | ~61 MB |
+| TTS engine | `models/kokoro/model_quantized.onnx` | ~89 MB |
+| French voice | `models/kokoro/voices/ff_siwis.bin` | ~510 KB |
+| English voice | `models/kokoro/voices/af_heart.bin` | ~510 KB |
+| STT (EN + FR) | `models/whisper.bin` (Whisper large-v2 q5_0) | ~1.1 GB |
+
+The **Porcupine wake word** requires a free [Picovoice](https://console.picovoice.ai/) account — the script prints exact steps for this when it reaches that point.
+
+### 4. Start the backend
+
+Make sure Ollama is running, then:
+
+```bash
+docker compose up --build
+```
+
+This starts: PostgreSQL (migrations applied automatically), Redis, Qdrant, the orchestrator, 10 axis services, the RAG service, the Go daemon, and the scoring engine API (`:8200`).
+
+The **frontend is not started by `docker compose up`** — it runs on the host (see step 5).
+
+> **No port conflicts with local databases:** PostgreSQL, Redis, and Qdrant do not bind to host ports. To access them from the host: `docker compose exec postgres psql -U $POSTGRES_USER`
+
+Verify the backend is healthy:
 ```bash
 curl http://localhost:8001/health   # orchestrator
 curl http://localhost:8102/health   # market-intelligence-service
-curl http://localhost:8300/health   # rag
+curl http://localhost:8200/health   # scoring engine API
+curl http://localhost:8300/health   # rag service
 ```
+
+### 5. Run the desktop app
+
+With the Docker backend running (step 4), open a **separate terminal**:
+
+```bash
+cd frontend
+npm install        # first time only
+npm run tauri dev  # starts Vite on :5173, opens the system-tray app
+```
+
+Tauri starts its own Vite dev server on port 5173 and opens the native desktop window. The app communicates with the backend at `localhost:8001`.
+
+> **Do not run `docker compose --profile web up frontend`** at the same time as `npm run tauri dev` — both use port 5173 and will conflict. The `--profile web` frontend container is only for browser access without the Tauri shell.
 
 ---
 
 ## Scoring engine (standalone)
 
-The `scoring-engine/` package can be installed and tested without any running services.
+The scoring engine also runs as a Docker service on port `:8200` with a REST API:
+
+```bash
+curl http://localhost:8200/health
+# POST /score      — compute one named score for a profile
+# POST /score/all  — compute all five scores in one call
+# POST /detect     — run anomaly detection on a profile
+```
+
+To run tests or work on the engine without Docker:
 
 ```bash
 cd scoring-engine
 uv venv && uv pip install -e ".[dev]"
-
-# Run the 24-test suite
 .venv/bin/python -m pytest -q
 
-# Run Tier 2 evals (determinism + anomaly recall — no LLM needed)
+# Tier 2 evals (determinism + anomaly recall — no LLM needed)
 cd ..
 scoring-engine/.venv/bin/python eval/tier2-affinitree/run_eval.py
 ```
@@ -170,15 +251,15 @@ scoring-engine/.venv/bin/python eval/tier2-affinitree/run_eval.py
 ## Repository layout
 
 ```
-scoring-engine/      Affinitree scoring library (done — 24 tests green)
+scoring-engine/      Affinitree scoring library + standalone HTTP API (:8200)
 orchestrator/        FastAPI brain + axis registry + topology endpoint
 services/            10 specialised FastAPI services (5 scoring, 5 stubs)
 rag/                 Knowledge-base RAG service + taxonomy (stubs)
 daemon/              Go monitoring daemon (goroutines on real cadences, heartbeat)
-frontend/            Tauri + React/TS desktop app (scaffold + locales)
+frontend/            Tauri + React/TS desktop app (runs on host, not in Docker)
 db/migrations/       3 SQL migrations (auto-run by postgres container)
 eval/                Tier 2 fixtures + runner · Tier 1/3 placeholders
-scripts/             download-models · ingest-kb · run-all-evals
+scripts/             setup.sh · ingest-kb · run-all-evals
 docs/                Full technical spec + component architecture
 docs/plan/           Implementation plan (phases 0–6)
 docs/omar.md         Current state + detailed next-steps breakdown
@@ -192,7 +273,7 @@ docs/omar.md         Current state + detailed next-steps breakdown
 |---|---|
 | [`docs/01-prd-and-system-overview.md`](docs/01-prd-and-system-overview.md) | Hackathon PRD requirements and system overview |
 | [`docs/02-component-architecture.md`](docs/02-component-architecture.md) | Detailed component specs, StartupProfile schema, Affinitree formulas |
-| [`docs/03-language-and-evaluation.md`](docs/03-language-and-evaluation.md) | French/Arabic pipeline, voice models, evaluation framework |
+| [`docs/03-language-and-evaluation.md`](docs/03-language-and-evaluation.md) | Language pipeline, voice models, evaluation framework |
 | [`docs/04-mapping-workflows-conclusion.md`](docs/04-mapping-workflows-conclusion.md) | Two-state workflow walkthrough and PRD coverage map |
 | [`docs/plan/implementation-plan.md`](docs/plan/implementation-plan.md) | Six-phase build plan with deliverables |
 | [`docs/omar.md`](docs/omar.md) | What is built, what is stubbed, and what comes next — in detail |

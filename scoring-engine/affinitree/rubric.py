@@ -72,8 +72,8 @@ RUBRICS: dict[str, dict[str, Any]] = {
     },
 }
 
-DEFAULT_MODEL = os.getenv("MOUFIDA_RUBRIC_MODEL", "mistral:7b")
-DEFAULT_OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
+DEFAULT_MODEL = os.getenv("MOUFIDA_MODEL")
+DEFAULT_OLLAMA_URL = os.getenv("OLLAMA_URL")
 
 
 class LLMClient(Protocol):

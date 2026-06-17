@@ -19,7 +19,7 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 # Make the affinitree package importable without installation.
-sys.path.insert(0, str(HERE.parents[1] / "affinitree"))
+sys.path.insert(0, str(HERE.parents[1] / "scoring-engine"))
 
 from affinitree import StartupProfile, detect, score  # noqa: E402
 from affinitree import rubric  # noqa: E402

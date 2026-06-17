@@ -25,8 +25,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	pub := redis.NewPublisher(getenv("REDIS_URL", "redis://redis:6379/0"),
-		getenv("REDIS_METRICS_CHANNEL", "moufida:metrics"))
+	pub := redis.NewPublisher(mustenv("REDIS_URL"), mustenv("REDIS_METRICS_CHANNEL"))
 
 	tasks := []watchers.Watcher{
 		watchers.NewBudget(pub, 6*time.Hour),
@@ -34,7 +33,7 @@ func main() {
 		watchers.NewLegal(pub, 24*time.Hour),
 		watchers.NewMilestone(pub, 24*time.Hour),
 		watchers.NewTrend(pub, 7*24*time.Hour),
-		kbstaleness.New(getenv("RAG_URL", "http://rag:8300"), 24*time.Hour),
+		kbstaleness.New(mustenv("RAG_URL"), 24*time.Hour),
 	}
 
 	var wg sync.WaitGroup
@@ -53,9 +52,10 @@ func main() {
 	log.Print("stopped")
 }
 
-func getenv(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
+func mustenv(key string) string {
+	v := os.Getenv(key)
+	if v == "" {
+		log.Fatalf("required environment variable %s is not set", key)
 	}
-	return fallback
+	return v
 }
