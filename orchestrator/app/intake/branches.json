@@ -5,7 +5,7 @@
     "question_fr": "Dans quel secteur évolue votre projet ?",
     "question_ar": "في أي قطاع يعمل مشروعك؟",
     "type": "choice",
-    "choices": ["agri-food", "digital/tech", "industry", "services", "other"],
+    "choices": ["agri-food", "digital-tech", "industry", "cross-sector"],
     "next": "q_revenue",
     "branches": [
       {"if_value": "agri-food", "goto": "q_certifications"}
