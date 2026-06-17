@@ -1,11 +1,21 @@
 # Moufida full local stack. `docker compose up` boots every backend service.
 # The Tauri desktop frontend runs on the host (needs a display) -- see
 # frontend/README; it is intentionally not containerised here.
+#
+# Ollama: by default services talk to an Ollama running on the HOST
+# (host.docker.internal:11434). To instead run Ollama inside compose, start it
+# with the profile:  `docker compose --profile bundled-ollama up -d`  and point
+# OLLAMA_URL / OLLAMA_BASE_URL at http://ollama:11434.
 name: moufida
 
 x-axis-env: &axis-env
-  OLLAMA_URL: ${OLLAMA_URL}
-  REDIS_URL: ${REDIS_URL}
+  OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+  OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+  OLLAMA_MODEL: ${OLLAMA_MODEL:-mistral:7b}
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+
+x-host-gateway: &host-gateway
+  - "host.docker.internal:host-gateway"
 
 services:
   postgres:
@@ -14,7 +24,9 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports: ["5432:5432"]
+    # Host port is remappable to avoid clashing with a host-native Postgres;
+    # in-compose services always reach it as `postgres:5432`.
+    ports: ["${POSTGRES_HOST_PORT:-5433}:5432"]
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/migrations:/docker-entrypoint-initdb.d:ro
@@ -39,11 +51,14 @@ services:
     volumes:
       - qdrantdata:/qdrant/storage
 
+  # Bundled Ollama -- opt-in via `--profile bundled-ollama`. Off by default so the
+  # stack can use a host Ollama without pulling the multi-GB image.
   ollama:
     image: ollama/ollama:latest
+    profiles: ["bundled-ollama"]
     ports: ["11434:11434"]
     volumes:
-      - ./models/ollama:/root/.ollama
+      - ollama_models:/root/.ollama
 
   orchestrator:
     build:
@@ -52,6 +67,7 @@ services:
     environment:
       <<: *axis-env
       DATABASE_URL: ${DATABASE_URL}
+    extra_hosts: *host-gateway
     ports: ["8001:8001"]
     depends_on:
       postgres: {condition: service_healthy}
@@ -61,11 +77,14 @@ services:
     build:
       context: .
       dockerfile: rag/Dockerfile
-    environment: {QDRANT_URL: "${QDRANT_URL}", OLLAMA_URL: "${OLLAMA_URL}"}
+    environment:
+      QDRANT_URL: "${QDRANT_URL}"
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+    extra_hosts: *host-gateway
     ports: ["8300:8300"]
     volumes:
       - ./rag/knowledge-base:/srv/knowledge-base:ro
-    depends_on: [qdrant, ollama]
+    depends_on: [qdrant]
 
   daemon:
     build:
@@ -78,47 +97,60 @@ services:
       redis: {condition: service_healthy}
 
   # --- Axis services (8101-8110) -------------------------------------------
+  # Axis services may call the local LLM; they reach it via host.docker.internal
+  # (host Ollama) or the bundled ollama service when that profile is enabled.
   ideation-service:
     build: {context: ., dockerfile: services/ideation-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8101:8101"]
   market-intelligence-service:
     build: {context: ., dockerfile: services/market-intelligence-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8102:8102"]
   product-offering-service:
     build: {context: ., dockerfile: services/product-offering-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8103:8103"]
   brand-innovation-service:
     build: {context: ., dockerfile: services/brand-innovation-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8104:8104"]
   business-model-service:
     build: {context: ., dockerfile: services/business-model-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8105:8105"]
   legal-compliance-service:
     build: {context: ., dockerfile: services/legal-compliance-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8106:8106"]
   marketing-service:
     build: {context: ., dockerfile: services/marketing-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8107:8107"]
   sales-service:
     build: {context: ., dockerfile: services/sales-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8108:8108"]
   operations-service:
     build: {context: ., dockerfile: services/operations-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8109:8109"]
   go-to-market-service:
     build: {context: ., dockerfile: services/go-to-market-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8110:8110"]
 
 volumes:
   pgdata:
   qdrantdata:
+  ollama_models:
