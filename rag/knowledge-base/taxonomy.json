@@ -1,0 +1,33 @@
+{
+    "description": "Stage x Type x Sector taxonomy driving knowledge-base coverage (Section 3.5). Floor target: >= 2 resources per (stage x type) cell.",
+    "maturity_stage": [
+        "ideation",
+        "market_validation",
+        "structuration",
+        "fundraising",
+        "launch_planning",
+        "growth"
+    ],
+    "resource_type": [
+        "financing",
+        "legal_regulatory",
+        "training_coaching",
+        "networking_ecosystem",
+        "technical_infrastructure"
+    ],
+    "sector": [
+        "agri-food",
+        "digital-tech",
+        "industry",
+        "cross-sector"
+    ],
+    "score_dimensions": [
+        "market",
+        "commercial_offer",
+        "innovation",
+        "scalability",
+        "green"
+    ],
+    "coverage_floor_per_stage_type": 2,
+    "target_total_resources": [80, 100]
+}

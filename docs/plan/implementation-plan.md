@@ -203,6 +203,15 @@ moufidaa/
 - Tauri app scaffold: system tray icon with context menu items wired to empty handlers.
 - `scripts/download-models.sh`: downloads Whisper large-v2 TuniSpeech checkpoint, Mistral 7B (GGUF), Llama 3.1 8B (GGUF), Piper French voice, Kokoro-82M Arabic voice, fastText language ID model.
 
+**Deviations applied during implementation (kept consistent with the spec):**
+
+- **Frontend is not containerised.** The Tauri desktop app needs a display and audio devices, so it runs on the host (`frontend/` with its own README) rather than as a `docker compose` service. `docker compose up` boots every *backend* service; the app is launched with `npm run tauri dev`.
+- **Local LLMs run via Ollama, not raw GGUF files.** Mistral 7B / Llama 3.1 / `nomic-embed-text` are pulled into an `ollama` compose service; `download-models.sh` pulls them through Ollama's API. Whisper/Piper/Kokoro/fastText remain file checkpoints under `models/`.
+- **The Go daemon skeleton is standard-library only** for Phase 0 (no `go.sum` needed), so it builds cleanly before the Redis client is introduced in Phase 5. `publisher.go` logs the message it would publish.
+- **Scoring axes' `diagnose` endpoints are wired to Affinitree now** (not deferred to Phase 2), since Phase 1 delivered the library first. Axes 02/03/04/05/06/09 already return real composite scores; Phase 2 adds the orchestration, intake, and Axis-01 maturity classifier around them.
+- **Added `orchestrator/app/axis_registry.py`** as the single source of truth for axis ports, compose hostnames, score ownership, the diagnostic dependency-wave order, and the Go-metric→axis routing table (consumed in Phases 2 and 5).
+- **Added `scripts/_gen_axes.py`**, the idempotent scaffolder that generates the ten near-identical axis services.
+
 ---
 
 ### Phase 1 — Affinitree Scoring Library

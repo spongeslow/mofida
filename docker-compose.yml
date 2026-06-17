@@ -1,0 +1,124 @@
+# Moufida full local stack. `docker compose up` boots every backend service.
+# The Tauri desktop frontend runs on the host (needs a display) -- see
+# frontend/README; it is intentionally not containerised here.
+name: moufida
+
+x-axis-env: &axis-env
+  OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-moufida}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-moufida}
+      POSTGRES_DB: ${POSTGRES_DB:-moufida}
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-moufida}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports: ["6333:6333"]
+    volumes:
+      - qdrantdata:/qdrant/storage
+
+  ollama:
+    image: ollama/ollama:latest
+    ports: ["11434:11434"]
+    volumes:
+      - ./models/ollama:/root/.ollama
+
+  orchestrator:
+    build:
+      context: .
+      dockerfile: orchestrator/Dockerfile
+    environment:
+      <<: *axis-env
+      DATABASE_URL: ${DATABASE_URL:-postgresql://moufida:moufida@postgres:5432/moufida}
+    ports: ["8001:8001"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+
+  rag:
+    build:
+      context: .
+      dockerfile: rag/Dockerfile
+    environment: {QDRANT_URL: "${QDRANT_URL:-http://qdrant:6333}", OLLAMA_URL: "${OLLAMA_URL:-http://ollama:11434}"}
+    ports: ["8300:8300"]
+    volumes:
+      - ./rag/knowledge-base:/srv/knowledge-base:ro
+    depends_on: [qdrant, ollama]
+
+  daemon:
+    build:
+      context: .
+      dockerfile: daemon/Dockerfile
+    environment:
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      RAG_URL: http://rag:8300
+    depends_on:
+      redis: {condition: service_healthy}
+
+  # --- Axis services (8101-8110) -------------------------------------------
+  axis01-ideation:
+    build: {context: ., dockerfile: axes/axis01-ideation/Dockerfile}
+    environment: *axis-env
+    ports: ["8101:8101"]
+  axis02-market:
+    build: {context: ., dockerfile: axes/axis02-market/Dockerfile}
+    environment: *axis-env
+    ports: ["8102:8102"]
+  axis03-product:
+    build: {context: ., dockerfile: axes/axis03-product/Dockerfile}
+    environment: *axis-env
+    ports: ["8103:8103"]
+  axis04-brand:
+    build: {context: ., dockerfile: axes/axis04-brand/Dockerfile}
+    environment: *axis-env
+    ports: ["8104:8104"]
+  axis05-business-model:
+    build: {context: ., dockerfile: axes/axis05-business-model/Dockerfile}
+    environment: *axis-env
+    ports: ["8105:8105"]
+  axis06-legal:
+    build: {context: ., dockerfile: axes/axis06-legal/Dockerfile}
+    environment: *axis-env
+    ports: ["8106:8106"]
+  axis07-marketing:
+    build: {context: ., dockerfile: axes/axis07-marketing/Dockerfile}
+    environment: *axis-env
+    ports: ["8107:8107"]
+  axis08-sales:
+    build: {context: ., dockerfile: axes/axis08-sales/Dockerfile}
+    environment: *axis-env
+    ports: ["8108:8108"]
+  axis09-operations:
+    build: {context: ., dockerfile: axes/axis09-operations/Dockerfile}
+    environment: *axis-env
+    ports: ["8109:8109"]
+  axis10-gtm:
+    build: {context: ., dockerfile: axes/axis10-gtm/Dockerfile}
+    environment: *axis-env
+    ports: ["8110:8110"]
+
+volumes:
+  pgdata:
+  qdrantdata:
