@@ -1,0 +1,25 @@
+{
+    "description": "Free-text fields for the rubric-stability test (Tier 2b). Each field is scored 5x; the std-dev of the normalised score must be <= 0.15. Requires a live Ollama model; skipped with a stub client otherwise.",
+    "fields": [
+        {
+            "field": "offer.value_prop_text",
+            "text": "We help Tunisian smallholder olive farmers cut post-harvest losses by 30% with a solar-powered cold-storage micro-unit, validated with 12 cooperatives in Sfax who signed letters of intent."
+        },
+        {
+            "field": "offer.differentiation_text",
+            "text": "Unlike imported industrial coolers, our unit is sized for 2-5 hectare farms, runs off-grid, and is serviced locally through a network of trained technicians we certify."
+        },
+        {
+            "field": "innovation.novelty_text",
+            "text": "First off-grid cold-chain product designed specifically for the fragmented Tunisian olive sector, combining a novel phase-change material with a pay-per-use financing model."
+        },
+        {
+            "field": "innovation.brand_distinctiveness_text",
+            "text": "Our brand positions cold storage as a yield-protection service rather than equipment, with a recognisable green-and-gold identity tied to Tunisian agricultural heritage."
+        },
+        {
+            "field": "legal.sdg_alignment_text",
+            "text": "Directly advances SDG 2 (Zero Hunger) by reducing food loss and SDG 7 (Affordable Clean Energy) through solar operation, with a target of cutting 500 tonnes of CO2 per year."
+        }
+    ]
+}

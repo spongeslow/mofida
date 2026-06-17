@@ -1,0 +1,101 @@
+{
+    "score_name": "innovation",
+    "owner_axis": 4,
+    "aggregation": "weighted_sum",
+    "normalise_to": [0, 5],
+    "required_fields": [
+        "innovation.tech_readiness_level",
+        "innovation.ip_type"
+    ],
+    "sub_dimensions": [
+        {
+            "id": "product_novelty",
+            "weight": 0.35,
+            "inputs": [
+                "innovation.tech_readiness_level",
+                "innovation.ip_type",
+                "innovation.prior_art_search_done"
+            ],
+            "derive": {
+                "trl_normalised": {
+                    "fn": "normalise_range",
+                    "field": "innovation.tech_readiness_level",
+                    "min": 1,
+                    "max": 9
+                },
+                "ip_score": {
+                    "fn": "ordinal_map",
+                    "field": "innovation.ip_type",
+                    "map": {
+                        "none": 0.0,
+                        "trade-secret": 0.4,
+                        "copyright": 0.5,
+                        "patent-pending": 0.7,
+                        "patent-granted": 1.0
+                    }
+                },
+                "prior_art_bonus": {
+                    "fn": "boolean",
+                    "field": "innovation.prior_art_search_done"
+                }
+            },
+            "formula": "trl_normalised * 0.5 + ip_score * 0.35 + prior_art_bonus * 0.15",
+            "citation": "OECD Oslo Manual (2018), Chapter 3"
+        },
+        {
+            "id": "market_novelty",
+            "weight": 0.25,
+            "inputs": [
+                "innovation.sector_first",
+                "market.competitor_count"
+            ],
+            "derive": {
+                "sector_first_score": {
+                    "fn": "boolean",
+                    "field": "innovation.sector_first"
+                },
+                "competitor_count": {
+                    "fn": "raw",
+                    "field": "market.competitor_count"
+                }
+            },
+            "formula": "sector_first_score * 0.6 + (1 / (1 + ln(competitor_count + 1))) * 0.4",
+            "citation": "Hauschildt (2007), Degree of Innovation"
+        },
+        {
+            "id": "brand_distinctiveness",
+            "weight": 0.20,
+            "inputs": [
+                "rubric:innovation.brand_distinctiveness_text"
+            ],
+            "derive": {
+                "rubric_score": {
+                    "fn": "raw",
+                    "field": "rubric:innovation.brand_distinctiveness_text"
+                }
+            },
+            "formula": "rubric_score / 4",
+            "citation": "Rubric v1.0 (Team Moufida, 2026)"
+        },
+        {
+            "id": "value_creation_novelty",
+            "weight": 0.20,
+            "inputs": [
+                "rubric:innovation.novelty_text",
+                "rubric:offer.value_prop_text"
+            ],
+            "derive": {
+                "novelty_rubric": {
+                    "fn": "raw",
+                    "field": "rubric:innovation.novelty_text"
+                },
+                "vp_rubric": {
+                    "fn": "raw",
+                    "field": "rubric:offer.value_prop_text"
+                }
+            },
+            "formula": "(novelty_rubric + vp_rubric) / 8",
+            "citation": "Rubric v1.0 (Team Moufida, 2026)"
+        }
+    ]
+}

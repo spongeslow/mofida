@@ -216,3 +216,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Moufida-specific
+.venv/
+models/*
+!models/.gitkeep
+*.gguf
+node_modules/
+src-tauri/target/

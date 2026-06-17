@@ -1,0 +1,61 @@
+{
+    "score_name": "green",
+    "owner_axis": 6,
+    "aggregation": "weighted_sum",
+    "normalise_to": [0, 5],
+    "required_fields": [],
+    "sub_dimensions": [
+        {
+            "id": "regulatory_compliance",
+            "weight": 0.30,
+            "inputs": ["legal.gdpr_policy_exists", "legal.tunisia_data_law_compliant"],
+            "derive": {
+                "gdpr": {"fn": "boolean", "field": "legal.gdpr_policy_exists"},
+                "tunisia": {"fn": "boolean", "field": "legal.tunisia_data_law_compliant"}
+            },
+            "formula": "gdpr * 0.5 + tunisia * 0.5",
+            "citation": "Regulation (EU) 2016/679 (GDPR); Tunisian Organic Law 2004-63"
+        },
+        {
+            "id": "ai_act_compliance",
+            "weight": 0.15,
+            "inputs": ["legal.ai_act_applicable", "legal.ai_act_compliant"],
+            "derive": {
+                "applicable": {"fn": "boolean", "field": "legal.ai_act_applicable"},
+                "compliant": {"fn": "boolean", "field": "legal.ai_act_compliant"}
+            },
+            "formula": "applicable * compliant + (1 - applicable)",
+            "citation": "Regulation (EU) 2024/1689 (EU AI Act)"
+        },
+        {
+            "id": "ip_protection",
+            "weight": 0.15,
+            "inputs": ["legal.ip_registered"],
+            "derive": {
+                "ip": {"fn": "boolean", "field": "legal.ip_registered"}
+            },
+            "formula": "ip",
+            "citation": "WIPO IP Handbook (2008)"
+        },
+        {
+            "id": "sdg_alignment",
+            "weight": 0.25,
+            "inputs": ["rubric:legal.sdg_alignment_text"],
+            "derive": {
+                "sdg": {"fn": "rubric_normalised", "field": "rubric:legal.sdg_alignment_text"}
+            },
+            "formula": "sdg",
+            "citation": "UN 2030 Agenda for Sustainable Development (2015)"
+        },
+        {
+            "id": "environmental_impact",
+            "weight": 0.15,
+            "inputs": ["legal.environmental_impact_assessed"],
+            "derive": {
+                "env": {"fn": "boolean", "field": "legal.environmental_impact_assessed"}
+            },
+            "formula": "env",
+            "citation": "ISO 14001:2015 Environmental Management Systems"
+        }
+    ]
+}

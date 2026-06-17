@@ -1,0 +1,82 @@
+{
+    "score_name": "market",
+    "owner_axis": 2,
+    "aggregation": "weighted_sum",
+    "normalise_to": [0, 5],
+    "required_fields": [
+        "market.revenue_model"
+    ],
+    "sub_dimensions": [
+        {
+            "id": "addressable_market_size",
+            "weight": 0.25,
+            "inputs": ["market.sam_usd"],
+            "derive": {
+                "sam_norm": {
+                    "fn": "saturating",
+                    "field": "market.sam_usd",
+                    "target": 50000000
+                }
+            },
+            "formula": "sam_norm",
+            "citation": "Kotler & Keller, Marketing Management (15th ed.), Ch. 3"
+        },
+        {
+            "id": "customer_validation",
+            "weight": 0.30,
+            "inputs": ["market.customer_interviews_count", "market.paid_pilots_count"],
+            "derive": {
+                "interviews": {
+                    "fn": "saturating",
+                    "field": "market.customer_interviews_count",
+                    "target": 20
+                },
+                "pilots": {
+                    "fn": "saturating",
+                    "field": "market.paid_pilots_count",
+                    "target": 5
+                }
+            },
+            "formula": "interviews * 0.5 + pilots * 0.5",
+            "citation": "Blank, The Four Steps to the Epiphany (2005)"
+        },
+        {
+            "id": "revenue_model_clarity",
+            "weight": 0.20,
+            "inputs": ["market.revenue_model", "market.mrr_usd"],
+            "derive": {
+                "model": {
+                    "fn": "ordinal_map",
+                    "field": "market.revenue_model",
+                    "map": {
+                        "none": 0.0,
+                        "usage": 0.6,
+                        "transactional": 0.7,
+                        "marketplace": 0.9,
+                        "subscription": 1.0
+                    }
+                },
+                "mrr": {
+                    "fn": "saturating",
+                    "field": "market.mrr_usd",
+                    "target": 10000
+                }
+            },
+            "formula": "model * 0.6 + mrr * 0.4",
+            "citation": "Osterwalder & Pigneur, Business Model Generation (2010)"
+        },
+        {
+            "id": "competitive_intensity",
+            "weight": 0.25,
+            "inputs": ["market.competitor_count", "market.competitor_funded_count"],
+            "derive": {
+                "intensity": {
+                    "fn": "inverse_log_density",
+                    "field": "market.competitor_count"
+                }
+            },
+            "formula": "intensity",
+            "citation": "Porter, Competitive Strategy (1980)"
+        }
+    ]
+}

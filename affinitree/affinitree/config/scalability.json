@@ -1,0 +1,102 @@
+{
+    "score_name": "scalability",
+    "owner_axis": 5,
+    "contributing_axes": [5, 9],
+    "aggregation": "weighted_sum",
+    "normalise_to": [0, 5],
+    "required_fields": [],
+    "sub_dimensions": [
+        {
+            "id": "unit_economics",
+            "weight": 0.30,
+            "inputs": ["finance.ltv_usd", "finance.cac_usd", "finance.gross_margin_pct"],
+            "derive": {
+                "ltv_cac": {
+                    "fn": "ratio",
+                    "fields": ["finance.ltv_usd", "finance.cac_usd"],
+                    "target": 3
+                },
+                "margin": {
+                    "fn": "saturating",
+                    "field": "finance.gross_margin_pct",
+                    "target": 70
+                }
+            },
+            "formula": "ltv_cac * 0.6 + margin * 0.4",
+            "citation": "Skok, SaaS Metrics 2.0 (2013)"
+        },
+        {
+            "id": "funding_readiness",
+            "weight": 0.20,
+            "inputs": ["finance.runway_months"],
+            "derive": {
+                "runway": {
+                    "fn": "saturating",
+                    "field": "finance.runway_months",
+                    "target": 12
+                }
+            },
+            "formula": "runway",
+            "citation": "Feld & Mendelson, Venture Deals (2011)"
+        },
+        {
+            "id": "revenue_model_scalability",
+            "weight": 0.15,
+            "inputs": ["finance.funding_stage"],
+            "derive": {
+                "stage": {
+                    "fn": "ordinal_map",
+                    "field": "finance.funding_stage",
+                    "map": {
+                        "bootstrapped": 0.2,
+                        "pre-seed": 0.4,
+                        "seed": 0.6,
+                        "series-a": 0.8,
+                        "series-b-plus": 1.0
+                    }
+                }
+            },
+            "formula": "stage",
+            "citation": "Blank & Dorf, The Startup Owner's Manual (2012)"
+        },
+        {
+            "id": "operational_automation",
+            "weight": 0.15,
+            "inputs": ["ops.manual_steps_pct"],
+            "derive": {
+                "automation": {
+                    "fn": "inverse_fraction",
+                    "field": "ops.manual_steps_pct"
+                }
+            },
+            "formula": "automation",
+            "citation": "Womack & Jones, Lean Thinking (1996)"
+        },
+        {
+            "id": "supply_chain_resilience",
+            "weight": 0.10,
+            "inputs": ["ops.supply_chain_single_point"],
+            "derive": {
+                "resilience": {
+                    "fn": "boolean_inverse",
+                    "field": "ops.supply_chain_single_point"
+                }
+            },
+            "formula": "resilience",
+            "citation": "Christopher, Logistics & Supply Chain Management (2016)"
+        },
+        {
+            "id": "quality_framework",
+            "weight": 0.10,
+            "inputs": ["ops.sop_documented"],
+            "derive": {
+                "sop": {
+                    "fn": "boolean",
+                    "field": "ops.sop_documented"
+                }
+            },
+            "formula": "sop",
+            "citation": "ISO 9001:2015 Quality Management Principles"
+        }
+    ]
+}

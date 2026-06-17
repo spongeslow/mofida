@@ -1,0 +1,39 @@
+{
+    "description": "Structured-only profiles (no live text scoring; rubric scores pre-supplied). Each is scored 10x and must yield byte-identical results (Tier 2a determinism).",
+    "cases": [
+        {
+            "id": "s01_strong_verified",
+            "scores": ["market", "commercial_offer", "innovation", "scalability", "green"],
+            "profile": {
+                "sector": "digital-tech",
+                "market": {"sam_usd": 30000000, "customer_interviews_count": 25, "paid_pilots_count": 4, "revenue_model": "subscription", "mrr_usd": 8000, "competitor_count": 3, "customer_interviews_doc": true},
+                "offer": {"product_stage": "mvp", "pricing_model": "value-based"},
+                "innovation": {"tech_readiness_level": 7, "ip_type": "patent-pending", "prior_art_search_done": true, "sector_first": true},
+                "finance": {"cac_usd": 100, "ltv_usd": 500, "gross_margin_pct": 65, "runway_months": 10, "funding_stage": "seed"},
+                "ops": {"manual_steps_pct": 30, "sop_documented": true, "supply_chain_single_point": false},
+                "legal": {"gdpr_policy_exists": true, "tunisia_data_law_compliant": true, "ip_registered": true, "environmental_impact_assessed": true},
+                "rubric_scores": {"offer.value_prop_text": 3, "offer.differentiation_text": 3, "innovation.novelty_text": 3, "innovation.brand_distinctiveness_text": 2, "legal.sdg_alignment_text": 3},
+                "evidence_tiers": {"market.mrr_usd": "T2", "market.competitor_count": "T3"}
+            }
+        },
+        {
+            "id": "s02_weak_early",
+            "scores": ["market", "commercial_offer", "innovation", "scalability", "green"],
+            "profile": {
+                "sector": "agri-food",
+                "market": {"sam_usd": 500000, "customer_interviews_count": 2, "revenue_model": "none", "competitor_count": 12},
+                "offer": {"product_stage": "concept", "pricing_model": "undefined"},
+                "innovation": {"tech_readiness_level": 2, "ip_type": "none"},
+                "finance": {"runway_months": 4, "funding_stage": "bootstrapped"},
+                "ops": {"manual_steps_pct": 90, "supply_chain_single_point": true},
+                "legal": {},
+                "rubric_scores": {"offer.value_prop_text": 1, "offer.differentiation_text": 0, "innovation.novelty_text": 1, "innovation.brand_distinctiveness_text": 1, "legal.sdg_alignment_text": 0}
+            }
+        },
+        {
+            "id": "s03_empty_defaults",
+            "scores": ["market", "commercial_offer", "innovation", "scalability", "green"],
+            "profile": {}
+        }
+    ]
+}

@@ -1,0 +1,55 @@
+{
+    "description": "10 deliberately contradictory profiles. Each must raise at least the expected anomaly code (Tier 2c recall = 100%).",
+    "cases": [
+        {
+            "id": "c01_revenue_no_interviews",
+            "expect": "revenue_without_validation",
+            "profile": {"market": {"mrr_usd": 5000, "customer_interviews_count": 0}}
+        },
+        {
+            "id": "c02_pilots_no_interviews",
+            "expect": "pilots_without_validation",
+            "profile": {"market": {"paid_pilots_count": 3, "customer_interviews_count": 0}}
+        },
+        {
+            "id": "c03_revenue_concept_stage",
+            "expect": "revenue_without_product",
+            "profile": {"market": {"mrr_usd": 2000, "customer_interviews_count": 5}, "offer": {"product_stage": "concept"}}
+        },
+        {
+            "id": "c04_patent_no_prior_art",
+            "expect": "patent_without_prior_art",
+            "profile": {"innovation": {"ip_type": "patent-granted", "prior_art_search_done": false}}
+        },
+        {
+            "id": "c05_high_trl_concept",
+            "expect": "trl_stage_mismatch",
+            "profile": {"innovation": {"tech_readiness_level": 9}, "offer": {"product_stage": "prototype"}}
+        },
+        {
+            "id": "c06_ltv_no_cac",
+            "expect": "ltv_without_cac",
+            "profile": {"finance": {"ltv_usd": 800, "cac_usd": null}}
+        },
+        {
+            "id": "c07_negative_unit_economics",
+            "expect": "negative_unit_economics",
+            "profile": {"finance": {"ltv_usd": 50, "cac_usd": 300}}
+        },
+        {
+            "id": "c08_critical_runway",
+            "expect": "critical_runway",
+            "profile": {"finance": {"runway_months": 1.5}}
+        },
+        {
+            "id": "c09_ai_act_noncompliant",
+            "expect": "ai_act_noncompliance",
+            "profile": {"legal": {"ai_act_applicable": true, "ai_act_compliant": false}}
+        },
+        {
+            "id": "c10_revenue_no_model",
+            "expect": "revenue_without_model",
+            "profile": {"market": {"mrr_usd": 1200, "customer_interviews_count": 8, "revenue_model": "none"}}
+        }
+    ]
+}

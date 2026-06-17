@@ -1,0 +1,77 @@
+{
+    "score_name": "commercial_offer",
+    "owner_axis": 3,
+    "aggregation": "weighted_sum",
+    "normalise_to": [0, 5],
+    "required_fields": [
+        "offer.product_stage"
+    ],
+    "sub_dimensions": [
+        {
+            "id": "value_proposition_clarity",
+            "weight": 0.30,
+            "inputs": ["rubric:offer.value_prop_text"],
+            "derive": {
+                "vp": {
+                    "fn": "rubric_normalised",
+                    "field": "rubric:offer.value_prop_text"
+                }
+            },
+            "formula": "vp",
+            "citation": "Osterwalder, Value Proposition Design (2014)"
+        },
+        {
+            "id": "product_maturity",
+            "weight": 0.25,
+            "inputs": ["offer.product_stage"],
+            "derive": {
+                "stage": {
+                    "fn": "ordinal_map",
+                    "field": "offer.product_stage",
+                    "map": {
+                        "concept": 0.1,
+                        "prototype": 0.35,
+                        "mvp": 0.6,
+                        "ga": 0.85,
+                        "mature": 1.0
+                    }
+                }
+            },
+            "formula": "stage",
+            "citation": "Ries, The Lean Startup (2011)"
+        },
+        {
+            "id": "pricing_coherence",
+            "weight": 0.20,
+            "inputs": ["offer.pricing_model"],
+            "derive": {
+                "pricing": {
+                    "fn": "ordinal_map",
+                    "field": "offer.pricing_model",
+                    "map": {
+                        "undefined": 0.0,
+                        "other": 0.5,
+                        "cost-plus": 0.6,
+                        "freemium": 0.7,
+                        "value-based": 1.0
+                    }
+                }
+            },
+            "formula": "pricing",
+            "citation": "Nagle & Holden, The Strategy and Tactics of Pricing (2002)"
+        },
+        {
+            "id": "differentiation",
+            "weight": 0.25,
+            "inputs": ["rubric:offer.differentiation_text"],
+            "derive": {
+                "diff": {
+                    "fn": "rubric_normalised",
+                    "field": "rubric:offer.differentiation_text"
+                }
+            },
+            "formula": "diff",
+            "citation": "Porter, Competitive Advantage (1985)"
+        }
+    ]
+}
