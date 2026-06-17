@@ -1,0 +1,106 @@
+[
+  {
+    "id": "q_sector",
+    "field": "sector",
+    "question_fr": "Dans quel secteur évolue votre projet ?",
+    "question_ar": "في أي قطاع يعمل مشروعك؟",
+    "type": "choice",
+    "choices": ["agri-food", "digital/tech", "industry", "services", "other"],
+    "next": "q_revenue",
+    "branches": [
+      {"if_value": "agri-food", "goto": "q_certifications"}
+    ]
+  },
+  {
+    "id": "q_certifications",
+    "field": "legal.certifications",
+    "question_fr": "Disposez-vous de certifications agro-alimentaires (bio, HACCP, ONAGRI…) ? Lesquelles ?",
+    "question_ar": "هل لديك شهادات في المجال الفلاحي والغذائي (بيو، HACCP، ONAGRI…)؟ أيّها؟",
+    "type": "text",
+    "choices": null,
+    "next": "q_revenue",
+    "branches": []
+  },
+  {
+    "id": "q_revenue",
+    "field": "market.revenue_generating",
+    "question_fr": "Votre projet génère-t-il déjà des revenus ?",
+    "question_ar": "هل يحقّق مشروعك مداخيل حاليًا؟",
+    "type": "boolean",
+    "choices": null,
+    "next": "q_interviews",
+    "branches": [
+      {"if_value": "true", "goto": "q_mrr"}
+    ]
+  },
+  {
+    "id": "q_mrr",
+    "field": "market.mrr_usd",
+    "question_fr": "Quel est votre revenu mensuel récurrent (MRR) approximatif, en USD ?",
+    "question_ar": "ما هو معدّل مداخيلك الشهرية المتكرّرة (MRR) تقريبًا بالدولار؟",
+    "type": "number",
+    "choices": null,
+    "next": "q_interviews",
+    "branches": []
+  },
+  {
+    "id": "q_interviews",
+    "field": "market.customer_interviews_count",
+    "question_fr": "Combien d'entretiens clients avez-vous menés à ce jour ?",
+    "question_ar": "كم عدد المقابلات التي أجريتها مع الحرفاء إلى حدّ الآن؟",
+    "type": "number",
+    "choices": null,
+    "next": "q_self_stage",
+    "branches": []
+  },
+  {
+    "id": "q_self_stage",
+    "field": "self_assessed_stage",
+    "question_fr": "À quel stade de maturité estimez-vous votre projet ?",
+    "question_ar": "في أي مرحلة من النضج تقدّر أنّ مشروعك يقع؟",
+    "type": "choice",
+    "choices": ["Ideation", "Market Validation", "Structuration", "Fundraising", "Launch Planning", "Growth"],
+    "next": "q_team",
+    "branches": []
+  },
+  {
+    "id": "q_team",
+    "field": "team_size",
+    "question_fr": "Combien de personnes compte votre équipe (fondateurs inclus) ?",
+    "question_ar": "كم عدد أعضاء فريقك (بما في ذلك المؤسّسون)؟",
+    "type": "number",
+    "choices": null,
+    "next": "q_legal",
+    "branches": []
+  },
+  {
+    "id": "q_legal",
+    "field": "legal.legal_form",
+    "question_fr": "Quelle est la forme juridique de votre entreprise ?",
+    "question_ar": "ما هو الشكل القانوني لمؤسستك؟",
+    "type": "choice",
+    "choices": ["SUARL", "SARL", "SA", "not_registered", "other"],
+    "next": "q_prototype",
+    "branches": []
+  },
+  {
+    "id": "q_prototype",
+    "field": "offer.has_prototype",
+    "question_fr": "Disposez-vous d'un prototype ou d'une première version du produit ?",
+    "question_ar": "هل لديك نموذج أوّلي أو نسخة أولى من المنتج؟",
+    "type": "boolean",
+    "choices": null,
+    "next": "q_fundraising",
+    "branches": []
+  },
+  {
+    "id": "q_fundraising",
+    "field": "finance.funding_stage",
+    "question_fr": "Quel est votre statut de levée de fonds ?",
+    "question_ar": "ما هو وضعك في ما يخصّ جمع التمويل؟",
+    "type": "choice",
+    "choices": ["bootstrapped", "pre-seed", "seed", "series_a_plus"],
+    "next": null,
+    "branches": []
+  }
+]
