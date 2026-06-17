@@ -2,7 +2,7 @@
 # Run every evaluation tier and print a consolidated summary.
 set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PY="${PY:-$ROOT/affinitree/.venv/bin/python}"
+PY="${PY:-$ROOT/scoring-engine/.venv/bin/python}"
 rc=0
 
 echo "==================== Tier 2 -- Affinitree ===================="

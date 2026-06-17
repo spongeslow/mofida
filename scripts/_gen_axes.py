@@ -10,33 +10,33 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# (number, slug, port, affinitree_score_or_None, has_metric_update)
+# (number, slug, port, affinitree_score_or_None, has_metric_update, service_dir)
 AXES = [
-    (1, "ideation", 8101, None, True),
-    (2, "market", 8102, "market", True),
-    (3, "product", 8103, "commercial_offer", False),
-    (4, "brand", 8104, "innovation", False),
-    (5, "business-model", 8105, "scalability", True),
-    (6, "legal", 8106, "green", True),
-    (7, "marketing", 8107, None, False),
-    (8, "sales", 8108, None, False),
-    (9, "operations", 8109, "scalability", True),
-    (10, "gtm", 8110, None, True),
+    (1, "ideation", 8101, None, True, "ideation-service"),
+    (2, "market", 8102, "market", True, "market-intelligence-service"),
+    (3, "product", 8103, "commercial_offer", False, "product-offering-service"),
+    (4, "brand", 8104, "innovation", False, "brand-innovation-service"),
+    (5, "business-model", 8105, "scalability", True, "business-model-service"),
+    (6, "legal", 8106, "green", True, "legal-compliance-service"),
+    (7, "marketing", 8107, None, False, "marketing-service"),
+    (8, "sales", 8108, None, False, "sales-service"),
+    (9, "operations", 8109, "scalability", True, "operations-service"),
+    (10, "gtm", 8110, None, True, "go-to-market-service"),
 ]
 
 DOCKERFILE = """FROM python:3.12-slim
 WORKDIR /srv
 # Shared scoring library
-COPY affinitree /srv/affinitree
+COPY scoring-engine /srv/affinitree
 RUN pip install --no-cache-dir ./affinitree fastapi "uvicorn[standard]" httpx
-COPY axes/{dir}/app /srv/app
+COPY services/{dir}/app /srv/app
 ENV PYTHONUNBUFFERED=1
 EXPOSE {port}
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "{port}"]
 """
 
 PYPROJECT = """[project]
-name = "moufida-axis{num:02d}-{slug}"
+name = "moufida-{dir}"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = ["fastapi", "uvicorn[standard]", "httpx", "affinitree"]
@@ -124,13 +124,12 @@ def write(path: Path, content: str):
     path.write_text(content, encoding="utf-8")
 
 
-for num, slug, port, score, has_metric in AXES:
-    d = f"axis{num:02d}-{slug}"
-    base = ROOT / "axes" / d
+for num, slug, port, score, has_metric, service_dir in AXES:
+    base = ROOT / "services" / service_dir
     write(base / "app" / "__init__.py", "")
     write(base / "app" / "main.py", main_py(num, slug, port, score, has_metric))
-    write(base / "Dockerfile", DOCKERFILE.format(dir=d, port=port))
-    write(base / "pyproject.toml", PYPROJECT.format(num=num, slug=slug))
+    write(base / "Dockerfile", DOCKERFILE.format(dir=service_dir, port=port))
+    write(base / "pyproject.toml", PYPROJECT.format(dir=service_dir))
     print("generated", d)
 
 print("done")

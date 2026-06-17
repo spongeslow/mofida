@@ -12,9 +12,9 @@ phased build plan.
 | Component | Tech | Port |
 |---|---|---|
 | Orchestrator (state router, intake, diagnostic pass, LangGraph) | FastAPI | 8001 |
-| Axes 01–10 (specialised agents) | FastAPI | 8101–8110 |
+| Services 01–10 (specialised agents) | FastAPI | 8101–8110 |
 | Knowledge-Base RAG | FastAPI + Qdrant | 8300 |
-| Affinitree | shared Python scoring library | — |
+| Scoring Engine | shared Python scoring library | — |
 | Monitoring daemon (5 watchers + KB staleness) | Go | — |
 | Desktop app (tray, dashboard, voice) | Tauri + React/TS | host |
 | Datastores | PostgreSQL, Redis, Qdrant | 5432 / 6379 / 6333 |
@@ -33,11 +33,11 @@ Every backend service exposes `GET /health`.
 
 ## Affinitree scoring library
 
-The deterministic, explainable scoring core (`affinitree/`) is independent and
+The deterministic, explainable scoring core (`scoring-engine/`) is independent and
 fully tested.
 
 ```bash
-cd affinitree
+cd scoring-engine
 uv venv && uv pip install -e ".[dev]"
 .venv/bin/python -m pytest -q          # 24 unit tests
 ```
@@ -46,7 +46,7 @@ The five composite scores (Market, Commercial Offer, Innovation, Scalability,
 Green) are weighted sums of literature-cited sub-dimensions, computed as
 `ci = wi × vi × mi` where `mi` is the three-tier evidence multiplier
 (declared ×0.6 / artefact-backed ×1.0 / daemon-observed ×1.2). Configs live in
-`affinitree/affinitree/config/*.json`; the Innovation config matches Listing 2
+`scoring-engine/affinitree/config/*.json`; the Innovation config matches Listing 2
 of the spec exactly.
 
 ## Evaluation
@@ -63,9 +63,9 @@ of the spec exactly.
 ## Repository layout
 
 ```
-affinitree/   shared scoring library (Phase 1 — done)
-orchestrator/ FastAPI brain + axis registry
-axes/         10 axis microservices (scoring axes wired to Affinitree)
+scoring-engine/  shared scoring engine (Phase 1 — done)
+orchestrator/    FastAPI brain + axis registry
+services/        10 specialised services (scoring axes wired to the engine)
 rag/          knowledge-base RAG service + taxonomy
 daemon/       Go monitoring daemon (stdlib skeleton)
 frontend/     Tauri + React desktop app scaffold

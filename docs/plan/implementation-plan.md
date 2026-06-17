@@ -46,8 +46,8 @@ moufidaa/
 │           ├── state.py               # StartupProfile + conversation state
 │           └── nodes.py               # Graph nodes per axis
 │
-├── axes/
-│   ├── axis01-ideation/               # Port 8101
+├── services/
+│   ├── ideation-service/               # Port 8101
 │   │   ├── Dockerfile
 │   │   ├── pyproject.toml
 │   │   └── app/
@@ -55,43 +55,43 @@ moufidaa/
 │   │       ├── execute.py             # STATE_NEW: brainstorming, SCAMPER, feasibility
 │   │       ├── diagnose.py            # Maturity classifier (Mistral 7B)
 │   │       └── metric_update.py       # Receives milestone signals
-│   ├── axis02-market/                 # Port 8102
+│   ├── market-intelligence-service/   # Port 8102
 │   │   └── app/
 │   │       ├── execute.py             # TAM/SAM/SOM, personas, competitor analysis
 │   │       ├── diagnose.py            # Market Score via Affinitree
 │   │       └── metric_update.py       # Competitor watcher signals
-│   ├── axis03-product/                # Port 8103
+│   ├── product-offering-service/      # Port 8103
 │   │   └── app/
 │   │       ├── execute.py
 │   │       └── diagnose.py            # Commercial Offer Score via Affinitree
-│   ├── axis04-brand/                  # Port 8104  (Innovation Score owner)
+│   ├── brand-innovation-service/      # Port 8104  (Innovation Score owner)
 │   │   └── app/
 │   │       ├── execute.py
 │   │       └── diagnose.py            # Innovation Score aggregation + brand strength
-│   ├── axis05-business-model/         # Port 8105
+│   ├── business-model-service/        # Port 8105
 │   │   └── app/
 │   │       ├── execute.py             # BMC, unit economics, financial forecasts
 │   │       ├── diagnose.py            # Scalability Score (financial half)
 │   │       └── metric_update.py       # Budget watcher signals
-│   ├── axis06-legal/                  # Port 8106
+│   ├── legal-compliance-service/      # Port 8106
 │   │   └── app/
 │   │       ├── execute.py             # IP strategy, compliance checklists
 │   │       ├── diagnose.py            # Green Score via Affinitree
 │   │       └── metric_update.py       # Legal radar signals
-│   ├── axis07-marketing/              # Port 8107
+│   ├── marketing-service/             # Port 8107
 │   │   └── app/
 │   │       ├── execute.py
 │   │       └── diagnose.py            # Marketing readiness (feeds Market Score)
-│   ├── axis08-sales/                  # Port 8108
+│   ├── sales-service/                 # Port 8108
 │   │   └── app/
 │   │       ├── execute.py
 │   │       └── diagnose.py            # Sales readiness (feeds Scalability Score)
-│   ├── axis09-operations/             # Port 8109
+│   ├── operations-service/            # Port 8109
 │   │   └── app/
 │   │       ├── execute.py             # Workflow plans, lean/agile, supply chain
 │   │       ├── diagnose.py            # Scalability Score (operational half)
 │   │       └── metric_update.py
-│   └── axis10-gtm/                    # Port 8110
+│   └── go-to-market-service/          # Port 8110
 │       └── app/
 │           ├── execute.py             # Launch playbook, RACI matrix
 │           ├── roadmap.py             # RAG-grounded personalised roadmap

@@ -9,16 +9,16 @@ import os
 
 # slug -> (axis number, internal port, composite score owned or None)
 AXES: dict[str, dict] = {
-    "ideation": {"axis": 1, "port": 8101, "score": None},
-    "market": {"axis": 2, "port": 8102, "score": "market"},
-    "product": {"axis": 3, "port": 8103, "score": "commercial_offer"},
-    "brand": {"axis": 4, "port": 8104, "score": "innovation"},
-    "business-model": {"axis": 5, "port": 8105, "score": "scalability"},
-    "legal": {"axis": 6, "port": 8106, "score": "green"},
-    "marketing": {"axis": 7, "port": 8107, "score": None},
-    "sales": {"axis": 8, "port": 8108, "score": None},
-    "operations": {"axis": 9, "port": 8109, "score": "scalability"},
-    "gtm": {"axis": 10, "port": 8110, "score": None},
+    "ideation": {"axis": 1, "port": 8101, "score": None, "compose_host": "ideation-service"},
+    "market": {"axis": 2, "port": 8102, "score": "market", "compose_host": "market-intelligence-service"},
+    "product": {"axis": 3, "port": 8103, "score": "commercial_offer", "compose_host": "product-offering-service"},
+    "brand": {"axis": 4, "port": 8104, "score": "innovation", "compose_host": "brand-innovation-service"},
+    "business-model": {"axis": 5, "port": 8105, "score": "scalability", "compose_host": "business-model-service"},
+    "legal": {"axis": 6, "port": 8106, "score": "green", "compose_host": "legal-compliance-service"},
+    "marketing": {"axis": 7, "port": 8107, "score": None, "compose_host": "marketing-service"},
+    "sales": {"axis": 8, "port": 8108, "score": None, "compose_host": "sales-service"},
+    "operations": {"axis": 9, "port": 8109, "score": "scalability", "compose_host": "operations-service"},
+    "gtm": {"axis": 10, "port": 8110, "score": None, "compose_host": "go-to-market-service"},
 }
 
 # Go-daemon metric type -> axis slugs whose metric_update endpoint is invoked.
@@ -34,7 +34,7 @@ METRIC_ROUTES: dict[str, list[str]] = {
 def axis_host(slug: str) -> str:
     """Compose-internal base URL for an axis service."""
     info = AXES[slug]
-    host = os.getenv(f"AXIS_{info['axis']:02d}_HOST", f"axis{info['axis']:02d}-{slug}")
+    host = os.getenv(f"AXIS_{info['axis']:02d}_HOST", info["compose_host"])
     return f"http://{host}:{info['port']}"
 
 

@@ -1,5 +1,5 @@
 [project]
-name = "moufida-axis06-legal"
+name = "moufida-go-to-market-service"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = ["fastapi", "uvicorn[standard]", "httpx", "affinitree"]

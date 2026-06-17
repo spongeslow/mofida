@@ -78,44 +78,44 @@ services:
       redis: {condition: service_healthy}
 
   # --- Axis services (8101-8110) -------------------------------------------
-  axis01-ideation:
-    build: {context: ., dockerfile: axes/axis01-ideation/Dockerfile}
+  ideation-service:
+    build: {context: ., dockerfile: services/ideation-service/Dockerfile}
     environment: *axis-env
     ports: ["8101:8101"]
-  axis02-market:
-    build: {context: ., dockerfile: axes/axis02-market/Dockerfile}
+  market-intelligence-service:
+    build: {context: ., dockerfile: services/market-intelligence-service/Dockerfile}
     environment: *axis-env
     ports: ["8102:8102"]
-  axis03-product:
-    build: {context: ., dockerfile: axes/axis03-product/Dockerfile}
+  product-offering-service:
+    build: {context: ., dockerfile: services/product-offering-service/Dockerfile}
     environment: *axis-env
     ports: ["8103:8103"]
-  axis04-brand:
-    build: {context: ., dockerfile: axes/axis04-brand/Dockerfile}
+  brand-innovation-service:
+    build: {context: ., dockerfile: services/brand-innovation-service/Dockerfile}
     environment: *axis-env
     ports: ["8104:8104"]
-  axis05-business-model:
-    build: {context: ., dockerfile: axes/axis05-business-model/Dockerfile}
+  business-model-service:
+    build: {context: ., dockerfile: services/business-model-service/Dockerfile}
     environment: *axis-env
     ports: ["8105:8105"]
-  axis06-legal:
-    build: {context: ., dockerfile: axes/axis06-legal/Dockerfile}
+  legal-compliance-service:
+    build: {context: ., dockerfile: services/legal-compliance-service/Dockerfile}
     environment: *axis-env
     ports: ["8106:8106"]
-  axis07-marketing:
-    build: {context: ., dockerfile: axes/axis07-marketing/Dockerfile}
+  marketing-service:
+    build: {context: ., dockerfile: services/marketing-service/Dockerfile}
     environment: *axis-env
     ports: ["8107:8107"]
-  axis08-sales:
-    build: {context: ., dockerfile: axes/axis08-sales/Dockerfile}
+  sales-service:
+    build: {context: ., dockerfile: services/sales-service/Dockerfile}
     environment: *axis-env
     ports: ["8108:8108"]
-  axis09-operations:
-    build: {context: ., dockerfile: axes/axis09-operations/Dockerfile}
+  operations-service:
+    build: {context: ., dockerfile: services/operations-service/Dockerfile}
     environment: *axis-env
     ports: ["8109:8109"]
-  axis10-gtm:
-    build: {context: ., dockerfile: axes/axis10-gtm/Dockerfile}
+  go-to-market-service:
+    build: {context: ., dockerfile: services/go-to-market-service/Dockerfile}
     environment: *axis-env
     ports: ["8110:8110"]
 
