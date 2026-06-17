@@ -1,11 +1,21 @@
-# Moufida full local stack. `docker compose up` boots every service.
-# The Tauri desktop binary still runs on the host — it connects to the
-# frontend container's Vite dev server at http://localhost:5173.
+# Moufida full local stack. `docker compose up` boots every backend service.
+# The Tauri desktop frontend runs on the host (needs a display) -- see
+# frontend/README; it is intentionally not containerised here.
+#
+# Ollama: by default services talk to an Ollama running on the HOST
+# (host.docker.internal:11434). To instead run Ollama inside compose, start it
+# with the profile:  `docker compose --profile bundled-ollama up -d`  and point
+# OLLAMA_URL / OLLAMA_BASE_URL at http://ollama:11434.
 name: moufida
 
 x-axis-env: &axis-env
-  OLLAMA_URL: ${OLLAMA_URL}
-  REDIS_URL: ${REDIS_URL}
+  OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+  OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+  OLLAMA_MODEL: ${OLLAMA_MODEL:-mistral:7b}
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+
+x-host-gateway: &host-gateway
+  - "host.docker.internal:host-gateway"
 
 services:
   # --- Infrastructure --------------------------------------------------------
@@ -50,6 +60,7 @@ services:
     environment:
       <<: *axis-env
       DATABASE_URL: ${DATABASE_URL}
+    extra_hosts: *host-gateway
     ports: ["8001:8001"]
     depends_on:
       postgres: {condition: service_healthy}
@@ -108,44 +119,55 @@ services:
   ideation-service:
     build: {context: ., dockerfile: services/ideation-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8101:8101"]
   market-intelligence-service:
     build: {context: ., dockerfile: services/market-intelligence-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8102:8102"]
   product-offering-service:
     build: {context: ., dockerfile: services/product-offering-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8103:8103"]
   brand-innovation-service:
     build: {context: ., dockerfile: services/brand-innovation-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8104:8104"]
   business-model-service:
     build: {context: ., dockerfile: services/business-model-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8105:8105"]
   legal-compliance-service:
     build: {context: ., dockerfile: services/legal-compliance-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8106:8106"]
   marketing-service:
     build: {context: ., dockerfile: services/marketing-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8107:8107"]
   sales-service:
     build: {context: ., dockerfile: services/sales-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8108:8108"]
   operations-service:
     build: {context: ., dockerfile: services/operations-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8109:8109"]
   go-to-market-service:
     build: {context: ., dockerfile: services/go-to-market-service/Dockerfile}
     environment: *axis-env
+    extra_hosts: *host-gateway
     ports: ["8110:8110"]
 
 volumes:
   pgdata:
   qdrantdata:
+  ollama_models:
