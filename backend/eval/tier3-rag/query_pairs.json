@@ -1,0 +1,142 @@
+[
+  {
+    "query": "financement micro-crédit porteur de projet sans garantie",
+    "stage": "ideation",
+    "dimensions": ["scalability"],
+    "sector": "cross-sector",
+    "expected_resource_ids": ["bts-micro-credit-ideation", "bfpme-pme-loan"]
+  },
+  {
+    "query": "labellisation Startup Act avantages fiscaux exonération impôts",
+    "stage": "ideation",
+    "dimensions": ["scalability", "green"],
+    "sector": "cross-sector",
+    "expected_resource_ids": ["startup-act-label", "startup-act-avantages-fiscaux"]
+  },
+  {
+    "query": "incubateur accompagnement idéation tech digital coaching",
+    "stage": "ideation",
+    "dimensions": ["commercial_offer"],
+    "sector": "digital-tech",
+    "expected_resource_ids": ["esprit-incubator-ideation", "orange-fab-tunisia"]
+  },
+  {
+    "query": "subvention étude de marché faisabilité APII innovation",
+    "stage": "market_validation",
+    "dimensions": ["market"],
+    "sector": "cross-sector",
+    "expected_resource_ids": ["apii-etude-marche", "apii-innovation-grant"]
+  },
+  {
+    "query": "validation marché interviews clients lean startup MVP",
+    "stage": "market_validation",
+    "dimensions": ["market", "commercial_offer"],
+    "sector": "cross-sector",
+    "expected_resource_ids": ["lean-startup-validation-marche", "business-model-canvas-formation"]
+  },
+  {
+    "query": "dépôt marque INNORPI propriété intellectuelle protection",
+    "stage": "market_validation",
+    "dimensions": ["innovation"],
+    "sector": "cross-sector",
+    "expected_resource_ids": ["innorpi-depot-marque", "innorpi-brevet-invention"]
+  },
+  {
+    "query": "infrastructure cloud AWS hébergement scalable développement",
+    "stage": "market_validation",
+    "dimensions": ["commercial_offer"],
+    "sector": "digital-tech",
+    "expected_resource_ids": ["aws-activate", "google-for-startups-credits"]
+  },
+  {
+    "query": "financement PME crédit BFPME investissement structuration",
+    "stage": "structuration",
+    "dimensions": ["scalability"],
+    "sector": "cross-sector",
+    "expected_resource_ids": ["bfpme-pme-loan", "sicar-capital-risque"]
+  },
+  {
+    "query": "protection données personnelles conformité INPDP RGPD",
+    "stage": "structuration",
+    "dimensions": ["green"],
+    "sector": "digital-tech",
+    "expected_resource_ids": ["loi-2004-63-donnees-personnelles", "innorpi-logiciel-digital"]
+  },
+  {
+    "query": "formation gestion finance entreprise modélisation budget",
+    "stage": "structuration",
+    "dimensions": ["scalability"],
+    "sector": "cross-sector",
+    "expected_resource_ids": ["iace-formation-gestion", "modelisation-financiere"]
+  },
+  {
+    "query": "réseau networking entreprises partenariat commercial B2B",
+    "stage": "structuration",
+    "dimensions": ["market"],
+    "sector": "cross-sector",
+    "expected_resource_ids": ["conect-reseau-entreprises", "chambre-commerce-tunisie"]
+  },
+  {
+    "query": "capital risque investisseur VC fonds amorçage levée de fonds",
+    "stage": "fundraising",
+    "dimensions": ["scalability"],
+    "sector": "cross-sector",
+    "expected_resource_ids": ["smart-capital-cdc", "africinvest-fonds"]
+  },
+  {
+    "query": "pitch deck investisseur préparation levée de fonds term sheet",
+    "stage": "fundraising",
+    "dimensions": ["scalability"],
+    "sector": "cross-sector",
+    "expected_resource_ids": ["formation-pitch-investisseurs", "modelisation-financiere"]
+  },
+  {
+    "query": "loi investissement cadre juridique IDE investissement étranger",
+    "stage": "fundraising",
+    "dimensions": ["green", "scalability"],
+    "sector": "cross-sector",
+    "expected_resource_ids": ["loi-investissement-2016", "startup-act-fonds-amorçage"]
+  },
+  {
+    "query": "événement startup summit réseau investisseurs Tunisia",
+    "stage": "fundraising",
+    "dimensions": ["market"],
+    "sector": "cross-sector",
+    "expected_resource_ids": ["tunisia-startup-summit", "africarena-tunis"]
+  },
+  {
+    "query": "stratégie go-to-market lancement produit acquisition clients B2B",
+    "stage": "launch_planning",
+    "dimensions": ["market", "commercial_offer"],
+    "sector": "digital-tech",
+    "expected_resource_ids": ["gtm-strategy-workshop", "digital-marketing-formation"]
+  },
+  {
+    "query": "CRM marketing automation HubSpot growth clients pipeline",
+    "stage": "launch_planning",
+    "dimensions": ["commercial_offer"],
+    "sector": "digital-tech",
+    "expected_resource_ids": ["hubspot-startups", "paiement-en-ligne-integration"]
+  },
+  {
+    "query": "export international marchés étrangers CEPEX développement",
+    "stage": "growth",
+    "dimensions": ["market"],
+    "sector": "cross-sector",
+    "expected_resource_ids": ["cepex-promotion-export", "cepex-formation-export"]
+  },
+  {
+    "query": "certification normes agro-alimentaire ONAGRI qualité exportation",
+    "stage": "launch_planning",
+    "dimensions": ["green", "commercial_offer"],
+    "sector": "agri-food",
+    "expected_resource_ids": ["onagri-certification-agrifood", "chaine-valeur-agrifood"]
+  },
+  {
+    "query": "technopôle El Ghazala infrastructure R&D numérique digital",
+    "stage": "growth",
+    "dimensions": ["innovation", "scalability"],
+    "sector": "digital-tech",
+    "expected_resource_ids": ["technopole-el-ghazala", "cloud-infrastructure-croissance"]
+  }
+]

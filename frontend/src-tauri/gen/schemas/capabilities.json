@@ -1,1 +1,1 @@
-{}
+{"companion":{"identifier":"companion","description":"Companion window — drag-to-move (start-dragging) + set-position roaming + events to receive state changes","local":true,"windows":["companion"],"permissions":["core:default","core:window:allow-set-position","core:window:allow-start-dragging","core:window:allow-outer-position","core:window:allow-scale-factor"]},"default":{"identifier":"default","description":"Main window permissions","local":true,"windows":["main"],"permissions":["core:default"]}}

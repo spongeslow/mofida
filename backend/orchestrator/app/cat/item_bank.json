@@ -1,0 +1,919 @@
+{
+  "meta": {
+    "version": 1,
+    "stages": [
+      "Ideation",
+      "Market Validation",
+      "Structuration",
+      "Fundraising",
+      "Launch Planning",
+      "Growth"
+    ],
+    "stage_boundaries": [
+      -1.75,
+      -0.75,
+      0.25,
+      1.25,
+      2.25
+    ],
+    "note": "Each item is a 2PL IRT item with discrimination a>0 and difficulty b. Options carry a graded `credit` in [0,1] (drives the EAP likelihood via the soft-Bernoulli / graded extension) and a `value` folded into the StartupProfile patch under `field`. Phase-1 items estimate the latent maturity theta; Phase-2 items (pool == axis name) are selected at the difficulty closest to theta to gather stage-appropriate axis evidence."
+  },
+  "items": {
+    "p1_problem_articulation": {
+      "pool": "phase1",
+      "a": 1.65,
+      "b": -2.2,
+      "field": "raw_idea",
+      "type": "select",
+      "question_fr": "Pouvez-vous décrire en une phrase le problème précis que vous résolvez ?",
+      "question_ar": "هل يمكنك وصف المشكلة المحدّدة التي تحلّها في جملة واحدة؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": "Problem still vague",
+          "label_fr": "Encore flou, je cherche",
+          "label_ar": "ما زالت غير واضحة، أبحث"
+        },
+        {
+          "credit": 0.5,
+          "value": "Problem roughly identified",
+          "label_fr": "Identifié globalement",
+          "label_ar": "محدّدة بشكل عام"
+        },
+        {
+          "credit": 1.0,
+          "value": "Problem sharply defined",
+          "label_fr": "Défini précisément",
+          "label_ar": "محدّدة بدقّة"
+        }
+      ]
+    },
+    "p1_target_user_named": {
+      "pool": "phase1",
+      "a": 1.95,
+      "b": -1.8,
+      "field": "target_segment",
+      "type": "select",
+      "question_fr": "Avez-vous identifié qui exactement subit ce problème ?",
+      "question_ar": "هل حدّدت من يعاني تحديدًا من هذه المشكلة؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": "Audience undefined",
+          "label_fr": "Pas encore",
+          "label_ar": "ليس بعد"
+        },
+        {
+          "credit": 0.5,
+          "value": "Broad segment",
+          "label_fr": "Un segment large",
+          "label_ar": "شريحة واسعة"
+        },
+        {
+          "credit": 1.0,
+          "value": "Specific segment with persona",
+          "label_fr": "Un segment précis avec persona",
+          "label_ar": "شريحة دقيقة مع شخصية مرجعية"
+        }
+      ]
+    },
+    "p1_customer_interviews": {
+      "pool": "phase1",
+      "a": 2.4,
+      "b": -1.4,
+      "field": "market.customer_interviews_count",
+      "type": "select",
+      "question_fr": "Avez-vous parlé directement avec au moins 3 clients potentiels ?",
+      "question_ar": "هل تحدّثت مباشرة مع 3 حرفاء محتملين على الأقل؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": 0,
+          "label_fr": "Aucun entretien",
+          "label_ar": "لا مقابلات"
+        },
+        {
+          "credit": 0.5,
+          "value": 3,
+          "label_fr": "Quelques-uns (1–5)",
+          "label_ar": "القليل (1–5)"
+        },
+        {
+          "credit": 1.0,
+          "value": 15,
+          "label_fr": "Beaucoup (10+)",
+          "label_ar": "الكثير (أكثر من 10)"
+        }
+      ]
+    },
+    "p1_wtp_signal": {
+      "pool": "phase1",
+      "a": 2.7,
+      "b": -0.8,
+      "field": "market.wtp_signal",
+      "type": "select",
+      "question_fr": "Quelqu'un a-t-il exprimé une volonté de payer pour votre solution ?",
+      "question_ar": "هل أبدى أحد استعدادًا للدفع مقابل حلّك؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": "No willingness-to-pay signal yet",
+          "label_fr": "Pas encore",
+          "label_ar": "ليس بعد"
+        },
+        {
+          "credit": 0.5,
+          "value": "Verbal interest, no commitment",
+          "label_fr": "Intérêt verbal",
+          "label_ar": "اهتمام شفهي"
+        },
+        {
+          "credit": 1.0,
+          "value": "Explicit commitment or signed LOI",
+          "label_fr": "Engagement explicite / LOI signée",
+          "label_ar": "التزام صريح / خطاب نوايا موقّع"
+        }
+      ]
+    },
+    "p1_mvp_exists": {
+      "pool": "phase1",
+      "a": 2.55,
+      "b": -0.5,
+      "field": "offer.has_prototype",
+      "type": "select",
+      "question_fr": "Disposez-vous d'un prototype ou MVP que des utilisateurs peuvent essayer ?",
+      "question_ar": "هل لديك نموذج أوّلي أو نسخة MVP يمكن للمستخدمين تجربتها؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": false,
+          "label_fr": "Pas encore",
+          "label_ar": "ليس بعد"
+        },
+        {
+          "credit": 0.5,
+          "value": true,
+          "label_fr": "Une maquette / démo",
+          "label_ar": "نموذج تجريبي / عرض"
+        },
+        {
+          "credit": 1.0,
+          "value": true,
+          "label_fr": "Un MVP utilisable en production",
+          "label_ar": "نسخة MVP قابلة للاستخدام فعليًا"
+        }
+      ]
+    },
+    "p1_registered": {
+      "pool": "phase1",
+      "a": 2.25,
+      "b": 0.1,
+      "field": "legal.registered",
+      "type": "select",
+      "question_fr": "Votre société est-elle officiellement enregistrée (APII, RNE, ou équivalent) ?",
+      "question_ar": "هل مؤسستك مسجّلة رسميًا (APII، RNE، أو ما يعادلها)؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": false,
+          "label_fr": "Non enregistrée",
+          "label_ar": "غير مسجّلة"
+        },
+        {
+          "credit": 0.5,
+          "value": true,
+          "label_fr": "En cours",
+          "label_ar": "قيد التسجيل"
+        },
+        {
+          "credit": 1.0,
+          "value": true,
+          "label_fr": "Oui, enregistrée",
+          "label_ar": "نعم، مسجّلة"
+        }
+      ]
+    },
+    "p1_team_complete": {
+      "pool": "phase1",
+      "a": 1.8,
+      "b": 0.0,
+      "field": "team_completeness",
+      "type": "select",
+      "question_fr": "Avez-vous une équipe couvrant à la fois les compétences techniques et business ?",
+      "question_ar": "هل لديك فريق يغطّي المهارات التقنية والتجارية معًا؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": "Solo founder, single skill",
+          "label_fr": "Fondateur seul",
+          "label_ar": "مؤسّس وحيد"
+        },
+        {
+          "credit": 0.5,
+          "value": "Partial team coverage",
+          "label_fr": "Couverture partielle",
+          "label_ar": "تغطية جزئية"
+        },
+        {
+          "credit": 1.0,
+          "value": "Complementary founding team",
+          "label_fr": "Équipe complémentaire",
+          "label_ar": "فريق متكامل"
+        }
+      ]
+    },
+    "p1_revenue_model": {
+      "pool": "phase1",
+      "a": 2.4,
+      "b": 0.3,
+      "field": "revenue_model",
+      "type": "select",
+      "question_fr": "Avez-vous un modèle économique documenté avec une source de revenus claire ?",
+      "question_ar": "هل لديك نموذج عمل موثّق بمصدر دخل واضح؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": "No revenue model yet",
+          "label_fr": "Pas encore",
+          "label_ar": "ليس بعد"
+        },
+        {
+          "credit": 0.5,
+          "value": "Hypothesis, untested",
+          "label_fr": "Une hypothèse non testée",
+          "label_ar": "فرضية غير مختبرة"
+        },
+        {
+          "credit": 1.0,
+          "value": "Documented, validated revenue model",
+          "label_fr": "Documenté et validé",
+          "label_ar": "موثّق ومثبت"
+        }
+      ]
+    },
+    "p1_ip_filed": {
+      "pool": "phase1",
+      "a": 1.65,
+      "b": 1.0,
+      "field": "ip_protection",
+      "type": "select",
+      "question_fr": "Avez-vous déposé une marque, un brevet ou un droit d'auteur ?",
+      "question_ar": "هل سجّلت علامة تجارية أو براءة اختراع أو حقوق تأليف؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": "No IP protection",
+          "label_fr": "Aucune protection",
+          "label_ar": "لا حماية"
+        },
+        {
+          "credit": 0.5,
+          "value": "Considering IP filing",
+          "label_fr": "En réflexion",
+          "label_ar": "قيد الدراسة"
+        },
+        {
+          "credit": 1.0,
+          "value": "IP filed (INNORPI / trademark / patent)",
+          "label_fr": "Déposé (INNORPI…)",
+          "label_ar": "مسجّلة (INNORPI…)"
+        }
+      ]
+    },
+    "p1_pitch_deck": {
+      "pool": "phase1",
+      "a": 2.1,
+      "b": 0.9,
+      "field": "finance.has_pitch_deck",
+      "type": "select",
+      "question_fr": "Avez-vous un pitch deck investisseur avec projections financières ?",
+      "question_ar": "هل لديك عرض تقديمي للمستثمرين مع توقّعات مالية؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": false,
+          "label_fr": "Pas encore",
+          "label_ar": "ليس بعد"
+        },
+        {
+          "credit": 0.5,
+          "value": true,
+          "label_fr": "Un brouillon",
+          "label_ar": "مسوّدة"
+        },
+        {
+          "credit": 1.0,
+          "value": true,
+          "label_fr": "Un deck complet et chiffré",
+          "label_ar": "عرض كامل ومدعّم بالأرقام"
+        }
+      ]
+    },
+    "p1_external_funding": {
+      "pool": "phase1",
+      "a": 2.7,
+      "b": 1.2,
+      "field": "finance.funding_stage",
+      "type": "select",
+      "question_fr": "Avez-vous levé un financement externe (subvention, business angel, Startup Act, BFPME) ?",
+      "question_ar": "هل حصلت على تمويل خارجي (منحة، مستثمر ملاك، Startup Act، BFPME)؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": "bootstrapped",
+          "label_fr": "Autofinancé",
+          "label_ar": "تمويل ذاتي"
+        },
+        {
+          "credit": 0.5,
+          "value": "pre-seed",
+          "label_fr": "Subvention / pré-amorçage",
+          "label_ar": "منحة / مرحلة أوّلية"
+        },
+        {
+          "credit": 1.0,
+          "value": "seed",
+          "label_fr": "Levée amorçage ou plus",
+          "label_ar": "جولة تمويل أوّلية أو أكثر"
+        }
+      ]
+    },
+    "p1_signed_customers": {
+      "pool": "phase1",
+      "a": 2.7,
+      "b": 1.5,
+      "field": "market.revenue_generating",
+      "type": "select",
+      "question_fr": "Avez-vous des clients payants au-delà de votre cercle proche ?",
+      "question_ar": "هل لديك حرفاء يدفعون خارج دائرتك القريبة؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": false,
+          "label_fr": "Aucun client payant",
+          "label_ar": "لا حرفاء يدفعون"
+        },
+        {
+          "credit": 0.5,
+          "value": true,
+          "label_fr": "Quelques pilotes payants",
+          "label_ar": "بعض التجارب المدفوعة"
+        },
+        {
+          "credit": 1.0,
+          "value": true,
+          "label_fr": "Des clients payants récurrents",
+          "label_ar": "حرفاء يدفعون بشكل متكرّر"
+        }
+      ]
+    },
+    "p1_sales_pipeline": {
+      "pool": "phase1",
+      "a": 2.7,
+      "b": 1.8,
+      "field": "sales.has_pipeline",
+      "type": "select",
+      "question_fr": "Avez-vous un pipeline de vente structuré avec des leads suivis ?",
+      "question_ar": "هل لديك مسار مبيعات منظّم مع متابعة العملاء المحتملين؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": false,
+          "label_fr": "Pas de pipeline",
+          "label_ar": "لا مسار مبيعات"
+        },
+        {
+          "credit": 0.5,
+          "value": true,
+          "label_fr": "Un suivi informel",
+          "label_ar": "متابعة غير رسمية"
+        },
+        {
+          "credit": 1.0,
+          "value": true,
+          "label_fr": "Un pipeline structuré (CRM)",
+          "label_ar": "مسار منظّم (CRM)"
+        }
+      ]
+    },
+    "p1_pmf_evidence": {
+      "pool": "phase1",
+      "a": 2.7,
+      "b": 2.2,
+      "field": "traction.pmf_evidence",
+      "type": "select",
+      "question_fr": "Avez-vous des preuves de product-market fit (NPS > 40, rétention > 40 %) ?",
+      "question_ar": "هل لديك دلائل على ملاءمة المنتج للسوق (NPS > 40، استبقاء > 40٪)؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": "No PMF evidence",
+          "label_fr": "Pas encore",
+          "label_ar": "ليس بعد"
+        },
+        {
+          "credit": 0.5,
+          "value": "Early retention signals",
+          "label_fr": "Premiers signaux de rétention",
+          "label_ar": "إشارات استبقاء أوّلية"
+        },
+        {
+          "credit": 1.0,
+          "value": "Strong PMF metrics",
+          "label_fr": "Métriques PMF solides",
+          "label_ar": "مؤشّرات PMF قويّة"
+        }
+      ]
+    },
+    "p1_mom_growth": {
+      "pool": "phase1",
+      "a": 2.7,
+      "b": 2.5,
+      "field": "traction.mom_growth",
+      "type": "select",
+      "question_fr": "Atteignez-vous une croissance de revenus mensuelle supérieure à 10 % ?",
+      "question_ar": "هل تحقّق نموًّا شهريًا في المداخيل يتجاوز 10٪؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": "No recurring revenue",
+          "label_fr": "Pas de revenus récurrents",
+          "label_ar": "لا مداخيل متكرّرة"
+        },
+        {
+          "credit": 0.5,
+          "value": "Flat or modest growth",
+          "label_fr": "Croissance modeste",
+          "label_ar": "نموّ متواضع"
+        },
+        {
+          "credit": 1.0,
+          "value": "Consistent >10% MoM growth",
+          "label_fr": "Croissance >10 %/mois",
+          "label_ar": "نموّ >10٪ شهريًا"
+        }
+      ]
+    },
+    "p1_multi_segment": {
+      "pool": "phase1",
+      "a": 2.7,
+      "b": 2.8,
+      "field": "scalability.multi_segment",
+      "type": "select",
+      "question_fr": "Vous êtes-vous étendu à un second segment ou marché géographique ?",
+      "question_ar": "هل توسّعت إلى شريحة ثانية أو سوق جغرافي جديد؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": "Single segment",
+          "label_fr": "Un seul segment",
+          "label_ar": "شريحة واحدة"
+        },
+        {
+          "credit": 0.5,
+          "value": "Expansion in progress",
+          "label_fr": "Expansion en cours",
+          "label_ar": "توسّع جارٍ"
+        },
+        {
+          "credit": 1.0,
+          "value": "Active in multiple segments/markets",
+          "label_fr": "Plusieurs segments/marchés actifs",
+          "label_ar": "نشاط في عدّة شرائح/أسواق"
+        }
+      ]
+    },
+    "ideation_s1": {
+      "pool": "ideation",
+      "a": 1.2,
+      "b": -2.0,
+      "field": "ideation.problem_statement",
+      "type": "text",
+      "question_fr": "Quel problème précis résolvez-vous, et pour qui ?",
+      "question_ar": "ما المشكلة المحدّدة التي تحلّها، ولمن؟"
+    },
+    "ideation_s2": {
+      "pool": "ideation",
+      "a": 1.4,
+      "b": -0.6,
+      "field": "ideation.solution_originality",
+      "type": "text",
+      "question_fr": "En quoi votre approche diffère-t-elle des solutions existantes ?",
+      "question_ar": "بماذا تختلف مقاربتك عن الحلول الموجودة؟"
+    },
+    "ideation_s3": {
+      "pool": "ideation",
+      "a": 1.5,
+      "b": 0.9,
+      "field": "ideation.riskiest_assumption",
+      "type": "text",
+      "question_fr": "Quelle est l'hypothèse la plus risquée que vous devez encore valider ?",
+      "question_ar": "ما هي الفرضية الأكثر خطورة التي لا يزال عليك التحقّق منها؟"
+    },
+    "ideation_s4": {
+      "pool": "ideation",
+      "a": 1.3,
+      "b": 2.1,
+      "field": "ideation.defensibility",
+      "type": "text",
+      "question_fr": "Qu'est-ce qui rend votre position défendable à long terme ?",
+      "question_ar": "ما الذي يجعل موقعك قابلاً للدفاع على المدى الطويل؟"
+    },
+    "market_s1": {
+      "pool": "market",
+      "a": 1.2,
+      "b": -2.0,
+      "field": "target_market",
+      "type": "text",
+      "question_fr": "Qui est votre client cible et quel problème spécifique vit-il ?",
+      "question_ar": "من هو حريفك المستهدف وما المشكلة المحدّدة التي يعيشها؟"
+    },
+    "market_s2": {
+      "pool": "market",
+      "a": 1.5,
+      "b": -0.5,
+      "field": "market_size",
+      "type": "text",
+      "question_fr": "Quelles preuves avez-vous de la taille du marché adressable en Tunisie ?",
+      "question_ar": "ما الأدلّة على حجم السوق المستهدف في تونس؟"
+    },
+    "market_s3": {
+      "pool": "market",
+      "a": 1.6,
+      "b": 0.8,
+      "field": "competitors",
+      "type": "text",
+      "question_fr": "Qui sont vos 3 principaux concurrents et quelle est votre différenciation ?",
+      "question_ar": "من هم منافسوك الثلاثة الرئيسيون وما عامل تميّزك؟"
+    },
+    "market_s4": {
+      "pool": "market",
+      "a": 1.4,
+      "b": 2.0,
+      "field": "market.expansion_plan",
+      "type": "text",
+      "question_fr": "Quelle est votre part de marché estimée et votre calendrier d'expansion ?",
+      "question_ar": "ما حصّتك السوقية المقدّرة وجدولك الزمني للتوسّع؟"
+    },
+    "product_s1": {
+      "pool": "product",
+      "a": 1.2,
+      "b": -1.8,
+      "field": "product.core_features",
+      "type": "text",
+      "question_fr": "Quelles sont les fonctionnalités essentielles de votre produit ?",
+      "question_ar": "ما هي الميزات الأساسية لمنتجك؟"
+    },
+    "product_s2": {
+      "pool": "product",
+      "a": 1.5,
+      "b": -0.4,
+      "field": "product.maturity",
+      "type": "select",
+      "question_fr": "À quel stade de développement se trouve votre produit ?",
+      "question_ar": "في أي مرحلة من التطوير يوجد منتجك؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": "concept",
+          "label_fr": "Concept sur papier",
+          "label_ar": "فكرة على الورق"
+        },
+        {
+          "credit": 0.4,
+          "value": "prototype",
+          "label_fr": "Prototype",
+          "label_ar": "نموذج أوّلي"
+        },
+        {
+          "credit": 0.7,
+          "value": "mvp",
+          "label_fr": "MVP en test",
+          "label_ar": "MVP قيد الاختبار"
+        },
+        {
+          "credit": 1.0,
+          "value": "production",
+          "label_fr": "En production",
+          "label_ar": "في الإنتاج"
+        }
+      ]
+    },
+    "product_s3": {
+      "pool": "product",
+      "a": 1.6,
+      "b": 0.9,
+      "field": "product.ux_validation",
+      "type": "text",
+      "question_fr": "Comment avez-vous validé l'expérience utilisateur de votre produit ?",
+      "question_ar": "كيف تحقّقت من تجربة المستخدم لمنتجك؟"
+    },
+    "product_s4": {
+      "pool": "product",
+      "a": 1.4,
+      "b": 2.1,
+      "field": "product.scalability_tech",
+      "type": "text",
+      "question_fr": "Votre architecture technique peut-elle supporter une forte croissance ?",
+      "question_ar": "هل يمكن لبنيتك التقنية تحمّل نموّ كبير؟"
+    },
+    "brand_s1": {
+      "pool": "brand",
+      "a": 1.2,
+      "b": -1.6,
+      "field": "brand.identity",
+      "type": "text",
+      "question_fr": "Avez-vous un nom, un logo et un positionnement distinctifs ?",
+      "question_ar": "هل لديك اسم وشعار وتموقع مميّز؟"
+    },
+    "brand_s2": {
+      "pool": "brand",
+      "a": 1.5,
+      "b": -0.2,
+      "field": "value_proposition",
+      "type": "text",
+      "question_fr": "Quelle est votre proposition de valeur en une phrase ?",
+      "question_ar": "ما هي قيمتك المقترحة في جملة واحدة؟"
+    },
+    "brand_s3": {
+      "pool": "brand",
+      "a": 1.4,
+      "b": 1.0,
+      "field": "innovation",
+      "type": "text",
+      "question_fr": "Qu'est-ce qui rend votre offre véritablement innovante ?",
+      "question_ar": "ما الذي يجعل عرضك مبتكرًا حقًّا؟"
+    },
+    "brand_s4": {
+      "pool": "brand",
+      "a": 1.3,
+      "b": 2.0,
+      "field": "brand.reputation",
+      "type": "text",
+      "question_fr": "Quelle reconnaissance ou réputation de marque avez-vous bâtie ?",
+      "question_ar": "ما الاعتراف أو السمعة التي بنيتها لعلامتك التجارية؟"
+    },
+    "business_model_s1": {
+      "pool": "business_model",
+      "a": 1.2,
+      "b": -1.4,
+      "field": "business_model",
+      "type": "text",
+      "question_fr": "Comment votre projet compte-t-il gagner de l'argent ?",
+      "question_ar": "كيف سيحقّق مشروعك المال؟"
+    },
+    "business_model_s2": {
+      "pool": "business_model",
+      "a": 1.5,
+      "b": 0.0,
+      "field": "pricing",
+      "type": "text",
+      "question_fr": "Comment fixez-vous vos prix et pourquoi ce niveau ?",
+      "question_ar": "كيف تحدّد أسعارك ولماذا هذا المستوى؟"
+    },
+    "business_model_s3": {
+      "pool": "business_model",
+      "a": 1.7,
+      "b": 1.1,
+      "field": "scalability.unit_economics",
+      "type": "text",
+      "question_fr": "Connaissez-vous votre CAC, LTV et marge unitaire ?",
+      "question_ar": "هل تعرف تكلفة اكتساب الحريف (CAC)، القيمة الدائمة (LTV) والهامش الوحدوي؟"
+    },
+    "business_model_s4": {
+      "pool": "business_model",
+      "a": 1.5,
+      "b": 2.1,
+      "field": "finance.path_to_profitability",
+      "type": "text",
+      "question_fr": "Quel est votre chemin vers la rentabilité et son échéance ?",
+      "question_ar": "ما طريقك نحو الربحية وموعدها؟"
+    },
+    "legal_s1": {
+      "pool": "legal",
+      "a": 1.2,
+      "b": -1.2,
+      "field": "legal.legal_form",
+      "type": "select",
+      "question_fr": "Quelle est la forme juridique de votre entreprise ?",
+      "question_ar": "ما هو الشكل القانوني لمؤسستك؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": "not_registered",
+          "label_fr": "Non enregistrée",
+          "label_ar": "غير مسجّلة"
+        },
+        {
+          "credit": 0.6,
+          "value": "SUARL",
+          "label_fr": "SUARL",
+          "label_ar": "SUARL"
+        },
+        {
+          "credit": 0.8,
+          "value": "SARL",
+          "label_fr": "SARL",
+          "label_ar": "SARL"
+        },
+        {
+          "credit": 1.0,
+          "value": "SA",
+          "label_fr": "SA",
+          "label_ar": "SA"
+        }
+      ]
+    },
+    "legal_s2": {
+      "pool": "legal",
+      "a": 1.4,
+      "b": 0.1,
+      "field": "legal.compliance",
+      "type": "text",
+      "question_fr": "Quelles réglementations tunisiennes s'appliquent à votre activité ?",
+      "question_ar": "ما التشريعات التونسية التي تنطبق على نشاطك؟"
+    },
+    "legal_s3": {
+      "pool": "legal",
+      "a": 1.3,
+      "b": 1.0,
+      "field": "legal.startup_act",
+      "type": "select",
+      "question_fr": "Avez-vous le Label Startup Act ou prévoyez-vous de l'obtenir ?",
+      "question_ar": "هل لديك علامة Startup Act أو تخطّط للحصول عليها؟",
+      "options": [
+        {
+          "credit": 0.0,
+          "value": false,
+          "label_fr": "Non, pas envisagé",
+          "label_ar": "لا، غير مطروح"
+        },
+        {
+          "credit": 0.5,
+          "value": false,
+          "label_fr": "En préparation",
+          "label_ar": "قيد التحضير"
+        },
+        {
+          "credit": 1.0,
+          "value": true,
+          "label_fr": "Oui, obtenu",
+          "label_ar": "نعم، حصلت عليها"
+        }
+      ]
+    },
+    "legal_s4": {
+      "pool": "legal",
+      "a": 1.4,
+      "b": 2.0,
+      "field": "legal.contracts_governance",
+      "type": "text",
+      "question_fr": "Comment gérez-vous contrats, pacte d'associés et conformité fiscale ?",
+      "question_ar": "كيف تدير العقود واتفاقية الشركاء والامتثال الجبائي؟"
+    },
+    "operations_s1": {
+      "pool": "operations",
+      "a": 1.2,
+      "b": -1.4,
+      "field": "team",
+      "type": "text",
+      "question_fr": "Qui compose votre équipe et quels rôles couvrez-vous ?",
+      "question_ar": "من هم أعضاء فريقك وما الأدوار التي تغطّونها؟"
+    },
+    "operations_s2": {
+      "pool": "operations",
+      "a": 1.4,
+      "b": 0.2,
+      "field": "operations.processes",
+      "type": "text",
+      "question_fr": "Quels processus opérationnels clés avez-vous documentés ?",
+      "question_ar": "ما العمليات التشغيلية الأساسية التي وثّقتها؟"
+    },
+    "operations_s3": {
+      "pool": "operations",
+      "a": 1.5,
+      "b": 1.1,
+      "field": "operations.suppliers",
+      "type": "text",
+      "question_fr": "Vos fournisseurs et partenaires clés sont-ils identifiés et sécurisés ?",
+      "question_ar": "هل تمّ تحديد وتأمين موردّيك وشركائك الأساسيين؟"
+    },
+    "operations_s4": {
+      "pool": "operations",
+      "a": 1.5,
+      "b": 2.0,
+      "field": "operations.capacity",
+      "type": "text",
+      "question_fr": "Votre organisation peut-elle absorber une croissance rapide sans casser ?",
+      "question_ar": "هل يمكن لتنظيمك استيعاب نموّ سريع دون أن ينهار؟"
+    },
+    "marketing_s1": {
+      "pool": "marketing",
+      "a": 1.2,
+      "b": -1.2,
+      "field": "marketing.value_message",
+      "type": "text",
+      "question_fr": "Comment communiquez-vous votre valeur en une phrase claire ?",
+      "question_ar": "كيف توصّل قيمتك في جملة واضحة؟"
+    },
+    "marketing_s2": {
+      "pool": "marketing",
+      "a": 1.5,
+      "b": 0.1,
+      "field": "channels",
+      "type": "text",
+      "question_fr": "Quels canaux d'acquisition utilisez-vous pour atteindre vos clients ?",
+      "question_ar": "ما قنوات الاكتساب التي تستعملها للوصول إلى حرفائك؟"
+    },
+    "marketing_s3": {
+      "pool": "marketing",
+      "a": 1.5,
+      "b": 1.0,
+      "field": "marketing.content_audience",
+      "type": "text",
+      "question_fr": "Avez-vous une audience, une communauté ou du contenu existant ?",
+      "question_ar": "هل لديك جمهور أو مجتمع أو محتوى قائم؟"
+    },
+    "marketing_s4": {
+      "pool": "marketing",
+      "a": 1.6,
+      "b": 2.0,
+      "field": "marketing.cac_channels",
+      "type": "text",
+      "question_fr": "Quels canaux ont le meilleur retour sur investissement marketing ?",
+      "question_ar": "ما القنوات ذات أفضل عائد على الاستثمار التسويقي؟"
+    },
+    "sales_s1": {
+      "pool": "sales",
+      "a": 1.2,
+      "b": -1.0,
+      "field": "sales.first_leads",
+      "type": "text",
+      "question_fr": "Avez-vous identifié vos premiers prospects ou leads ?",
+      "question_ar": "هل حدّدت أوّل العملاء المحتملين أو الفرص؟"
+    },
+    "sales_s2": {
+      "pool": "sales",
+      "a": 1.5,
+      "b": 0.3,
+      "field": "sales.process",
+      "type": "text",
+      "question_fr": "Avez-vous un processus reproductible du lead à la signature ?",
+      "question_ar": "هل لديك مسار قابل للتكرار من العميل المحتمل إلى التوقيع؟"
+    },
+    "sales_s3": {
+      "pool": "sales",
+      "a": 1.7,
+      "b": 1.2,
+      "field": "traction",
+      "type": "text",
+      "question_fr": "Quelle traction commerciale concrète avez-vous (contrats, revenus) ?",
+      "question_ar": "ما الجذب التجاري الملموس لديك (عقود، مداخيل)؟"
+    },
+    "sales_s4": {
+      "pool": "sales",
+      "a": 1.6,
+      "b": 2.1,
+      "field": "sales.conversion_metrics",
+      "type": "text",
+      "question_fr": "Connaissez-vous vos taux de conversion et votre cycle de vente ?",
+      "question_ar": "هل تعرف معدّلات التحويل ودورة المبيعات لديك؟"
+    },
+    "scalability_s1": {
+      "pool": "scalability",
+      "a": 1.2,
+      "b": -1.0,
+      "field": "scalability.growth_hypothesis",
+      "type": "text",
+      "question_fr": "Comment imaginez-vous passer de 10 à 1000 clients ?",
+      "question_ar": "كيف تتصوّر الانتقال من 10 إلى 1000 حريف؟"
+    },
+    "scalability_s2": {
+      "pool": "scalability",
+      "a": 1.5,
+      "b": 0.3,
+      "field": "scalability.automation",
+      "type": "text",
+      "question_fr": "Quels processus avez-vous automatisés pour soutenir la croissance ?",
+      "question_ar": "ما العمليات التي أتمتتها لدعم النموّ؟"
+    },
+    "scalability_s3": {
+      "pool": "scalability",
+      "a": 1.6,
+      "b": 1.2,
+      "field": "scalability.funding_runway",
+      "type": "text",
+      "question_fr": "Quelle est votre runway et votre stratégie de financement de la croissance ?",
+      "question_ar": "ما هو المدى المالي لديك واستراتيجية تمويل النموّ؟"
+    },
+    "scalability_s4": {
+      "pool": "scalability",
+      "a": 1.6,
+      "b": 2.2,
+      "field": "scalability.expansion_strategy",
+      "type": "text",
+      "question_fr": "Quelle est votre stratégie d'expansion régionale ou internationale ?",
+      "question_ar": "ما استراتيجيتك للتوسّع الإقليمي أو الدولي؟"
+    }
+  }
+}

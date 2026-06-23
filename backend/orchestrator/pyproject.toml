@@ -1,0 +1,17 @@
+[project]
+name = "moufida-orchestrator"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "httpx",
+    "redis>=5.0",
+    "psycopg[binary]>=3.1",
+    "asyncpg>=0.29",
+    "langdetect>=1.0.9",
+    "langgraph>=0.2",
+    "affinitree",
+    "pypdf>=4.0",
+    "python-multipart>=0.0.9",
+]

@@ -75,7 +75,7 @@ EMBED_MODEL="${MOUFIDA_EMBED_MODEL:-}"
 if [[ -z "$EMBED_MODEL" && -f "$ROOT/.env" ]]; then
   EMBED_MODEL=$(grep -E '^MOUFIDA_EMBED_MODEL=' "$ROOT/.env" | cut -d= -f2-)
 fi
-EMBED_MODEL="${EMBED_MODEL:-nomic-embed-text}"
+EMBED_MODEL="${EMBED_MODEL:-bge-m3}"
 
 echo ""
 echo "  Ollama endpoint : $OLLAMA_URL"

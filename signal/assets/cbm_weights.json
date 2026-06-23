@@ -1,0 +1,83 @@
+{
+  "ideation": {
+    "weights": {
+      "problem_clarity": 0.35,
+      "solution_originality": 0.25,
+      "founder_domain_fit": 0.2,
+      "idea_testability": 0.2
+    },
+    "bias": -0.5
+  },
+  "market": {
+    "weights": {
+      "tam_evidence": 0.2,
+      "icp_specificity": 0.35,
+      "wtp_signal": 0.25,
+      "competitive_differentiation": 0.1,
+      "market_timing": 0.1
+    },
+    "bias": -0.5
+  },
+  "product": {
+    "weights": {
+      "mvp_existence": 0.3,
+      "technical_feasibility": 0.25,
+      "core_features_defined": 0.25,
+      "ux_considered": 0.2
+    },
+    "bias": -0.5
+  },
+  "brand": {
+    "weights": {
+      "brand_identity": 0.35,
+      "innovation_degree": 0.4,
+      "ip_awareness": 0.25
+    },
+    "bias": -0.5
+  },
+  "business-model": {
+    "weights": {
+      "revenue_model_clarity": 0.3,
+      "unit_economics_viability": 0.3,
+      "pricing_strategy": 0.2,
+      "path_to_profitability": 0.2
+    },
+    "bias": -0.5
+  },
+  "legal": {
+    "weights": {
+      "corporate_structure": 0.25,
+      "regulatory_compliance": 0.3,
+      "ip_protection": 0.25,
+      "environmental_awareness": 0.2
+    },
+    "bias": -0.5
+  },
+  "operations": {
+    "weights": {
+      "team_completeness": 0.35,
+      "process_definition": 0.25,
+      "supplier_readiness": 0.2,
+      "operational_capacity": 0.2
+    },
+    "bias": -0.5
+  },
+  "marketing": {
+    "weights": {
+      "gtm_strategy": 0.35,
+      "channel_identification": 0.25,
+      "messaging_clarity": 0.25,
+      "content_presence": 0.15
+    },
+    "bias": -0.5
+  },
+  "sales": {
+    "weights": {
+      "pipeline_existence": 0.25,
+      "sales_process_defined": 0.25,
+      "conversion_evidence": 0.3,
+      "revenue_traction": 0.2
+    },
+    "bias": -0.5
+  }
+}

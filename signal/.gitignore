@@ -1,0 +1,6 @@
+/target
+# Runtime-generated probe assets (installed via /probe/install or the offline script).
+/assets/probe.json
+/assets/probe_directions.npy
+/assets/probe_stats.json
+*.json.tmp

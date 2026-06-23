@@ -1,0 +1,56 @@
+{
+  "ideation": [
+    { "id": "problem_clarity", "label": "Problem Clarity", "prompt": "Is the problem being solved well-defined and specific? Score 0.0 (vague or unstated) to 1.0 (a concrete, narrowly-scoped problem with a clear sufferer)." },
+    { "id": "solution_originality", "label": "Solution Originality", "prompt": "Does the solution approach differ meaningfully from what already exists? Score 0.0 (a clone of existing offerings) to 1.0 (a genuinely distinct approach)." },
+    { "id": "founder_domain_fit", "label": "Founder-Domain Fit", "prompt": "Does the team have relevant domain knowledge or lived experience of this problem? Score 0.0 (no evident relevant background) to 1.0 (deep, demonstrated domain expertise)." },
+    { "id": "idea_testability", "label": "Idea Testability", "prompt": "Can the core hypothesis be tested quickly and cheaply? Score 0.0 (requires large upfront investment to validate) to 1.0 (a cheap, fast experiment would validate it)." }
+  ],
+  "market": [
+    { "id": "tam_evidence", "label": "TAM Evidence", "prompt": "Does the profile contain evidence or credible estimates of the total addressable market size? Score 0.0 (no mention) to 1.0 (specific, sourced figures)." },
+    { "id": "icp_specificity", "label": "ICP Specificity", "prompt": "How specifically is the ideal customer profile described? Score 0.0 (generic, e.g. 'SMEs') to 1.0 (a specific segment with geography, pain point, and buying trigger)." },
+    { "id": "wtp_signal", "label": "Willingness-to-Pay Signal", "prompt": "Is there evidence customers would pay, and at what price? Score 0.0 (no signal) to 1.0 (clear paid commitments or strong pricing evidence)." },
+    { "id": "competitive_differentiation", "label": "Competitive Differentiation", "prompt": "How distinct is the offering versus named alternatives? Score 0.0 (indistinguishable) to 1.0 (a clear, defensible difference)." },
+    { "id": "market_timing", "label": "Market Timing", "prompt": "Is there a reason this works now that did not exist two years ago? Score 0.0 (no timing rationale) to 1.0 (a strong, specific 'why now')." }
+  ],
+  "product": [
+    { "id": "mvp_existence", "label": "MVP Existence", "prompt": "Is there a working prototype, MVP, or demo? Score 0.0 (idea only) to 1.0 (a usable product in the hands of users)." },
+    { "id": "technical_feasibility", "label": "Technical Feasibility", "prompt": "Can this be built with available technology and the team's skills? Score 0.0 (major unsolved technical risk) to 1.0 (clearly feasible)." },
+    { "id": "core_features_defined", "label": "Core Features Defined", "prompt": "Are the must-have features clearly specified? Score 0.0 (undefined scope) to 1.0 (a crisp, prioritised feature set)." },
+    { "id": "ux_considered", "label": "UX Considered", "prompt": "Has the user experience been explicitly designed or tested? Score 0.0 (no UX consideration) to 1.0 (designed and validated with users)." }
+  ],
+  "brand": [
+    { "id": "brand_identity", "label": "Brand Identity", "prompt": "Does the venture have a distinct name, visual identity, and positioning? Score 0.0 (none) to 1.0 (a coherent, distinctive brand)." },
+    { "id": "innovation_degree", "label": "Innovation Degree", "prompt": "How novel is this relative to incumbent solutions? Score 0.0 (incremental) to 1.0 (a breakthrough or category-defining innovation)." },
+    { "id": "ip_awareness", "label": "IP Awareness", "prompt": "Has the team considered patents, trademarks, or trade secrets? Score 0.0 (no IP consideration) to 1.0 (an explicit, appropriate IP strategy)." }
+  ],
+  "business-model": [
+    { "id": "revenue_model_clarity", "label": "Revenue Model Clarity", "prompt": "Is there a clear, specific way the venture makes money? Score 0.0 (unclear) to 1.0 (a well-defined revenue model)." },
+    { "id": "unit_economics_viability", "label": "Unit Economics Viability", "prompt": "Are LTV/CAC or equivalent unit metrics defined and plausible? Score 0.0 (undefined) to 1.0 (defined and clearly viable)." },
+    { "id": "pricing_strategy", "label": "Pricing Strategy", "prompt": "Is pricing justified relative to value delivered and competitors? Score 0.0 (arbitrary or unstated) to 1.0 (a deliberate, value-based pricing strategy)." },
+    { "id": "path_to_profitability", "label": "Path to Profitability", "prompt": "Is there a plausible timeline to positive margins? Score 0.0 (no path) to 1.0 (a credible path to profitability)." }
+  ],
+  "legal": [
+    { "id": "corporate_structure", "label": "Corporate Structure", "prompt": "Is the entity properly registered, or is there a concrete plan to register? Score 0.0 (none) to 1.0 (properly structured)." },
+    { "id": "regulatory_compliance", "label": "Regulatory Compliance", "prompt": "Are the applicable local regulations identified and addressed? Score 0.0 (ignored) to 1.0 (identified and actively addressed)." },
+    { "id": "ip_protection", "label": "IP Protection", "prompt": "Are key IP assets legally protected or in the process of being protected? Score 0.0 (unprotected) to 1.0 (protected or filing in progress)." },
+    { "id": "environmental_awareness", "label": "Environmental Awareness", "prompt": "Has environmental impact been considered in the business model? Score 0.0 (not considered) to 1.0 (explicitly considered and addressed)." }
+  ],
+  "operations": [
+    { "id": "team_completeness", "label": "Team Completeness", "prompt": "Do the founders collectively cover the key skill areas (technical, business, domain)? Score 0.0 (major gaps) to 1.0 (a complete founding team)." },
+    { "id": "process_definition", "label": "Process Definition", "prompt": "Are core operational processes documented or planned? Score 0.0 (ad hoc) to 1.0 (well-documented processes)." },
+    { "id": "supplier_readiness", "label": "Supplier Readiness", "prompt": "Are key suppliers, vendors, or partners identified? Score 0.0 (none identified) to 1.0 (secured key partners)." },
+    { "id": "operational_capacity", "label": "Operational Capacity", "prompt": "Can the team handle near-term growth without immediate hiring? Score 0.0 (already at capacity) to 1.0 (clear headroom)." }
+  ],
+  "marketing": [
+    { "id": "gtm_strategy", "label": "Go-to-Market Strategy", "prompt": "Is there a specific plan for reaching the first 100 customers? Score 0.0 (none) to 1.0 (a concrete, actionable GTM plan)." },
+    { "id": "channel_identification", "label": "Channel Identification", "prompt": "Are the most effective acquisition channels identified? Score 0.0 (unknown) to 1.0 (validated channels)." },
+    { "id": "messaging_clarity", "label": "Messaging Clarity", "prompt": "Is the value proposition communicated in one clear sentence? Score 0.0 (confusing) to 1.0 (a crisp, compelling one-liner)." },
+    { "id": "content_presence", "label": "Content / Audience Presence", "prompt": "Is there any existing content, community, or audience? Score 0.0 (none) to 1.0 (an engaged audience or content engine)." }
+  ],
+  "sales": [
+    { "id": "pipeline_existence", "label": "Pipeline Existence", "prompt": "Are there identified leads, prospects, or signed pilots? Score 0.0 (none) to 1.0 (a healthy qualified pipeline)." },
+    { "id": "sales_process_defined", "label": "Sales Process Defined", "prompt": "Is there a repeatable process from lead to close? Score 0.0 (none) to 1.0 (a documented, repeatable sales process)." },
+    { "id": "conversion_evidence", "label": "Conversion Evidence", "prompt": "Has anyone actually paid or firmly committed to pay? Score 0.0 (no conversions) to 1.0 (repeatable conversions)." },
+    { "id": "revenue_traction", "label": "Revenue Traction", "prompt": "Is there any recurring revenue or signed contracts? Score 0.0 (none) to 1.0 (meaningful recurring revenue)." }
+  ]
+}

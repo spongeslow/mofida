@@ -1,0 +1,36 @@
+# Minimal SearXNG config for Moufida — merges with SearXNG's built-in defaults.
+# Purpose: expose the JSON API (disabled by default) so the RAG service can
+# fetch live web evidence over the compose network. Self-hosted, no API key.
+use_default_settings: true
+
+server:
+  # Local single-user desktop deployment behind the compose network only.
+  secret_key: "moufida-local-dev-searxng-key-change-me"
+  limiter: false
+  image_proxy: false
+
+search:
+  # Enable the JSON output format that /web_search relies on.
+  formats:
+    - html
+    - json
+  safe_search: 0
+  autocomplete: ""
+
+engines:
+  # Keep general web engines that don't require keys; disable noisy/blocked ones.
+  - name: google
+    disabled: false
+  - name: duckduckgo
+    disabled: false
+  - name: bing
+    disabled: false
+  - name: wikipedia
+    disabled: false
+  # Brave consistently rate-limits self-hosted instances (180 s suspension per hit).
+  - name: brave
+    engine: brave
+    disabled: true
+  - name: brave news
+    engine: brave
+    disabled: true

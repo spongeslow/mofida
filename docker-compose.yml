@@ -13,7 +13,9 @@ x-axis-env: &axis-env
   OLLAMA_BASE_URL: ${OLLAMA_BASE_URL}
   OLLAMA_MODEL: ${OLLAMA_MODEL}
   OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL}
+  OLLAMA_TIMEOUT: ${OLLAMA_TIMEOUT:-300}
   REDIS_URL: ${REDIS_URL}
+  ORCHESTRATOR_URL: ${ORCHESTRATOR_URL}
 
 x-host-gateway: &host-gateway
   - "host.docker.internal:host-gateway"
@@ -53,30 +55,85 @@ services:
     volumes:
       - qdrantdata:/qdrant/storage
 
+  # --- Live web-search (free, self-hosted metasearch; no API key) -----------
+  searxng:
+    image: searxng/searxng:latest
+    environment:
+      # Base URL is only used for absolute links in the HTML UI; JSON API is unaffected.
+      SEARXNG_BASE_URL: http://searxng:8080/
+    volumes:
+      - ./backend/rag/searxng:/etc/searxng:ro
+    # Host port intentionally omitted — the RAG service queries it over the compose network.
+    restart: unless-stopped
+
+  # --- DB migrations (runs on every start; all SQL files are idempotent) ----
+  db-migrate:
+    image: postgres:16-alpine
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./db/migrations:/migrations:ro
+    depends_on:
+      postgres: {condition: service_healthy}
+    command: >
+      sh -c "for f in /migrations/[0-9][0-9][0-9]_*.sql; do
+        echo \"Applying $$f ...\";
+        psql -h postgres -U ${POSTGRES_USER} -d ${POSTGRES_DB} -f \"$$f\";
+      done && echo 'Migrations done.'"
+    restart: "no"
+
   # --- Core backend ----------------------------------------------------------
   orchestrator:
     build:
       context: .
-      dockerfile: orchestrator/Dockerfile
+      dockerfile: backend/orchestrator/Dockerfile
     environment:
       <<: *axis-env
       DATABASE_URL: ${DATABASE_URL}
+      # redis_consumer.py subscribes to the daemon's metric channel for live
+      # alert/SSE fan-out; required at import (os.environ[...]).
+      REDIS_METRICS_CHANNEL: ${REDIS_METRICS_CHANNEL}
+      # Creation-mode evidence: the generation runner queries RAG /retrieve and
+      # /web_search to ground axis /generate prompts.
+      RAG_URL: ${RAG_URL}
+      # Composio (Phase G): managed OAuth + bidirectional triggers. Optional —
+      # when the key is empty, Composio-backed tools report "unavailable" and the
+      # hand-rolled token tools keep working.
+      COMPOSIO_API_KEY: ${COMPOSIO_API_KEY:-}
+      COMPOSIO_WEBHOOK_SECRET: ${COMPOSIO_WEBHOOK_SECRET:-}
+      COMPOSIO_REDIRECT_URL: ${COMPOSIO_REDIRECT_URL:-https://app.composio.dev/redirect}
+      # Interpretability service (Phase H): Concept Bottleneck scoring. Optional —
+      # if unreachable, the diagnostic still returns (CBM is best-effort).
+      SIGNAL_URL: ${SIGNAL_URL:-http://signal:8010}
+      # Observability admin panel (Phase H, H4): health probes + optional auth.
+      QDRANT_URL: ${QDRANT_URL}
+      SEARXNG_URL: ${SEARXNG_URL:-http://searxng:8080}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-}
     extra_hosts: *host-gateway
     ports: ["8001:8001"]
     depends_on:
       postgres: {condition: service_healthy}
       redis: {condition: service_healthy}
+      db-migrate: {condition: service_completed_successfully}
 
   rag:
     build:
       context: .
-      dockerfile: rag/Dockerfile
+      dockerfile: backend/rag/Dockerfile
     environment:
       QDRANT_URL: ${QDRANT_URL}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION}
       OLLAMA_URL: ${OLLAMA_URL}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL}
+      MOUFIDA_EMBED_MODEL: ${MOUFIDA_EMBED_MODEL}
+      MOUFIDA_EMBED_DIM: ${MOUFIDA_EMBED_DIM:-1024}
+      SEARXNG_URL: ${SEARXNG_URL:-http://searxng:8080}
+      # Axis-direction re-ranking + auto-tagging (Phase H, paper 2). Best-effort.
+      SIGNAL_URL: ${SIGNAL_URL:-http://signal:8010}
     ports: ["8300:8300"]
     volumes:
-      - ./rag/knowledge-base:/srv/knowledge-base:ro
+      - ./backend/rag/knowledge-base:/srv/knowledge-base:ro
+    extra_hosts: *host-gateway
     depends_on: [qdrant]
 
   daemon:
@@ -86,7 +143,9 @@ services:
     environment:
       REDIS_URL: ${REDIS_URL}
       REDIS_METRICS_CHANNEL: ${REDIS_METRICS_CHANNEL}
+      ORCHESTRATOR_URL: ${ORCHESTRATOR_URL}
       RAG_URL: ${RAG_URL}
+      MOUFIDA_PROJECT_ID: ${MOUFIDA_PROJECT_ID}
     depends_on:
       redis: {condition: service_healthy}
 
@@ -94,9 +153,48 @@ services:
   scoring-engine:
     build:
       context: .
-      dockerfile: scoring-engine/Dockerfile
+      dockerfile: backend/scoring-engine/Dockerfile
     ports: ["8200:8200"]
     # No external dependencies — pure scoring library with no datastores.
+
+  # --- Interpretability service (Phase H) -----------------------------------
+  # Rust microservice: Concept Bottleneck scoring + Contrastive Axis Direction
+  # probing. See docs/research/*.md. Probe directions are installed at runtime
+  # via `docker compose --profile tools run --rm compute-directions`.
+  signal:
+    build:
+      context: .
+      dockerfile: signal/Dockerfile
+    ports: ["8010:8010"]
+    # No datastores — prior CBM weights are baked into the image; calibrated
+    # weights + installed probe directions live in the container's /srv/assets.
+
+  # --- One-off: compute axis directions and push them to the signal probe ----
+  # Run after KB ingest:  docker compose --profile tools run --rm compute-directions
+  compute-directions:
+    profiles: [tools]
+    image: python:3.12-slim
+    working_dir: /work
+    environment:
+      QDRANT_URL: ${QDRANT_URL}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION}
+      SIGNAL_URL: ${SIGNAL_URL:-http://signal:8010}
+    volumes:
+      - ./scripts:/work/scripts:ro
+    command: >
+      sh -c "pip install --no-cache-dir --quiet numpy qdrant-client &&
+             python scripts/compute_axis_directions.py"
+    depends_on: [qdrant, signal]
+
+  # --- Admin / observability panel (Phase H, H4) -----------------------------
+  # Standalone browser SPA. Talks to the orchestrator admin API from the browser
+  # (the host's localhost:8001), so it needs no compose links — just the port.
+  admin:
+    build:
+      context: .
+      dockerfile: admin/Dockerfile
+    ports: ["3002:3002"]
+    depends_on: [orchestrator]
 
   # --- Frontend (Vite dev server — web layer only, opt-in) ------------------
   # NOT started by default — `docker compose up` only starts the backend.
@@ -118,53 +216,55 @@ services:
 
   # --- Axis services (8101-8110) --------------------------------------------
   ideation-service:
-    build: {context: ., dockerfile: services/ideation-service/Dockerfile}
+    build: {context: ., dockerfile: backend/services/ideation-service/Dockerfile}
     environment: *axis-env
     extra_hosts: *host-gateway
     ports: ["8101:8101"]
   market-intelligence-service:
-    build: {context: ., dockerfile: services/market-intelligence-service/Dockerfile}
+    build: {context: ., dockerfile: backend/services/market-intelligence-service/Dockerfile}
     environment: *axis-env
     extra_hosts: *host-gateway
     ports: ["8102:8102"]
   product-offering-service:
-    build: {context: ., dockerfile: services/product-offering-service/Dockerfile}
+    build: {context: ., dockerfile: backend/services/product-offering-service/Dockerfile}
     environment: *axis-env
     extra_hosts: *host-gateway
     ports: ["8103:8103"]
   brand-innovation-service:
-    build: {context: ., dockerfile: services/brand-innovation-service/Dockerfile}
+    build: {context: ., dockerfile: backend/services/brand-innovation-service/Dockerfile}
     environment: *axis-env
     extra_hosts: *host-gateway
     ports: ["8104:8104"]
   business-model-service:
-    build: {context: ., dockerfile: services/business-model-service/Dockerfile}
+    build: {context: ., dockerfile: backend/services/business-model-service/Dockerfile}
     environment: *axis-env
     extra_hosts: *host-gateway
     ports: ["8105:8105"]
   legal-compliance-service:
-    build: {context: ., dockerfile: services/legal-compliance-service/Dockerfile}
+    build: {context: ., dockerfile: backend/services/legal-compliance-service/Dockerfile}
     environment: *axis-env
     extra_hosts: *host-gateway
     ports: ["8106:8106"]
   marketing-service:
-    build: {context: ., dockerfile: services/marketing-service/Dockerfile}
+    build: {context: ., dockerfile: backend/services/marketing-service/Dockerfile}
     environment: *axis-env
     extra_hosts: *host-gateway
     ports: ["8107:8107"]
   sales-service:
-    build: {context: ., dockerfile: services/sales-service/Dockerfile}
+    build: {context: ., dockerfile: backend/services/sales-service/Dockerfile}
     environment: *axis-env
     extra_hosts: *host-gateway
     ports: ["8108:8108"]
   operations-service:
-    build: {context: ., dockerfile: services/operations-service/Dockerfile}
+    build: {context: ., dockerfile: backend/services/operations-service/Dockerfile}
     environment: *axis-env
     extra_hosts: *host-gateway
     ports: ["8109:8109"]
   go-to-market-service:
-    build: {context: ., dockerfile: services/go-to-market-service/Dockerfile}
-    environment: *axis-env
+    build: {context: ., dockerfile: backend/services/go-to-market-service/Dockerfile}
+    environment:
+      <<: *axis-env
+      RAG_URL: ${RAG_URL}
     extra_hosts: *host-gateway
     ports: ["8110:8110"]
 

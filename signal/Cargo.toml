@@ -1,0 +1,26 @@
+[package]
+name = "moufida-signal"
+version = "0.1.0"
+edition = "2021"
+description = "Interpretability microservice: Concept Bottleneck scoring + Contrastive Axis Direction probing for Moufida."
+license = "MIT"
+
+[[bin]]
+name = "moufida-signal"
+path = "src/main.rs"
+
+[dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "signal"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+anyhow = "1"
+nalgebra = "0.33"
+parking_lot = "0.12"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+strip = true

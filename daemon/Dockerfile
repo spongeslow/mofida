@@ -1,7 +1,8 @@
 # Build a static ~10 MB daemon binary.
 FROM golang:1.22-alpine AS build
 WORKDIR /src
-COPY daemon/go.mod ./
+COPY daemon/go.mod daemon/go.sum ./
+RUN go mod download
 COPY daemon/ ./
 RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /out/moufida-daemon ./cmd
 

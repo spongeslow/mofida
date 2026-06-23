@@ -15,7 +15,7 @@
         "title": "Moufida",
         "width": 960,
         "height": 640,
-        "visible": false
+        "visible": true
       }
     ],
     "trayIcon": {
