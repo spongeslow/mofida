@@ -32,7 +32,13 @@ export type CharacterState =
   | 'reading'
   | 'eating'
   | 'startled'
-  | 'dragging';
+  | 'dragging'
+  | 'typing'
+  | 'shrug'
+  | 'crying'
+  | 'stretching'
+  | 'facepalm'
+  | 'cool';
 
 // ── Palette ───────────────────────────────────────────────────────
 export const P: Record<string, string> = {
@@ -207,7 +213,16 @@ export function getMouth(state: string, open: boolean): PR[] {
         : [MOUTH_CLEAR, [5, 8, 2, 1, 'M']];                    // closed chew
     case 'skeptic':
     case 'worried':
+    case 'crying':
       return [MOUTH_CLEAR, [4, 7, 1, 1, 'M'], [7, 7, 1, 1, 'M'], [5, 8, 2, 1, 'M']]; // frown
+    case 'shrug':
+      return [MOUTH_CLEAR, [5, 8, 2, 1, 'M']]; // flat neutral
+    case 'facepalm':
+      return [MOUTH_CLEAR]; // palm covers everything, clear the body smile remnant
+    case 'typing':
+      return [MOUTH_CLEAR, [4, 8, 4, 1, 'M']]; // focused straight line
+    case 'stretching':
+      return [MOUTH_CLEAR, [4, 8, 4, 1, 'M'], [5, 8, 1, 1, 'T']]; // wide grin showing a hint of teeth
     default:
       return [];  // keep the default BODY smile
   }
@@ -220,14 +235,20 @@ const ARM_R_BOX: PR = [10, 9, 2, 9, ''];
 /** Which hanging arm(s) to erase before drawing a custom arm pose. */
 export function getArmClear(state: string): PR[] {
   switch (state) {
-    case 'celebrating':                 return [ARM_L_BOX, ARM_R_BOX];
-    case 'dragging':                    return [ARM_L_BOX, ARM_R_BOX];
-    case 'skeptic':                     return [ARM_L_BOX, ARM_R_BOX];
-    case 'reading':                     return [ARM_L_BOX, ARM_R_BOX];
+    case 'celebrating':
+    case 'dragging':
+    case 'skeptic':
+    case 'reading':
+    case 'typing':
+    case 'shrug':
+    case 'crying':
+    case 'stretching':
+    case 'cool':                        return [ARM_L_BOX, ARM_R_BOX];
     case 'pointing_left':               return [ARM_L_BOX];
-    case 'presenting':                  return [ARM_R_BOX];
+    case 'presenting':
     case 'thinking':
-    case 'processing':                  return [ARM_R_BOX];
+    case 'processing':
+    case 'facepalm':                    return [ARM_R_BOX];
     default:                            return [];
   }
 }
@@ -251,6 +272,39 @@ export function getArmPose(state: string): PR[] {
       return [[2, 14, 8, 2, 'S'], [2, 14, 8, 1, 'C']];                  // crossed forearms
     case 'reading':
       return [[2, 16, 2, 2, 'S'], [8, 16, 2, 2, 'S']];                  // forearms forward
+    case 'typing':
+      // Arms bent downward toward keyboard; forearms angling inward
+      return [
+        [0, 14, 2, 3, 'S'], [2, 17, 2, 1, 'S'],   // left upper-arm + wrist on keys
+        [10, 14, 2, 3, 'S'], [8, 17, 2, 1, 'S'],   // right mirror
+      ];
+    case 'shrug':
+      // Arms raised at shoulder height, shoulder peaks slightly elevated
+      return [
+        [0, 11, 2, 4, 'S'], [0, 10, 1, 1, 'S'],   // left arm raised + shoulder
+        [10, 11, 2, 4, 'S'], [11, 10, 1, 1, 'S'],  // right mirror
+      ];
+    case 'crying':
+      return [[0, 15, 2, 5, 'S'], [10, 15, 2, 5, 'S']]; // arms slumped lower
+    case 'stretching':
+      // Tapered Y-shape: thin at the top, slightly wider below — more spread than celebrating
+      return [
+        [0, 7, 1, 6, 'S'], [1, 8, 1, 5, 'S'],   // left arm: 1-wide at top, 2-wide lower
+        [11, 7, 1, 6, 'S'], [10, 8, 1, 5, 'S'],  // right mirror
+      ];
+    case 'facepalm':
+      // Right forearm goes up from shoulder, large palm covers the right half of the face.
+      // The left eye stays visible — one eye peeking through the fingers.
+      return [
+        [9, 9, 3, 5, 'S'],   // forearm rising (cols 9-11, rows 9-13)
+        [5, 5, 7, 5, 'S'],   // palm over most of face (cols 5-11, rows 5-9)
+      ];
+    case 'cool':
+      // Both arms raised slightly with thumb-tip extensions for a thumbs-up silhouette
+      return [
+        [0, 10, 2, 4, 'S'], [0, 9, 1, 1, 'S'],   // left arm + thumb
+        [10, 10, 2, 4, 'S'], [11, 9, 1, 1, 'S'],  // right arm + thumb
+      ];
     default:
       return [];
   }
@@ -265,6 +319,17 @@ export function getAccessory(state: string): PR[] {
       return [[11, 7, 1, 5, 'B'], [11, 6, 1, 1, 'g']];
     case 'reading':     // open book held in front
       return [[3, 15, 6, 3, 'B'], [4, 16, 4, 1, 'W'], [6, 15, 1, 3, 'K']];
+    case 'typing':      // flat keyboard bar in front of the hem with key highlights
+      return [
+        [2, 18, 8, 1, 'K'],
+        [3, 18, 1, 1, 'W'], [5, 18, 1, 1, 'W'], [7, 18, 1, 1, 'W'],
+      ];
+    case 'cool':        // sunglasses: dark lenses + bridge + gold glare highlight
+      return [
+        [3, 4, 2, 2, 'K'], [7, 4, 2, 2, 'K'],  // left and right lenses
+        [5, 4, 2, 1, 'K'],                       // nose bridge
+        [3, 4, 1, 1, 'g'], [7, 4, 1, 1, 'g'],   // glare dot on each lens
+      ];
     default:
       return [];
   }
@@ -280,6 +345,11 @@ export function bodyOffset(state: string, t: number): number {
     case 'worried':     return 2;
     case 'sleeping':    return 1;
     case 'eating':      return Math.round(Math.sin(t / 100)); // small chew bob
+    case 'typing':      return (t % 300) < 150 ? 0 : -1;       // subtle keystroke tap
+    case 'stretching':  return Math.round(Math.sin(t / 700) * 3) - 1; // slow deep-breath float
+    case 'crying':      return 2;                               // slumped posture
+    case 'cool':        return -1;                              // standing tall
+    case 'facepalm':    return 1;                               // slight forward lean
     default:            return 0;
   }
 }
@@ -310,6 +380,39 @@ export function drawParticles(
       const px = ox + (5 + i) * SC + Math.round(Math.sin((t / 90) + i) * 2);
       const py = oy + 9 * SC + Math.round(phase * 6);
       ctx.fillRect(px, py, 2, 2);
+    }
+  } else if (state === 'crying') {
+    // Twin tear streams falling from each eye.
+    ctx.fillStyle = '#5BA3D0';
+    for (let i = 0; i < 3; i++) {
+      const phase = (t / 380 + i * 0.34) % 1;
+      if (phase > 0.05) {
+        const py = Math.round(oy + 5 * SC + phase * 9 * SC);
+        ctx.fillRect(ox + 4 * SC, py, 2, 4);
+        ctx.fillRect(ox + 8 * SC, py, 2, 4);
+      }
+    }
+  } else if (state === 'stretching') {
+    // Tiny sparkle dots rising as she reaches up.
+    const sparkColors = ['#F0B848', '#F5F0EC', '#E07832', '#D98A3A', '#9CC2F5'];
+    for (let i = 0; i < 5; i++) {
+      const phase = (t / 700 + i * 0.2) % 1;
+      if (phase < 0.85) {
+        const px = Math.round(ox + (1 + i * 2.2) * SC + Math.sin(phase * Math.PI * 2 + i) * 3);
+        const py = Math.round(oy - phase * 5 * SC);
+        ctx.fillStyle = sparkColors[i];
+        ctx.fillRect(px, py, 2, 2);
+      }
+    }
+  } else if (state === 'cool') {
+    // Periodic lens glint: a small cross-shaped star off the sunglasses.
+    const glintPhase = (t / 900) % 1;
+    if (glintPhase < 0.12) {
+      ctx.fillStyle = '#F0B848';
+      const gx = ox + 3 * SC;
+      const gy = oy + 4 * SC;
+      ctx.fillRect(gx, gy - 2, 1, 5);
+      ctx.fillRect(gx - 2, gy, 5, 1);
     }
   }
 }
@@ -418,6 +521,24 @@ export function drawChar(
     ctx.fillText('z', overX + SC, overY - SC);
     ctx.font = `bold ${SC + 3}px sans-serif`;
     ctx.fillText('z', overX + SC * 2, overY - SC * 2.5);
+  } else if (state === 'typing') {
+    // Blinking underscore cursor to the side.
+    if ((t % 600) < 300) {
+      ctx.fillStyle = '#3A1F0E';
+      ctx.font = `bold ${SC + 1}px 'Courier New', monospace`;
+      ctx.textAlign = 'left';
+      ctx.fillText('_', overX, overY + SC * 0.5);
+    }
+  } else if (state === 'shrug') {
+    ctx.fillStyle = '#C07845';
+    ctx.font = `bold ${SC * 2}px sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.fillText('?', overX, overY + SC);
+  } else if (state === 'cool') {
+    ctx.fillStyle = '#F0B848';
+    ctx.font = `bold ${SC + 2}px sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.fillText('★', overX, overY + SC * 0.5);
   }
 
   ctx.restore();

@@ -29,6 +29,22 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   return <div className="mf-section-title">{children}</div>;
 }
 
+// ── Inline action icons (monochrome, match the warm palette) ──────
+const ic = { width: 15, height: 15, viewBox: "0 0 18 18", fill: "none",
+  stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+function IconRefresh() {
+  return <svg {...ic}><path d="M15 4.5A6.3 6.3 0 1 0 16 9" /><path d="M15 1.5V5h-3.5" /></svg>;
+}
+function IconBolt() {
+  return <svg {...ic} fill="currentColor" stroke="none"><path d="M10 1L3 10h4l-1 7 7-9H9l1-7z" /></svg>;
+}
+function IconShuffle() {
+  return <svg {...ic}><path d="M2 4h3l8 10h3M2 14h3l3-3.5M11 4h5M11 14h5" /><path d="M14 2l2 2-2 2M14 12l2 2-2 2" /></svg>;
+}
+function IconPaperclip() {
+  return <svg {...ic}><path d="M15 8l-6.5 6.5a3.5 3.5 0 0 1-5-5L10 3a2.3 2.3 0 0 1 3.3 3.3l-6.4 6.4a1.1 1.1 0 0 1-1.6-1.6L11 5.5" /></svg>;
+}
+
 // Animate a number toward its target (shared count-up easing).
 function useCountUp(target: number, ms = 700): number {
   const [val, setVal] = useState(target);
@@ -275,15 +291,15 @@ export function Dashboard() {
           marginTop: 20, paddingTop: 18, borderTop: `1px solid ${C.border}`,
           position: "relative", zIndex: 1,
         }}>
-          <button onClick={() => { void runDiag(false); }} disabled={busy} className="mf-btn-accent mf-press">
-            {loading ? t("running_diagnostic") : `↻ ${t("run_diagnostic")}`}
+          <button onClick={() => { void runDiag(false); }} disabled={busy} className="mf-btn-accent">
+            <IconRefresh /> {loading ? t("running_diagnostic") : t("run_diagnostic")}
           </button>
-          <button onClick={() => { void runDiag(true); }} disabled={busy} className="mf-btn-ghost mf-press">
-            {quickLoading ? t("quick_diagnostic_running") : `⚡ ${t("quick_diagnostic")}`}
+          <button onClick={() => { void runDiag(true); }} disabled={busy} className="mf-btn-ghost">
+            <IconBolt /> {quickLoading ? t("quick_diagnostic_running") : t("quick_diagnostic")}
           </button>
           {hasScores && (
-            <button onClick={() => setView("scenarios")} className="mf-btn-ghost mf-press">
-              🔀 {t("scenario_whatif")}
+            <button onClick={() => setView("scenarios")} className="mf-btn-ghost">
+              <IconShuffle /> {t("scenario_whatif")}
             </button>
           )}
           <input
@@ -293,8 +309,8 @@ export function Dashboard() {
             onChange={(e) => { void handleUpload(e); }}
             style={{ display: "none" }}
           />
-          <button onClick={() => fileRef.current?.click()} className="mf-btn-ghost mf-press">
-            📎 {t("doc_upload")}
+          <button onClick={() => fileRef.current?.click()} className="mf-btn-ghost">
+            <IconPaperclip /> {t("doc_upload")}
           </button>
           {uploadStatus && <span style={{ color: C.muted, fontSize: 12 }}>{uploadStatus}</span>}
           {error && <span style={{ color: C.error, fontSize: 13 }}>{error}</span>}

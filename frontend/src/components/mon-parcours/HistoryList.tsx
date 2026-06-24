@@ -3,6 +3,7 @@ import { useStore } from "../../store";
 import { useT } from "../../i18n";
 import { getDiagnosticHistory } from "../../api";
 import { C, STAGE_COLORS, card } from "../../theme";
+import { IconWarn } from "../shared/icons";
 import type { DiagnosticHistoryEntry } from "../../types";
 
 function HistoryEntry({ entry }: { entry: DiagnosticHistoryEntry }) {
@@ -38,8 +39,8 @@ function HistoryEntry({ entry }: { entry: DiagnosticHistoryEntry }) {
       </div>
 
       {gap && entry.self_assessed && (
-        <p style={{ color: C.error, fontSize: 12, margin: "0 0 4px" }}>
-          ⚠ {t("perception_gap")} — {t("perception_gap_self")}: {entry.self_assessed}
+        <p style={{ color: C.error, fontSize: 12, margin: "0 0 4px", display: "flex", alignItems: "center", gap: 6 }}>
+          <IconWarn size={13} /> {t("perception_gap")} — {t("perception_gap_self")}: {entry.self_assessed}
         </p>
       )}
 

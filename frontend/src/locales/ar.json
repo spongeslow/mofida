@@ -1,12 +1,15 @@
 {
   "app_title": "مفيدة",
   "tagline": "مساعدك في ريادة الأعمال، يعمل محليًا بالكامل.",
+  "nav_group_workspace": "مساحة العمل",
+  "nav_group_build": "التحضير",
+  "nav_group_knowledge": "المعرفة",
+  "nav_group_system": "النظام",
   "switch_language": "Français",
   "menu_new": "مشروع جديد",
   "menu_diagnose": "تشخيص مشروع قائم",
   "menu_settings": "الإعدادات",
   "menu_quit": "خروج",
-
   "nav_dashboard": "لوحة القيادة",
   "nav_hud": "المساعد",
   "nav_personas": "شخصيات العملاء",
@@ -40,7 +43,6 @@
   "kb_read_more": "اقرأ المزيد",
   "kb_open_source": "فتح المصدر",
   "history": "مساري",
-
   "maturity_stage": "مرحلة النضج",
   "confidence": "الثقة",
   "perception_gap": "تم اكتشاف فجوة في التصور",
@@ -48,63 +50,54 @@
   "no_diagnostic": "لا يوجد تشخيص متاح",
   "run_diagnostic": "تشغيل التشخيص",
   "running_diagnostic": "جارٍ التشخيص…",
-
   "score_market": "نقاط السوق",
   "score_commercial_offer": "العرض التجاري",
   "score_innovation": "الابتكار",
   "score_scalability": "قابلية التوسع",
   "score_green": "النقاط الخضراء",
   "score_out_of": "/ 5",
+  "score_details": "تفاصيل",
   "sub_dimension": "البُعد الفرعي",
   "weight": "الوزن",
   "value": "القيمة",
   "tier": "المستوى",
   "contribution": "المساهمة",
   "improve": "تحسين",
-
   "blockers_critical": "العوائق الحرجة",
   "blockers_none": "لا توجد عوائق محددة",
   "see_roadmap": "انظر في خارطة الطريق",
   "axis": "المحور",
-
   "roadmap_title": "خارطة الطريق",
   "roadmap_immediate": "فوري (0-2 أسابيع)",
   "roadmap_short": "قصير المدى (1-3 أشهر)",
   "roadmap_medium": "متوسط المدى (3-12 شهرًا)",
   "roadmap_empty": "لا توجد خارطة طريق — قم بتشغيل التشخيص أولاً.",
   "source": "المصدر",
-
   "chat_placeholder": "اطرح سؤالاً على مفيدة…",
   "send": "إرسال",
   "you": "أنت",
   "moufida": "مفيدة",
-
   "approve": "موافقة",
   "retry": "إعادة المحاولة",
   "edit": "تعديل",
   "edit_placeholder": "أدخل تصحيحك…",
   "review_title": "نتيجة في انتظار الموافقة",
-
   "alerts_title": "التنبيهات",
   "no_alerts": "لا توجد تنبيهات",
   "dismiss": "رفض",
-
   "score_history": "سجل النقاط",
   "no_history": "لا توجد بيانات — قم بتشغيل التشخيص.",
   "diagnostic_history": "سجل التشخيصات",
   "no_diagnostic_history": "لا توجد تشخيصات سابقة.",
-
   "listening": "أستمع…",
   "speaking": "مفيدة تجيب…",
   "wake_prompt": "قل «مرحباً مفيدة» أو اضغط Ctrl+Space",
   "start_voice": "تحدث",
   "stop_voice": "إيقاف",
-
   "perception_gap_self": "التقييم الذاتي",
   "critical": "حرج",
   "warning": "تحذير",
   "info": "معلومة",
-
   "tagline_short": "شريكة الذكاء الاصطناعي",
   "nav_settings": "التكاملات",
   "settings_title": "تكاملات الأدوات",
@@ -136,12 +129,10 @@
   "tools_domain_finance": "مالية",
   "tools_domain_marketing": "تسويق",
   "tools_domain_development": "تطوير",
-
   "landing_back": "رجوع",
   "landing_recent_title": "تشخيص مشروع قائم",
   "landing_recent_loading": "جارٍ تحميل المشاريع…",
   "landing_no_recent": "لا توجد مشاريع. أنشئ مشروعًا جديدًا أولًا.",
-
   "intake_title": "إنشاء ملفك",
   "intake_subtitle": "بعض الأسئلة لمعايرة التحليل",
   "intake_loading": "جارٍ تحضير الاستبيان…",
@@ -151,7 +142,6 @@
   "intake_input_placeholder": "إجابتك…",
   "intake_yes": "نعم",
   "intake_no": "لا",
-
   "creation_title": "تحليل شركتك الناشئة",
   "creation_in_progress": "التحليل جارٍ…",
   "creation_complete_title": "تم إنشاء الملف بنجاح!",
@@ -161,7 +151,6 @@
   "creation_starting": "بدء التحليل…",
   "creation_awaiting_desc": "في انتظار نتيجة المحور التالي.",
   "creation_start_error": "تعذّر بدء التحليل",
-
   "axis_ideation": "التصوّر",
   "axis_market": "السوق",
   "axis_product": "المنتج",
@@ -171,12 +160,10 @@
   "axis_operations": "العمليات",
   "axis_marketing": "التسويق",
   "axis_sales": "المبيعات",
-
   "recommendations_title": "مسارات التحسين",
   "recommendations_empty": "لم يتم تحديد تحسينات ذات أولوية.",
   "recommendation_priority_high": "أولوية عالية",
   "recommendation_priority_medium": "أولوية متوسطة",
-
   "intake_update_title": "تحديث السياق",
   "intake_update_subtitle": "حدّث معطيات مشروعك قبل التشخيص",
   "quick_diagnostic": "تشخيص سريع",
@@ -188,13 +175,11 @@
   "lang_fr": "Français",
   "lang_en": "English",
   "lang_ar": "العربية",
-
   "settings_preferences": "التفضيلات",
   "companion_show": "إظهار الرفيقة",
   "companion_show_desc": "إظهار شخصية مفيدة على سطح المكتب.",
   "import_project": "استيراد ملف مشروع",
   "import_error": "فشل الاستيراد",
-
   "creation_got_idea": "هل لديك فكرة؟",
   "creation_got_idea_question": "صف فكرة شركتك الناشئة",
   "creation_idea_placeholder": "مثال: تطبيق لمساعدة الحرفيين التونسيين على البيع عبر الإنترنت…",
@@ -213,22 +198,17 @@
   "creation_export_pdf": "تصدير PDF",
   "creation_plan_empty": "لا توجد أقسام خطة متاحة.",
   "creation_edit_hint": "صف ما تريد تغييره…",
-
   "axis_roadmap": "خارطة الطريق",
-
   "mode_creation": "إنشاء",
   "mode_diagnosis": "تشخيص",
-
   "delete_project": "حذف",
   "delete_project_confirm": "حذف هذا المشروع نهائيًا؟",
   "delete_confirm_yes": "حذف",
-
   "debate_title": "نقاش النتيجة",
   "debate_placeholder": "اشرح لماذا يجب تغيير هذه النتيجة…",
   "debate_send": "إرسال",
   "debate_locked": "النتيجة مقفلة",
   "debate_score_changed": "تم تحديث النتيجة",
-
   "compare_title": "مقارنة تشخيصين",
   "compare_score_deltas": "تطور النتائج",
   "compare_resolved": "الإشكاليات المحلولة",
@@ -261,7 +241,6 @@
   "kb_add_placeholder": "الصق ملاحظة أو رابطًا يجب أن تعرفه مفيدة…",
   "kb_add_button": "إضافة",
   "kb_added": "تمت الإضافة إلى قاعدة المعرفة",
-
   "event_feed_title": "سجل الأحداث",
   "event_feed_empty": "لا توجد أحداث لهذا المشروع بعد.",
   "event_source_manual": "تعديل يدوي",
@@ -278,22 +257,18 @@
   "event_status_new": "جديد",
   "event_status_acted": "مُطبَّق",
   "event_status_ignored": "مُتجاهَل",
-
   "roadmap_stale_warning": "قد تكون خارطة الطريق قديمة بسبب التغييرات الأخيرة.",
   "roadmap_regenerate": "إعادة توليد خارطة الطريق",
   "roadmap_advance": "الانتقال إلى الأفق التالي",
   "roadmap_provenance": "مصدر خارطة الطريق",
   "roadmap_regen_confirm": "إعادة توليد خارطة الطريق بالبيانات الحالية؟",
-
   "whats_new_title": "ما الجديد؟",
   "whats_new_refresh": "تحديث",
   "whats_new_loading": "موفيدة تلخّص الأحداث الأخيرة…",
   "whats_new_no_events": "لا توجد أحداث حديثة.",
   "horizon_complete_celebrate": "اكتمل الأفق! موفيدة تُعدّ الخطوة التالية…",
-
   "score_delta_warning": "انخفضت النتيجة في:",
   "score_delta_review": "راجع الإجراءات المقابلة على سبيل الأولوية.",
-
   "roadmap_provenance_version": "الإصدار",
   "roadmap_provenance_kb": "إصدار قاعدة المعرفة",
   "roadmap_provenance_trigger": "المشغّل",
@@ -302,7 +277,6 @@
   "evidence_sources": "المصادر",
   "source_kb": "قاعدة",
   "source_web": "الويب",
-
   "daemon_watching": "المراقبة نشطة",
   "daemon_paused": "المراقبة متوقفة",
   "daemon_offline": "المراقبة غير متصلة",
@@ -311,7 +285,6 @@
   "daemon_focus": "راقب هذا المشروع",
   "daemon_focused": "المشروع المُراقَب",
   "daemon_unfocus": "إيقاف المراقبة",
-
   "competitor_board_title": "لوحة المنافسين",
   "competitor_dimension": "البُعد",
   "competitor_you": "أنت",
@@ -323,13 +296,11 @@
   "competitor_swot_weaknesses": "نقاط الضعف",
   "competitor_swot_opportunities": "الفرص",
   "competitor_swot_threats": "التهديدات",
-
   "opportunity_radar_title": "رادار التمويل",
   "opportunity_deadline": "الموعد النهائي",
   "opportunity_apply": "تقديم",
   "opportunity_dismiss": "تجاهل",
   "opportunity_match": "التطابق",
-
   "concept_breakdown_title": "تحليل المفاهيم",
   "concept_breakdown_subtitle": "يُفكَّك كل محور إلى مفاهيم مُسمّاة. عنق الزجاجة هو المفهوم الأكثر تأثيرًا في خفض النتيجة.",
   "concept_bottleneck": "عنق الزجاجة",
@@ -340,9 +311,7 @@
   "concept_axis_score": "نتيجة المحور",
   "concept_improve_hint": "تحسين هذا المفهوم من",
   "concept_would_lift": "سيرفع النتيجة من",
-
   "evidence_trace": "المصادر",
-
   "pitch_title": "محاكي عرض المستثمر",
   "pitch_subtitle": "تدرّب أمام مستثمر ذكاء اصطناعي تستند أسئلته فقط إلى تشخيصك.",
   "pitch_profile_seed_vc": "مستثمر بذرة",
@@ -363,7 +332,6 @@
   "pitch_push_roadmap": "أضِف إلى خارطة الطريق",
   "pitch_evidence_index": "المصادر المستخدمة",
   "pitch_pushed": "تمت إضافة الإجراءات إلى خارطة الطريق",
-
   "persona_title": "شخصيات العملاء",
   "persona_generate": "توليد الشخصيات",
   "persona_regenerate": "إعادة التوليد",
@@ -380,7 +348,6 @@
   "persona_close_title": "كيفية الإقناع",
   "persona_triggers": "المحفّزات الرئيسية",
   "persona_objections_addr": "اعتراضات يجب معالجتها",
-
   "scenario_whatif": "ماذا لو؟",
   "scenario_title": "مخطّط السيناريوهات",
   "scenario_subtitle": "اختبر التحوّلات وشاهد أثرها المتوقّع على المحاور التسعة، مع مستوى الثقة والمصادر.",
@@ -396,7 +363,6 @@
   "scenario_best": "أقوى سيناريو هو",
   "scenario_no_clear_win": "لا يوجد سيناريو يتفوّق بوضوح.",
   "scenario_adopt": "اعتماد",
-
   "dash_greeting": "إليك حالة مشروعك",
   "dash_health": "الصحة العامة",
   "dash_summary_loading": "أُحلّل مشروعك بدقّة…",
@@ -415,5 +381,20 @@
   "section_deep": "تحليل مفصّل",
   "section_market": "السوق والفرص",
   "section_roadmap": "خارطة الطريق",
-  "section_activity": "النشاط الأخير"
+  "section_activity": "النشاط الأخير",
+  "persona_intro_title": "عملاؤك، محاكاة",
+  "persona_intro_desc": "تولّد مفيدة ملفات المشترين من تشخيصك. اختر واحدًا لبدء محادثة واختبار حججك.",
+  "persona_count": "شخصيات تم إنشاؤها",
+  "persona_goal": "الهدف",
+  "persona_budget": "الميزانية",
+  "pitch_choose": "اختر مستثمرك",
+  "pitch_profile_seed_vc_desc": "النمو والجاذبية وحجم السوق.",
+  "pitch_profile_angel_desc": "الرؤية والفريق وشغف المؤسس.",
+  "pitch_profile_impact_fund_desc": "الأثر الاجتماعي والاستدامة والرسالة.",
+  "pitch_profile_strategic_desc": "أوجه التآزر والتميّز التنافسي.",
+  "pitch_how_title": "كيف تسير الجلسة",
+  "pitch_how_1": "أسئلة مبنية على تشخيصك",
+  "pitch_how_2": "يتفاعل المستثمر مباشرة مع إجاباتك",
+  "pitch_how_3": "تقرير جاهزية في النهاية",
+  "scenario_run_hint": "شغّل إسقاطًا لمقارنة سيناريوهاتك هنا."
 }

@@ -7,7 +7,8 @@ import { useEffect, useRef, useState } from "react";
 import { useStore } from "../../store";
 import { useT } from "../../i18n";
 import { pitchStart, pitchRespond, pitchEnd } from "../../api";
-import { C, F, card, btn } from "../../theme";
+import { C, F, T, btn } from "../../theme";
+import { IconTrend, IconHandshake, IconShield, IconTarget, IconChat, IconChart } from "../shared/icons";
 import type { InvestorProfile, PitchReadiness, PitchTurn } from "../../types";
 import { PixelMoufida } from "../companion/PixelMoufida";
 import type { CharacterState } from "../../pixelArt/moufida";
@@ -88,33 +89,98 @@ export function PitchSimulator({ projectId }: { projectId: string }) {
     setPhase("idle"); setSessionId(null); setTurns([]); setReport(null); setError(null);
   };
 
-  // ── Entry card ──────────────────────────────────────────────────
+  // ── Entry stage ─────────────────────────────────────────────────
   if (phase === "idle") {
+    const PROFILE_ICON: Record<InvestorProfile, React.ReactNode> = {
+      seed_vc:     <IconTrend size={18} />,
+      angel:       <IconHandshake size={18} />,
+      impact_fund: <IconShield size={18} />,
+      strategic:   <IconTarget size={18} />,
+    };
+    const HOW = [
+      { icon: <IconTarget size={16} />, text: t("pitch_how_1") },
+      { icon: <IconChat size={16} />,   text: t("pitch_how_2") },
+      { icon: <IconChart size={16} />,  text: t("pitch_how_3") },
+    ];
     return (
-      <div style={card} className="mf-card-hover">
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ flexShrink: 0 }}><PixelMoufida state="skeptic" cssScale={0.6} theme="blue" /></div>
-          <div style={{ flex: 1 }}>
-            <h3 style={{ margin: 0, color: C.text, fontFamily: F.heading, fontSize: 17 }}>
-              {t("pitch_title")}
-            </h3>
-            <p style={{ margin: "4px 0 0", color: C.muted, fontSize: 12.5, lineHeight: 1.5 }}>
-              {t("pitch_subtitle")}
-            </p>
+      <div style={{
+        minHeight: "calc(100vh - 180px)", display: "flex", flexDirection: "column",
+        justifyContent: "center", gap: 18,
+      }}>
+        <div className="mf-glass" style={{ borderRadius: 24, padding: "32px 34px", maxWidth: 800, width: "100%", margin: "0 auto" }}>
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 24 }}>
+            <div className="mf-float" style={{ flexShrink: 0, filter: "drop-shadow(0 14px 28px rgba(58,38,24,0.28))" }}>
+              <PixelMoufida state="skeptic" cssScale={0.85} theme="blue" />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ ...T.eyebrow, color: C.accent, margin: "0 0 5px" }}>{t("tagline_short")}</p>
+              <h3 style={{ ...T.h1, margin: 0, color: C.ink, fontSize: 27 }}>{t("pitch_title")}</h3>
+              <p style={{ ...T.body, margin: "7px 0 0", color: C.muted, maxWidth: 460 }}>
+                {t("pitch_subtitle")}
+              </p>
+            </div>
           </div>
+
+          {/* Investor selection */}
+          <p style={{ ...T.eyebrow, color: C.muted, margin: "0 0 12px" }}>{t("pitch_choose")}</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 22 }}>
+            {PROFILES.map((p) => {
+              const active = profile === p;
+              return (
+                <button key={p} onClick={() => setProfile(p)} className="mf-press"
+                  style={{
+                    textAlign: "start", cursor: "pointer", display: "flex", gap: 12, alignItems: "flex-start",
+                    padding: "13px 15px", borderRadius: 14,
+                    background: active ? "rgba(var(--mf-accent-rgb),0.10)" : C.surface,
+                    border: `1.5px solid ${active ? C.accent : C.borderSoft}`,
+                    boxShadow: active ? "0 4px 14px rgba(201,106,45,0.16)" : "none",
+                    transition: "all 0.2s var(--mf-ease)",
+                  }}>
+                  <span style={{
+                    width: 36, height: 36, borderRadius: 11, flexShrink: 0,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    background: active ? "linear-gradient(140deg, #D98A3A, #C96A2D)" : C.surfaceHigh,
+                    color: active ? "#FFF7EE" : C.muted,
+                    boxShadow: active ? "0 3px 10px rgba(201,106,45,0.3)" : "none",
+                    transition: "all 0.2s var(--mf-ease)",
+                  }}>{PROFILE_ICON[p]}</span>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13.5, color: C.text }}>{t(`pitch_profile_${p}`)}</div>
+                    <div style={{ ...T.caption, color: C.muted, marginTop: 2, fontWeight: 400, lineHeight: 1.4 }}>
+                      {t(`pitch_profile_${p}_desc`)}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <button onClick={start} disabled={busy} className="mf-btn-accent mf-cta-glow"
+            style={{ width: "100%", padding: "14px 24px", fontSize: 15 }}>
+            {busy ? t("pitch_starting") : t("pitch_start")}
+          </button>
+          {error && <p style={{ color: C.error, fontSize: 12, marginTop: 10 }}>{error}</p>}
         </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
-          {PROFILES.map((p) => (
-            <button key={p} onClick={() => setProfile(p)} style={btn(profile === p)} className="mf-press">
-              {t(`pitch_profile_${p}`)}
-            </button>
+
+        {/* How it works */}
+        <div style={{ display: "flex", gap: 12, maxWidth: 800, width: "100%", margin: "0 auto", flexWrap: "wrap" }}>
+          {HOW.map((s, i) => (
+            <div key={i} className="mf-anim-card" style={{
+              ["--i" as string]: i,
+              flex: "1 1 200px", display: "flex", alignItems: "center", gap: 11,
+              padding: "13px 16px", borderRadius: 14,
+              background: "rgba(255,252,247,0.55)", border: `1px solid ${C.borderSoft}`,
+            }}>
+              <span style={{
+                width: 32, height: 32, borderRadius: 10, flexShrink: 0,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: "rgba(var(--mf-accent-rgb),0.12)", color: C.accent,
+              }}>{s.icon}</span>
+              <span style={{ ...T.small, color: C.text, lineHeight: 1.4 }}>{s.text}</span>
+            </div>
           ))}
         </div>
-        <button onClick={start} disabled={busy} className="mf-press"
-          style={{ ...btn(true), marginTop: 14 }}>
-          {busy ? t("pitch_starting") : t("pitch_start")}
-        </button>
-        {error && <p style={{ color: C.error, fontSize: 12, marginTop: 8 }}>{error}</p>}
       </div>
     );
   }
@@ -130,14 +196,14 @@ export function PitchSimulator({ projectId }: { projectId: string }) {
         display: "flex", flexDirection: "column", overflow: "hidden",
         boxShadow: "0 24px 80px rgba(0,0,0,0.4)",
       }}>
-        <header style={{
+        <header className="mf-glass" style={{
           display: "flex", alignItems: "center", gap: 12, padding: "14px 20px",
-          borderBottom: `1px solid ${C.border}`, background: C.surface,
+          borderRadius: 0, boxShadow: "none", borderBottom: `1px solid ${C.border}`,
         }}>
-          <button onClick={phase === "report" ? reset : finish} className="mf-press" style={btn(false)}>
-            {phase === "report" ? `← ${t("pitch_close")}` : `← ${t("pitch_end")}`}
+          <button onClick={phase === "report" ? reset : finish} className="mf-btn-ghost">
+            ← {phase === "report" ? t("pitch_close") : t("pitch_end")}
           </button>
-          <span style={{ fontWeight: 700, color: C.text, fontFamily: F.heading }}>
+          <span style={{ ...T.h3, color: C.ink, fontFamily: F.heading }}>
             {t("pitch_session")} — {t(`pitch_profile_${profile}`)}
           </span>
         </header>

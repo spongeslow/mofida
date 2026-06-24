@@ -2,12 +2,15 @@
   "app_title": "Moufida",
   "tagline": "Your entrepreneurial co-pilot, 100% local.",
   "tagline_short": "AI co-founder",
+  "nav_group_workspace": "Workspace",
+  "nav_group_build": "Prepare",
+  "nav_group_knowledge": "Knowledge",
+  "nav_group_system": "System",
   "switch_language": "Français",
   "menu_new": "New project",
   "menu_diagnose": "Diagnose existing project",
   "menu_settings": "Settings",
   "menu_quit": "Quit",
-
   "nav_dashboard": "Dashboard",
   "nav_hud": "Assistant",
   "nav_personas": "Customer Personas",
@@ -41,7 +44,6 @@
   "kb_read_more": "Read more",
   "kb_open_source": "Open source",
   "history": "My Journey",
-
   "maturity_stage": "Maturity stage",
   "confidence": "Confidence",
   "perception_gap": "Perception gap detected",
@@ -49,68 +51,57 @@
   "no_diagnostic": "No diagnostic available",
   "run_diagnostic": "Run diagnostic",
   "running_diagnostic": "Running diagnostic…",
-
   "score_market": "Market Score",
   "score_commercial_offer": "Commercial Offer",
   "score_innovation": "Innovation",
   "score_scalability": "Scalability",
   "score_green": "Green Score",
   "score_out_of": "/ 5",
+  "score_details": "Details",
   "sub_dimension": "Sub-dimension",
   "weight": "Weight",
   "value": "Value",
   "tier": "Tier",
   "contribution": "Contribution",
   "improve": "Improve",
-
   "blockers_critical": "Critical blockers",
   "blockers_none": "No blockers identified",
   "see_roadmap": "See in roadmap",
   "axis": "Axis",
-
   "roadmap_title": "Roadmap",
   "roadmap_immediate": "Immediate (0–2 weeks)",
   "roadmap_short": "Short term (1–3 months)",
   "roadmap_medium": "Medium term (3–12 months)",
   "roadmap_empty": "No roadmap available — run the diagnostic first.",
   "source": "Source",
-
   "chat_placeholder": "Ask Moufida a question…",
   "send": "Send",
   "you": "You",
   "moufida": "Moufida",
-
   "approve": "Approve",
   "retry": "Retry",
   "edit": "Edit",
   "edit_placeholder": "Enter your correction…",
   "review_title": "Result awaiting approval",
-
   "alerts_title": "Alerts",
   "no_alerts": "No alerts",
   "dismiss": "Dismiss",
-
   "score_history": "Score history",
   "no_history": "No data — run diagnostic first.",
   "diagnostic_history": "Diagnostic history",
   "no_diagnostic_history": "No past diagnostics.",
-
   "listening": "Listening…",
   "speaking": "Moufida is responding…",
   "wake_prompt": "Say 'Hey Moufida' or press Ctrl+Space",
   "start_voice": "Speak",
   "stop_voice": "Stop",
-
   "perception_gap_self": "Self-assessed",
   "critical": "Critical",
   "warning": "Warning",
   "info": "Info",
-
   "nav_settings": "Integrations",
-
   "settings_title": "Tool Integrations",
   "settings_subtitle": "Connect Moufida to the tools you already use. All integrations are optional and disabled by default.",
-
   "tools_enabled": "active",
   "tools_loading": "Loading integrations…",
   "tools_unavailable": "No integrations available.",
@@ -133,18 +124,15 @@
   "tools_last_error": "Last error",
   "tools_last_sync": "Last sync",
   "tools_privacy_note": "No data leaves your machine without your explicit consent. Disabled integrations transmit nothing.",
-
   "tools_domain_communication": "Communication",
   "tools_domain_documentation": "Documentation",
   "tools_domain_finance": "Finance",
   "tools_domain_marketing": "Marketing",
   "tools_domain_development": "Development",
-
   "landing_back": "Back",
   "landing_recent_title": "Diagnose an existing project",
   "landing_recent_loading": "Loading projects…",
   "landing_no_recent": "No projects found. Create a new project first.",
-
   "intake_title": "Creating your profile",
   "intake_subtitle": "A few questions to calibrate the analysis",
   "intake_loading": "Preparing questionnaire…",
@@ -154,7 +142,6 @@
   "intake_input_placeholder": "Your answer…",
   "intake_yes": "Yes",
   "intake_no": "No",
-
   "creation_title": "Analysing your startup",
   "creation_in_progress": "Analysis in progress…",
   "creation_complete_title": "Profile created successfully!",
@@ -164,7 +151,6 @@
   "creation_starting": "Starting analysis…",
   "creation_awaiting_desc": "Waiting for the next axis result.",
   "creation_start_error": "Failed to start analysis",
-
   "axis_ideation": "Ideation",
   "axis_market": "Market",
   "axis_product": "Product",
@@ -174,12 +160,10 @@
   "axis_operations": "Operations",
   "axis_marketing": "Marketing",
   "axis_sales": "Sales",
-
   "recommendations_title": "Improvement guidance",
   "recommendations_empty": "No priority improvements identified.",
   "recommendation_priority_high": "High priority",
   "recommendation_priority_medium": "Medium priority",
-
   "intake_update_title": "Update context",
   "intake_update_subtitle": "Refresh your project data before the diagnostic",
   "quick_diagnostic": "Quick diagnostic",
@@ -191,13 +175,11 @@
   "lang_fr": "Français",
   "lang_en": "English",
   "lang_ar": "العربية",
-
   "settings_preferences": "Preferences",
   "companion_show": "Show companion",
   "companion_show_desc": "Display the Moufida character on your desktop.",
   "import_project": "Import project file",
   "import_error": "Import failed",
-
   "creation_got_idea": "Got any idea?",
   "creation_got_idea_question": "Describe your startup idea",
   "creation_idea_placeholder": "E.g. An app to help Tunisian artisans sell online…",
@@ -216,22 +198,17 @@
   "creation_export_pdf": "Export PDF",
   "creation_plan_empty": "No plan sections available.",
   "creation_edit_hint": "Describe what you'd like to change…",
-
   "axis_roadmap": "Roadmap",
-
   "mode_creation": "Creation",
   "mode_diagnosis": "Diagnosis",
-
   "delete_project": "Delete",
   "delete_project_confirm": "Permanently delete this project?",
   "delete_confirm_yes": "Delete",
-
   "debate_title": "Debate the score",
   "debate_placeholder": "Explain why this score should change…",
   "debate_send": "Send",
   "debate_locked": "Score locked",
   "debate_score_changed": "Score updated",
-
   "compare_title": "Compare two diagnostics",
   "compare_score_deltas": "Score evolution",
   "compare_resolved": "Resolved blockers",
@@ -264,7 +241,6 @@
   "kb_add_placeholder": "Paste a note or link Moufida should know…",
   "kb_add_button": "Add",
   "kb_added": "Added to the knowledge base",
-
   "event_feed_title": "Event Feed",
   "event_feed_empty": "No events for this project yet.",
   "event_source_manual": "Manual edit",
@@ -281,22 +257,18 @@
   "event_status_new": "New",
   "event_status_acted": "Applied",
   "event_status_ignored": "Ignored",
-
   "roadmap_stale_warning": "The roadmap may be out of date due to recent changes.",
   "roadmap_regenerate": "Regenerate roadmap",
   "roadmap_advance": "Advance to next horizon",
   "roadmap_provenance": "Roadmap provenance",
   "roadmap_regen_confirm": "Regenerate the roadmap with current data?",
-
   "whats_new_title": "What's new?",
   "whats_new_refresh": "Refresh",
   "whats_new_loading": "Moufida is summarising recent events…",
   "whats_new_no_events": "No recent events.",
   "horizon_complete_celebrate": "Horizon complete! Moufida is preparing the next one…",
-
   "score_delta_warning": "Score dropped for:",
   "score_delta_review": "Review the corresponding actions as a priority.",
-
   "roadmap_provenance_version": "Version",
   "roadmap_provenance_kb": "KB version",
   "roadmap_provenance_trigger": "Trigger",
@@ -305,7 +277,6 @@
   "evidence_sources": "Sources",
   "source_kb": "KB",
   "source_web": "Web",
-
   "daemon_watching": "Watching",
   "daemon_paused": "Watching paused",
   "daemon_offline": "Watcher offline",
@@ -314,7 +285,6 @@
   "daemon_focus": "Watch this project",
   "daemon_focused": "Watched project",
   "daemon_unfocus": "Stop watching",
-
   "competitor_board_title": "Competitor board",
   "competitor_dimension": "Dimension",
   "competitor_you": "You",
@@ -326,13 +296,11 @@
   "competitor_swot_weaknesses": "Weaknesses",
   "competitor_swot_opportunities": "Opportunities",
   "competitor_swot_threats": "Threats",
-
   "opportunity_radar_title": "Funding radar",
   "opportunity_deadline": "Deadline",
   "opportunity_apply": "Apply",
   "opportunity_dismiss": "Dismiss",
   "opportunity_match": "Match",
-
   "concept_breakdown_title": "Concept Breakdown",
   "concept_breakdown_subtitle": "Each axis score is decomposed into named concepts. The bottleneck is the concept holding the score back the most.",
   "concept_bottleneck": "Bottleneck",
@@ -343,9 +311,7 @@
   "concept_axis_score": "Axis score",
   "concept_improve_hint": "Improving this concept from",
   "concept_would_lift": "would lift the score from",
-
   "evidence_trace": "Sources",
-
   "pitch_title": "Investor Pitch Simulator",
   "pitch_subtitle": "Spar with an AI investor whose questions are grounded only in your own diagnostic.",
   "pitch_profile_seed_vc": "Seed VC",
@@ -366,7 +332,6 @@
   "pitch_push_roadmap": "Add to roadmap",
   "pitch_evidence_index": "Evidence used",
   "pitch_pushed": "Actions added to roadmap",
-
   "persona_title": "Customer Personas",
   "persona_generate": "Generate personas",
   "persona_regenerate": "Regenerate",
@@ -383,7 +348,6 @@
   "persona_close_title": "How to close",
   "persona_triggers": "Key triggers",
   "persona_objections_addr": "Objections to address",
-
   "scenario_whatif": "What If?",
   "scenario_title": "Scenario Planner",
   "scenario_subtitle": "Test pivots and see their projected impact on all nine axes, with confidence and sources.",
@@ -399,7 +363,6 @@
   "scenario_best": "The strongest scenario is",
   "scenario_no_clear_win": "No scenario clearly stands out.",
   "scenario_adopt": "Adopt",
-
   "dash_greeting": "Here's how your project is doing",
   "dash_health": "Overall health",
   "dash_summary_loading": "Putting your project under the microscope…",
@@ -418,5 +381,20 @@
   "section_deep": "Detailed analysis",
   "section_market": "Market & opportunities",
   "section_roadmap": "Roadmap",
-  "section_activity": "Recent activity"
+  "section_activity": "Recent activity",
+  "persona_intro_title": "Your customers, simulated",
+  "persona_intro_desc": "Moufida generates buyer profiles from your diagnostic. Pick one to start a conversation and stress-test your pitch.",
+  "persona_count": "personas generated",
+  "persona_goal": "Goal",
+  "persona_budget": "Budget",
+  "pitch_choose": "Choose your investor",
+  "pitch_profile_seed_vc_desc": "Growth, traction and market size.",
+  "pitch_profile_angel_desc": "Vision, team and founder passion.",
+  "pitch_profile_impact_fund_desc": "Social impact, sustainability and mission.",
+  "pitch_profile_strategic_desc": "Synergies, moat and competitive edge.",
+  "pitch_how_title": "How it works",
+  "pitch_how_1": "Questions grounded in your diagnostic",
+  "pitch_how_2": "The investor reacts live to your answers",
+  "pitch_how_3": "A readiness report at the end",
+  "scenario_run_hint": "Run a projection to compare your scenarios here."
 }

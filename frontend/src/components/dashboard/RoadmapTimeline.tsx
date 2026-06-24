@@ -3,6 +3,7 @@ import { useStore } from "../../store";
 import { useT } from "../../i18n";
 import { advanceRoadmap, getRoadmapActions, getRoadmapProvenance, regenerateRoadmap, setRoadmapAction } from "../../api";
 import { C, F, btn, card } from "../../theme";
+import { IconConfetti, IconWarn, IconTrendDown } from "../shared/icons";
 import type { RoadmapAction, RoadmapHorizons, RoadmapProvenance } from "../../types";
 
 // Maps composite score names → axis slugs they primarily relate to.
@@ -258,7 +259,7 @@ export function RoadmapTimeline() {
           color: C.success, fontSize: 14, fontFamily: F.body, fontWeight: 600,
           display: "flex", alignItems: "center", gap: 8,
         }}>
-          🎉 {t("horizon_complete_celebrate")}
+          <IconConfetti size={16} /> {t("horizon_complete_celebrate")}
         </div>
       )}
 
@@ -270,7 +271,7 @@ export function RoadmapTimeline() {
           color: C.warning, fontSize: 13, fontFamily: F.body,
           display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
         }}>
-          <span>⚠️ {t("roadmap_stale_warning")}</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><IconWarn size={14} /> {t("roadmap_stale_warning")}</span>
           <button
             onClick={() => { void handleRegen(); }}
             disabled={regenBusy}
@@ -318,8 +319,8 @@ export function RoadmapTimeline() {
           fontSize: 13, fontFamily: F.body, color: C.error,
           display: "flex", alignItems: "center", justifyContent: "space-between",
         }}>
-          <span>
-            📉 {t("score_delta_warning")} <strong>{scoreDeltaAxes.join(", ")}</strong> — {t("score_delta_review")}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+            <IconTrendDown size={14} /> {t("score_delta_warning")} <strong>{scoreDeltaAxes.join(", ")}</strong> — {t("score_delta_review")}
           </span>
           <button
             onClick={() => setScoreDeltaAxes([])}

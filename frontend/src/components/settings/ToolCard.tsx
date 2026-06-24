@@ -6,6 +6,15 @@ import {
 import { useStore } from "../../store";
 import { useT } from "../../i18n";
 import { C, card, btn } from "../../theme";
+import { IconChat, IconDoc, IconChart, IconTrend, IconGear, IconPlug, IconChevron } from "../shared/icons";
+
+const DOMAIN_ICON: Record<string, React.ReactNode> = {
+  communication: <IconChat size={18} />,
+  documentation: <IconDoc size={18} />,
+  finance:       <IconChart size={18} />,
+  marketing:     <IconTrend size={18} />,
+  development:   <IconGear size={18} />,
+};
 
 interface Props {
   tool: ToolState;
@@ -26,14 +35,6 @@ function isComposioTool(tool: ToolState): boolean {
   return tool.direction === "bidirectional"
     && Object.keys(tool.config_schema?.properties ?? {}).length === 0;
 }
-
-const DOMAIN_ICONS: Record<string, string> = {
-  communication: "💬",
-  documentation: "📄",
-  finance: "📊",
-  marketing: "📈",
-  development: "⚙️",
-};
 
 const DIRECTION_LABEL: Record<string, string> = {
   push: "→ sortant",
@@ -62,7 +63,7 @@ export function ToolCard({ tool }: Props) {
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
 
-  const icon = DOMAIN_ICONS[tool.domain] ?? "🔌";
+  const icon = DOMAIN_ICON[tool.domain] ?? <IconPlug size={18} />;
   const dirLabel = lang === "en" ? DIRECTION_LABEL_EN[tool.direction] : DIRECTION_LABEL[tool.direction];
   const composio = isComposioTool(tool);
 
@@ -141,8 +142,14 @@ export function ToolCard({ tool }: Props) {
       }}
     >
       {/* Header row */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <span style={{ fontSize: 22 }}>{icon}</span>
+      <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+        <span style={{
+          width: 34, height: 34, borderRadius: 10, flexShrink: 0,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: enabled ? "linear-gradient(140deg, rgba(var(--mf-accent-rgb),0.18), rgba(111,78,55,0.10))" : C.surfaceHigh,
+          border: `1px solid ${C.borderSoft}`,
+          color: enabled ? C.accent : C.muted,
+        }}>{icon}</span>
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 700, fontSize: 15, color: C.text }}>{tool.label}</div>
           <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
@@ -168,17 +175,12 @@ export function ToolCard({ tool }: Props) {
 
         {/* Expand/collapse */}
         <button
+          className="mf-icon-btn"
+          aria-label={expanded ? "Collapse" : "Expand"}
           onClick={() => setExpanded((v) => !v)}
-          style={{
-            background: "none",
-            border: "none",
-            color: C.muted,
-            cursor: "pointer",
-            fontSize: 16,
-            padding: "0 4px",
-          }}
+          style={{ width: 30, height: 30 }}
         >
-          {expanded ? "▲" : "▼"}
+          <IconChevron open={expanded} size={15} />
         </button>
       </div>
 
@@ -375,27 +377,29 @@ function ToggleSwitch({ value, onChange }: ToggleProps) {
       aria-checked={value}
       onClick={onChange}
       style={{
-        width: 40,
-        height: 22,
-        borderRadius: 11,
-        background: value ? C.primary : C.border,
+        width: 44,
+        height: 24,
+        borderRadius: 12,
+        background: value ? "linear-gradient(135deg, #D98A3A, #C96A2D)" : C.border,
         border: "none",
         cursor: "pointer",
         position: "relative",
-        transition: "background 0.2s",
+        transition: "background 0.24s var(--mf-ease)",
         flexShrink: 0,
+        boxShadow: value ? "0 2px 8px rgba(201,106,45,0.35), inset 0 1px 0 rgba(255,255,255,0.2)" : "inset 0 1px 2px rgba(58,38,24,0.12)",
       }}
     >
       <span
         style={{
           position: "absolute",
           top: 3,
-          left: value ? 21 : 3,
-          width: 16,
-          height: 16,
+          left: value ? 23 : 3,
+          width: 18,
+          height: 18,
           borderRadius: "50%",
           background: "#fff",
-          transition: "left 0.2s",
+          transition: "left 0.24s var(--mf-spring)",
+          boxShadow: "0 2px 5px rgba(58,38,24,0.28)",
         }}
       />
     </button>
@@ -452,6 +456,7 @@ function ConfigField({ field, value, required, onChange }: FieldProps) {
         </label>
       ) : field.format === "textarea" ? (
         <textarea
+          className="mf-input"
           value={String(value ?? "")}
           onChange={(e) => onChange(e.target.value)}
           placeholder={`Entrez ${field.title.toLowerCase()}…`}
@@ -460,6 +465,7 @@ function ConfigField({ field, value, required, onChange }: FieldProps) {
         />
       ) : (
         <input
+          className="mf-input"
           type={field.format === "password" ? "password" : "text"}
           value={String(value ?? "")}
           onChange={(e) => onChange(e.target.value)}

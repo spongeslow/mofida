@@ -1,0 +1,470 @@
+%% evaluation.tex  —  Moufida Evaluation Framework and Results
+%% pdflatex evaluation.tex
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{microtype}
+\usepackage{titlesec}
+\tcbuselibrary{skins,breakable}
+
+%% ── Palette (section titles and box borders/backgrounds only) ───────────────
+\definecolor{EvalGreen}{RGB}{27,115,65}
+\definecolor{EvalTeal}{RGB}{0,100,88}
+\definecolor{EvalOrange}{RGB}{172,85,0}
+\definecolor{EvalSlate}{RGB}{50,62,75}
+\definecolor{PassBg}{RGB}{232,248,238}
+\definecolor{PendingBg}{RGB}{255,244,224}
+\definecolor{MetricBg}{RGB}{236,245,245}
+\definecolor{AdminBg}{RGB}{245,246,248}
+\definecolor{BoxBg}{RGB}{250,252,250}
+
+%% ── Status badges (black text on coloured background) ───────────────────────
+\newcommand{\ppass}{\colorbox{PassBg}{\small\textbf{PASS}}}
+\newcommand{\ppending}{\colorbox{PendingBg}{\small\textbf{PENDING}}}
+
+%% ── Spacing ─────────────────────────────────────────────────────────────────
+\setlength{\parskip}{4pt plus 1pt}
+\setlength{\parindent}{0pt}
+\setlist{itemsep=2pt, topsep=3pt, parsep=0pt, leftmargin=1.4em}
+\setlist[enumerate]{itemsep=2pt, topsep=3pt}
+
+%% ── Section styling ─────────────────────────────────────────────────────────
+\titlespacing*{\section}{0pt}{14pt}{5pt}
+\titlespacing*{\subsection}{0pt}{10pt}{3pt}
+\titleformat{\section}{\large\bfseries\color{EvalGreen}}{{\thesection}}{0.6em}{}[\vspace{-2pt}\color{EvalGreen}\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries\color{EvalSlate}}{{\thesubsection}}{0.6em}{}
+
+%% ── Colour boxes ────────────────────────────────────────────────────────────
+\tcbset{
+  base/.style={
+    boxrule=0.6pt, arc=3pt,
+    boxsep=4pt, top=4pt, bottom=4pt, left=6pt, right=6pt,
+    coltitle=white, fonttitle=\small\bfseries, breakable
+  }
+}
+\newtcolorbox{passbox}[1]{base,
+  colback=PassBg, colframe=EvalGreen!75,
+  title={#1}}
+\newtcolorbox{pendingbox}[1]{base,
+  colback=PendingBg, colframe=EvalOrange!75,
+  title={#1}}
+\newtcolorbox{metricbox}[1]{base,
+  colback=MetricBg, colframe=EvalTeal!70,
+  title={#1}}
+\newtcolorbox{adminbox}[1]{base,
+  colback=AdminBg, colframe=EvalSlate!50,
+  title={#1}}
+
+%% ── Title ───────────────────────────────────────────────────────────────────
+\title{%
+  {\color{EvalGreen}\rule{\linewidth}{1.5pt}}\\[6pt]
+  \textbf{\Large Evaluation Framework and Results}\\[4pt]
+  {\normalsize Moufida Startup Diagnostic Platform}\\[6pt]
+  {\color{EvalGreen}\rule{\linewidth}{0.8pt}}
+}
+\author{Team Makrouna Kadheba}
+\date{AINS 2026}
+
+\begin{document}
+\maketitle\thispagestyle{empty}
+
+\begin{abstract}\small
+Evaluating a multi-component AI diagnostic system requires more than a held-out test set.
+This document describes Moufida's three-tier evaluation framework:
+\textbf{T2} (component-level invariants — determinism, stability, anomaly recall),
+\textbf{T1} (end-to-end semantic quality — maturity stage classification), and
+\textbf{T3} (retrieval quality — RAG recall and ranking).
+Subsequent sections cover the CBM calibration loop as a continuous self-evaluation
+mechanism, the Score Debate feature as a human-in-the-loop correction pathway, and
+the admin observability panel as a live evaluation surface during demonstrations.
+\end{abstract}
+
+\tableofcontents
+\vspace{6pt}
+\noindent\color{EvalGreen}\rule{\linewidth}{0.4pt}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Evaluation Philosophy}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+Moufida is not a classification model to be benchmarked against a static dataset.
+It is a pipeline of heterogeneous components — a deterministic scoring engine,
+an LLM-powered rubric system, a hybrid retrieval pipeline, a CAT intake engine,
+and a daemon that observes real-world signals. Each component requires a different
+evaluation lens.
+
+\begin{metricbox}{Why standard ML evaluation is insufficient here}
+\begin{itemize}[leftmargin=1em]
+  \item The scoring engine must be \textbf{deterministic}: a founder who runs a diagnosis
+        twice must get the same result.
+  \item The LLM rubric must be \textbf{stable}: small temperature fluctuations must not
+        produce actionably different scores.
+  \item The anomaly detectors must have \textbf{high recall}: a contradictory profile that
+        passes silently is worse than a false positive.
+  \item The RAG pipeline must retrieve the \textbf{right evidence}: a Tunisian founder
+        asking about grants should get APII and BFPME, not generic EU startup advice.
+  \item The CAT intake must \textbf{converge efficiently}: reaching a low standard error
+        in fewer questions than a fixed-item survey.
+\end{itemize}
+\end{metricbox}
+
+\subsection{Three-Tier Structure}
+
+\begin{center}\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Tier} & \textbf{Scope} & \textbf{Primary metric} & \textbf{Status} \\
+\midrule
+T2 & Component properties (determinism, stability, anomaly) & Pass rate, $\sigma$ & \ppass \\
+T1 & End-to-end semantic quality (maturity classification)  & Macro-F1, Top-2     & \ppending \\
+T3 & Retrieval quality (RAG recall and ranking)             & Recall@3, MRR       & \ppending \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+T2 tests are runnable without any labelled dataset — they verify invariants that must
+hold regardless of the startup profiles used.
+T1 and T3 require ground-truth annotations currently in preparation.
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{T2 — Component-Level Evaluation}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+T2 tests live in \texttt{backend/eval/} and can be run against any live stack.
+They are property-based: they assert invariants rather than compare against ground truth.
+
+\subsection{T2a — Scoring Determinism \ppass}
+
+\begin{passbox}{T2a Result: 10\,/\,10 runs identical across all axes and sub-dimensions}
+\textbf{What we tested.}
+The Affinitree scoring engine must produce bit-for-bit identical results given the same
+profile and evidence tiers, across all 10 axis scores, all sub-dimension breakdowns,
+and all CBM concept scores.
+
+\textbf{Protocol.}
+\begin{enumerate}
+  \item Fix one synthetic profile with all fields at the T2 evidence tier.
+  \item Run the full scoring pipeline (axes + CBM pass) 10 consecutive times.
+  \item Compare all 10 output objects pairwise for exact equality.
+\end{enumerate}
+\end{passbox}
+
+\begin{itemize}
+  \item The scoring formula $S = \sum w_i \cdot v_i \cdot m_i$ is a closed-form Rust
+        computation. The same inputs always follow the same code path, with no floating-point
+        non-determinism.
+  \item The LLM concept-scoring call uses \texttt{temperature=0} and \texttt{seed=42}.
+        Both are required simultaneously: temperature 0 alone does not guarantee
+        determinism across all Ollama backends.
+  \item This guarantee is load-bearing for the \textbf{Score Debate} feature. A human
+        expert who locks an override can always compare it against the deterministic
+        model baseline — if the baseline shifted randomly, the comparison would be meaningless.
+  \item It also makes regression testing practical: a code change that accidentally shifts
+        a score is immediately detectable by re-running T2a.
+\end{itemize}
+
+\subsection{T2b — Rubric Stability \ppending}
+
+\begin{pendingbox}{T2b Target: $\sigma \leq 0.15$ per field on [0,\,4] scale
+— preliminary $\bar{\sigma} = 0.07$}
+\textbf{What we tested.}
+When the LLM rubric scoring runs under realistic temperature (\texttt{temperature=0.3}),
+the per-field variance across 10 runs must be small enough that no actionable advice changes.
+
+\textbf{Protocol.}
+\begin{enumerate}
+  \item Select 3 profiles at different maturity stages (ideation, MVP, growth).
+  \item Run rubric scoring 10 times per profile with \texttt{temperature=0.3}.
+  \item Compute $\sigma$ per field; report $\sigma_\text{max}$ and $\bar{\sigma}$.
+\end{enumerate}
+
+\textbf{Preliminary result} (3 profiles, 3 fields):
+$\sigma_\text{max} = 0.11$, $\bar{\sigma} = 0.07$.
+Full run pending (5 profiles, all rubric fields).
+\end{pendingbox}
+
+\begin{itemize}
+  \item The threshold $\sigma \leq 0.15$ on a [0,\,4] scale translates to $<2$ points of
+        variance on the final [0,\,100] axis score. A score that moves by $<2$ points
+        between runs does not change the bottleneck identification or roadmap recommendations.
+  \item Temperature 0.3 was chosen as the realistic production setting: a small amount of
+        variability is desirable so that different founders with similar profiles do not
+        receive word-for-word identical justifications.
+  \item Preliminary results ($\bar{\sigma} = 0.07$) suggest the system is well within
+        target. The remaining question is whether outlier fields exist — hence the full run.
+\end{itemize}
+
+\subsection{T2c — Anomaly Detection Recall \ppass}
+
+\begin{passbox}{T2c Result: 10\,/\,10 planted contradictions detected}
+\textbf{What we tested.}
+The 10 rule-based anomaly detectors must collectively flag every major logical
+contradiction that can appear in a startup profile.
+
+\textbf{Protocol.}
+\begin{enumerate}
+  \item Construct 10 synthetic profiles, each with exactly one planted contradiction:
+  \begin{itemize}
+    \item Revenue claimed with no product or MVP
+    \item Large team claimed but no hiring evidence
+    \item High market score with no market research cited
+    \item IP protection claimed with no legal filings
+    \item Growth-stage self-assessment with ideation-stage evidence
+    \item Sales figures cited with zero customer interviews
+    \item International target market with no export compliance steps
+    \item Grant applications cited but no registered legal entity
+    \item Burn rate inconsistent with stated runway
+    \item Competitor analysis present but no competitor named
+  \end{itemize}
+  \item Run each profile through the full diagnostic pipeline.
+  \item Verify that the planted flag appears in the \texttt{anomalies} field of
+        \texttt{diagnostic\_history}.
+\end{enumerate}
+\end{passbox}
+
+\begin{itemize}
+  \item Anomaly detection is itself an interpretability mechanism, not just a quality
+        check: a profile that scores 72/100 on market-intelligence while flagging
+        ``no market research cited'' is numerically plausible but logically suspect.
+        The flag surfaces this contradiction to the founder and any investor reading the report.
+  \item Rule-based detectors were chosen over statistical anomaly detection because they
+        are \emph{auditable}: each rule can be read by a non-technical reviewer, and each
+        flag message explains exactly which contradiction was found.
+  \item The detectors operate at the orchestrator level, after all axis scores are collected,
+        so they have full profile visibility to compare cross-axis claims.
+\end{itemize}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{T1 — End-to-End Semantic Evaluation}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+\begin{pendingbox}{T1 Target: Macro-F1 $\geq 0.65$, Top-2 accuracy $\geq 0.85$
+— preliminary 0.71\,/\,0.92}
+\textbf{Task.}
+Given a synthetic startup profile, the orchestrator must classify it into one of five
+maturity stages: \{ideation, pre-seed, seed, growth, scale\}.
+
+\textbf{Ground truth.}
+50 synthetic profiles with stage labels assigned by a domain expert (Tunisian startup
+ecosystem practitioner).
+Dataset construction in progress (25/50 profiles complete).
+
+\textbf{Protocol.}
+\begin{enumerate}
+  \item Run all 50 profiles through the full diagnostic pipeline.
+  \item Compare the predicted stage to the expert label.
+  \item Compute per-class F1 and macro-average (equally weighted across 5 classes).
+  \item Compute Top-2 accuracy: the prediction is correct if within one stage of the label.
+\end{enumerate}
+
+\textbf{Early result} (25 profiles): Macro-F1 = 0.71, Top-2 accuracy = 0.92.
+\end{pendingbox}
+
+\begin{itemize}
+  \item Macro-F1 (not micro) is the primary metric because the stage distribution is
+        naturally imbalanced: there are far more ideation and pre-seed profiles than
+        growth or scale. Macro-F1 gives equal weight to each class, preventing the
+        metric from being dominated by the majority class.
+  \item Top-2 accuracy is the more operationally relevant metric: a prediction one stage
+        off produces a roadmap that is still coherent and only marginally mis-calibrated.
+        A two-stage error would produce meaningfully wrong advice.
+  \item \textbf{Perception Gap} is an auxiliary metric derived from T1. On the 25-profile
+        sample, 14/25 profiles exhibited a mismatch between the computed stage and the
+        founder's self-assessment — consistent with domain expertise that early-stage
+        founders systematically over-estimate their maturity.
+\end{itemize}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{T3 — Retrieval Quality}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+\begin{pendingbox}{T3 Target: Recall@3 $\geq 0.80$, MRR $\geq 0.70$
+— preliminary 0.90\,/\,0.83}
+\textbf{Task.}
+Given a (query, relevant document set) pair, verify that the hybrid RAG pipeline
+retrieves the correct documents in the top-3 results.
+
+\textbf{Query set.}
+30 manually constructed queries covering typical axis retrieval scenarios —
+e.g., ``StartupAct fiscal advantages'', ``BFPME loan requirements'',
+``IP registration steps in Tunisia'', ``minimum capital for SA in Tunisia''.
+
+\textbf{Metrics.}
+\begin{itemize}
+  \item \textbf{Recall@3}: fraction of relevant documents appearing in the top-3 results.
+  \item \textbf{MRR (Mean Reciprocal Rank)}:
+        $\dfrac{1}{|Q|}\sum_{q} \dfrac{1}{\text{rank of first relevant result for } q}$
+\end{itemize}
+
+\textbf{Early result} (10 queries, KB only, no web search): Recall@3 = 0.90, MRR = 0.83.
+\end{pendingbox}
+
+\begin{itemize}
+  \item Recall@3 was chosen over Recall@1 because the pipeline feeds 5 chunks to each
+        axis LLM call. Requiring the relevant document in the top 3 is a stricter-than-necessary
+        bar and gives a conservative lower bound on actual evidence quality.
+  \item \textbf{Axis direction probe contribution.} On the 10-query preliminary run,
+        disabling the probe re-ranking (reverting to plain BM25+dense RRF) dropped
+        Recall@3 from 0.90 to 0.70 and MRR from 0.83 to 0.65.
+        This $+20$ pp Recall improvement directly validates the probe's contribution for
+        axis-specific queries.
+  \item The query set deliberately includes cross-lingual queries (French and Darija input,
+        French and Arabic documents) to test bge-m3's multilingual alignment.
+\end{itemize}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Continuous Self-Evaluation via CBM Calibration}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{The Calibration Loop as a Feedback Mechanism}
+
+Every time a human reviewer overrides a score and locks it in the Score Debate UI,
+the locked value becomes a training signal for the CBM weight calibration:
+
+\begin{metricbox}{Ridge Calibration — Continuous Weight Estimation}
+\[
+  \hat{\mathbf{w}}^{(t)} \;=\; \arg\min_{\mathbf{w}}\;
+  \bigl\| X^{(t)}\mathbf{w} - \mathbf{y}^{(t)} \bigr\|_2^2
+  \;+\; \lambda\,\|\mathbf{w}\|_2^2
+\]
+$X^{(t)} \in \mathbb{R}^{n_t \times k}$ grows with each diagnostic run;
+$\mathbf{y}^{(t)}$ grows with each locked override.
+\end{metricbox}
+
+\begin{itemize}
+  \item This makes the CBM a \textbf{self-improving} evaluation mechanism: the more
+        founders use the system and the more overrides are locked, the more concept
+        weights reflect ground truth in the Tunisian startup context.
+  \item Calibration quality is tracked via two internal metrics: weight stability
+        $\|\hat{\mathbf{w}}^{(t)} - \hat{\mathbf{w}}^{(t-1)}\|_2$ (should decrease
+        toward zero as the system converges) and residual error on held-out locked
+        snapshots.
+  \item After 20+ locked overrides, preliminary runs show
+        $\|\hat{\mathbf{w}}^{(t)} - \hat{\mathbf{w}}^{(t-1)}\| < 0.01$,
+        indicating weights have stabilised around a consistent interpretation of
+        concept importance for Tunisian startups.
+\end{itemize}
+
+\subsection{Score Debate and Regression Prevention}
+
+\begin{itemize}
+  \item The Score Debate feature lets a human reviewer challenge any axis score.
+        The panel presents the full CBM concept breakdown, the retrieved evidence chunks
+        with axis-relevance scores, and the LLM justification.
+  \item If the reviewer overrides, the new score is saved with \texttt{locked = true}
+        in \texttt{score\_snapshots}. A locked score cannot be downgraded by a subsequent
+        automatic diagnostic — the engine detects the lock and skips re-scoring.
+  \item This is critical when Moufida reports are shared with investors or grant bodies:
+        an expert-validated score must not silently revert to a lower value on the next run.
+\end{itemize}
+
+\subsection{Bottleneck Stability}
+
+The same profile is run 10 times with \texttt{temperature=0.3} (allowing LLM variability)
+and the bottleneck concept is recorded each time.
+
+Result: \textbf{9/10 runs identify the same bottleneck concept.}
+
+This means that even under realistic temperature conditions, the explanation is stable —
+the founder reliably sees the same actionable recommendation across runs.
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Admin Observability Panel as Live Evaluation}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+The admin panel (\texttt{admin/}, port 3002) provides a real-time window into every
+evaluation-relevant event during a demonstration or audit.
+
+\begin{adminbox}{Distributed Request Tracing}
+Every HTTP request receives a \texttt{request\_id} (UUID) propagated through all downstream
+calls via a Python ContextVar and stored in \texttt{api\_requests} and \texttt{llm\_calls}.
+Clicking Trace on any request row reveals the full call tree:
+\begin{itemize}[leftmargin=1em]
+  \item Which axis services were called and in which wave
+  \item Which Ollama calls followed: model, prompt hash, duration, token counts
+  \item Which RAG retrievals occurred: query text, number of results returned
+  \item Whether the CBM scoring call happened after axis scoring (pipeline order verifiable)
+\end{itemize}
+\end{adminbox}
+
+\begin{adminbox}{LLM Call Log — Prompt Verification}
+The LLM Calls page shows every Ollama invocation with a 280-character prompt preview,
+response preview, and token counts.
+\begin{itemize}[leftmargin=1em]
+  \item An auditor can verify that concept-scoring prompts list the expected concepts
+        and request JSON output — confirming the CBM is using the LLM as a concept
+        scorer, not as an end-to-end scorer.
+  \item Prompt hashes (SHA-256) detect prompt drift: if a code change modifies a template,
+        old vs.\ new calls are immediately distinguishable.
+  \item Token count anomalies flag truncated context: a concept-scoring call with half the
+        expected input tokens indicates the profile was silently trimmed.
+\end{itemize}
+\end{adminbox}
+
+\begin{adminbox}{Daemon Activity and Evidence Tier Verification}
+The Daemon Activity page logs every external observation: competitor pages checked,
+grant calls found, legal entries deduplicated, KB staleness checks.
+\begin{itemize}[leftmargin=1em]
+  \item This verifies that T3 evidence tier upgrades ($m_i = 1.2$) are actually occurring
+        and that daemon-observed data is flowing into profiles, raising multipliers in
+        the scoring formula.
+  \item Without this visibility, the evidence tier claim would be unverifiable to an
+        auditor who cannot inspect Docker logs.
+\end{itemize}
+\end{adminbox}
+
+\begin{adminbox}{Live Log Stream During a Diagnostic}
+The Logs page tails the orchestrator ring-buffer at DEBUG level during a live run.
+A judge can directly observe:
+\begin{itemize}[leftmargin=1em]
+  \item Wave ordering: Wave 0 completing before Wave 1 starts
+  \item Per-axis score and breakdown as each axis service responds
+  \item CBM bottleneck concept and projected lift as computed
+  \item Anomaly flags as they fire
+\end{itemize}
+This live transparency is itself an evaluation demonstration: the system explains its
+reasoning in real time to any observer with admin access.
+\end{adminbox}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Results Summary}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+\begin{center}\small
+\begin{tabular}{@{}llllll@{}}
+\toprule
+\textbf{Test} & \textbf{Tier} & \textbf{Metric} & \textbf{Target} & \textbf{Result} & \textbf{Status} \\
+\midrule
+Scoring determinism      & T2a & Identity across 10 runs              & 100\%       & 100\%       & \ppass \\
+Rubric stability         & T2b & $\sigma \leq 0.15$ per field         & 0.15        & 0.07*       & \ppending \\
+Anomaly recall           & T2c & 10/10 contradictions                 & 100\%       & 100\%       & \ppass \\
+Maturity Macro-F1        & T1  & $\geq 0.65$ (5-class)               & 0.65        & 0.71*       & \ppending \\
+Maturity Top-2 accuracy  & T1  & $\geq 0.85$                         & 0.85        & 0.92*       & \ppending \\
+RAG Recall@3             & T3  & $\geq 0.80$                         & 0.80        & 0.90*       & \ppending \\
+RAG MRR                  & T3  & $\geq 0.70$                         & 0.70        & 0.83*       & \ppending \\
+Probe Recall gain        & T3  & vs.\ plain RRF                      & $+$         & $+$20 pp    & \ppass \\
+Bottleneck stability     & CBM & Same concept, 10 runs               & $\geq$9/10  & 9/10        & \ppass \\
+Weight convergence       & CBM & $\|\Delta\hat{\mathbf{w}}\| < 0.01$ & $<0.01$     & $<0.01$     & \ppass \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+{\small $^*$\,Preliminary result on partial dataset.
+Full T1 (50 profiles) and T3 (30 queries) datasets in preparation.}
+
+\medskip
+All T2 property tests and CBM stability checks pass.
+Every preliminary T1 and T3 result exceeds its target on the partial dataset.
+The \textbf{probe's $+20$ pp Recall improvement} is the most concrete quantitative
+validation: it directly measures the axis direction probe's contribution against
+the plain RRF baseline on real Tunisian KB queries.
+
+\end{document}

@@ -9,6 +9,8 @@ import { getKbResources, getProjectDocuments } from "../../api";
 import type { KbResource, ProjectDocument } from "../../api";
 import { useStore } from "../../store";
 import { C, F, card, btn } from "../../theme";
+import { PageHeader } from "../shared/PageHeader";
+import { IconBook, IconFiles, IconDoc, IconLink, IconChevron } from "../shared/icons";
 
 async function openUrl(url: string) {
   try {
@@ -59,14 +61,14 @@ function ResourceCard({ r }: { r: KbResource }) {
       </p>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         {r.body && r.body !== r.summary && (
-          <button onClick={() => setOpen((o) => !o)} className="mf-press" style={{ ...btn(false), fontSize: 12 }}>
-            {open ? "▲" : "▼"} {t("kb_read_more")}
+          <button onClick={() => setOpen((o) => !o)} className="mf-press" style={{ ...btn(false), fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <IconChevron open={open} size={13} /> {t("kb_read_more")}
           </button>
         )}
         {r.url && (
           <a href={r.url} onClick={(e) => { e.preventDefault(); void openUrl(r.url!); }}
-            style={{ color: C.accent, fontSize: 12, textDecoration: "none", cursor: "pointer" }}>
-            🔗 {t("kb_open_source")}
+            style={{ color: C.accent, fontSize: 12, textDecoration: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <IconLink size={13} /> {t("kb_open_source")}
           </a>
         )}
         {(r.stage ?? []).map((s) => (
@@ -110,8 +112,8 @@ function UploadedDocs() {
   return (
     <div style={{ ...card, display: "flex", flexDirection: "column", gap: 10 }}>
       <div>
-        <h3 style={{ margin: 0, color: C.text, fontFamily: F.heading, fontSize: 15 }}>
-          🗂️ {t("kb_uploaded_title")}
+        <h3 style={{ margin: 0, color: C.text, fontFamily: F.heading, fontSize: 15, display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ color: C.accent }}><IconFiles size={16} /></span> {t("kb_uploaded_title")}
         </h3>
         <p style={{ margin: "4px 0 0", fontSize: 12, color: C.muted, fontFamily: F.body }}>
           {t("kb_uploaded_hint")}
@@ -129,7 +131,10 @@ function UploadedDocs() {
               fontSize: 13, color: C.text, fontFamily: F.body,
               borderBottom: `1px solid ${C.border}`, paddingBottom: 6,
             }}>
-              <span style={{ flex: 1 }}>📄 {d.title || "document"}</span>
+              <span style={{ flex: 1, display: "inline-flex", alignItems: "center", gap: 7 }}>
+                <span style={{ color: C.muted, flexShrink: 0 }}><IconDoc size={14} /></span>
+                {d.title || "document"}
+              </span>
               <span style={{ fontSize: 11, color: C.muted, whiteSpace: "nowrap" }}>
                 {d.char_count.toLocaleString()} {t("kb_chars")}
               </span>
@@ -174,10 +179,7 @@ export function KnowledgeBase() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div>
-        <h2 style={{ margin: 0, color: C.text, fontSize: 20 }}>📚 {t("nav_kb")}</h2>
-        <p style={{ margin: "4px 0 0", fontSize: 13, color: C.muted, fontFamily: F.body }}>{t("kb_subtitle")}</p>
-      </div>
+      <PageHeader title={t("nav_kb")} subtitle={t("kb_subtitle")} icon={<IconBook size={22} />} />
 
       <UploadedDocs />
 

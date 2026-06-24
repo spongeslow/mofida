@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+from datetime import datetime
 from typing import Any
 
 import asyncpg
@@ -259,6 +260,13 @@ async def whats_new(project_id: str, since: str | None = None, language: str = "
     """Summarise recent events ranked by severity for voice/chat 'what changed?' queries."""
     pool = await get_pool()
 
+    since_dt: datetime | None = None
+    if since:
+        try:
+            since_dt = datetime.fromisoformat(since)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=f"invalid 'since' timestamp: {exc}")
+
     try:
         rows = await pool.fetch(
             """
@@ -273,7 +281,7 @@ async def whats_new(project_id: str, since: str | None = None, language: str = "
              LIMIT 10
             """,
             project_id,
-            since,
+            since_dt,
         )
     except (asyncpg.DataError, ValueError) as exc:
         raise HTTPException(status_code=400, detail=str(exc))

@@ -1,6 +1,7 @@
 import { useStore } from "../../store";
 import { useT } from "../../i18n";
-import { C, severityColor, severityIcon, card } from "../../theme";
+import { C, severityColor, card } from "../../theme";
+import { SeverityDot } from "../shared/icons";
 import type { Blocker } from "../../types";
 
 function BlockerRow({ blocker }: { blocker: Blocker }) {
@@ -15,7 +16,7 @@ function BlockerRow({ blocker }: { blocker: Blocker }) {
       borderBottom: `1px solid ${C.border}`,
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span>{severityIcon(blocker.severity)}</span>
+        <SeverityDot sev={blocker.severity} />
         <span style={{
           background: color + "22",
           color,

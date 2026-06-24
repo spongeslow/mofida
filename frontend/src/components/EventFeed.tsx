@@ -10,12 +10,13 @@ import { actOnEvent, ignoreEvent, listEvents, manualEvent } from "../api";
 import { C, F, card, btn } from "../theme";
 import type { EventRecord } from "../types";
 import { DiffView } from "./DiffView";
+import { IconEdit, IconChat, IconPlug, IconSignal, IconBolt } from "./shared/icons";
 
-const SOURCE_ICON: Record<string, string> = {
-  manual: "✎",
-  chat:   "💬",
-  tool:   "📡",
-  daemon: "🛰️",
+const SOURCE_ICON: Record<string, React.ReactNode> = {
+  manual: <IconEdit size={15} />,
+  chat:   <IconChat size={15} />,
+  tool:   <IconPlug size={15} />,
+  daemon: <IconSignal size={15} />,
 };
 
 const SEVERITY_COLOR: Record<string, string> = {
@@ -88,8 +89,8 @@ function EventCard({ event, onStatusChange }: EventCardProps) {
         {/* Source + summary */}
         <div style={{ flex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-            <span title={event.source} style={{ fontSize: 16 }}>
-              {SOURCE_ICON[event.source] ?? "●"}
+            <span title={event.source} style={{ display: "inline-flex", color: C.muted, flexShrink: 0 }}>
+              {SOURCE_ICON[event.source] ?? <IconSignal size={15} />}
             </span>
             <span style={{
               fontSize: 13, color: C.text, fontFamily: F.body, fontWeight: 600, lineHeight: 1.4,
@@ -132,18 +133,18 @@ function EventCard({ event, onStatusChange }: EventCardProps) {
             <button
               onClick={() => { void handleAct(); }}
               disabled={busy}
-              style={{ ...btn(true), padding: "5px 12px", fontSize: 12 }}
+              style={{ ...btn(true), padding: "5px 12px", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6 }}
               title={t("event_act_desc")}
             >
-              ⚡ {t("event_act")}
+              <IconBolt size={13} /> {t("event_act")}
             </button>
             <button
               onClick={() => { void handleManual(); }}
               disabled={busy}
-              style={{ ...btn(false), padding: "5px 12px", fontSize: 12 }}
+              style={{ ...btn(false), padding: "5px 12px", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6 }}
               title={t("event_manual_desc")}
             >
-              ✎ {t("event_manual")}
+              <IconEdit size={13} /> {t("event_manual")}
             </button>
             <button
               onClick={() => { void handleIgnore(); }}
@@ -272,8 +273,11 @@ export function EventFeed({ projectId }: Props) {
         </div>
         <div style={{ display: "flex", gap: 4 }}>
           {(["all", "manual", "chat", "tool", "daemon"] as FilterSource[]).map((s) => (
-            <button key={s} onClick={() => setFilterSource(s)} style={filterBtn(filterSource === s)}>
-              {SOURCE_ICON[s] ?? s}
+            <button key={s} onClick={() => setFilterSource(s)} style={filterBtn(filterSource === s)}
+              title={s} aria-label={s}>
+              {s === "all"
+                ? <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><IconSignal size={13} /> {t("kb_all")}</span>
+                : <span style={{ display: "inline-flex" }}>{SOURCE_ICON[s]}</span>}
             </button>
           ))}
         </div>

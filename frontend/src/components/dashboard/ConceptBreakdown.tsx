@@ -11,6 +11,7 @@ import { useStore } from "../../store";
 import { useT } from "../../i18n";
 import { getConceptScores } from "../../api";
 import { C, F, card, scoreColor } from "../../theme";
+import { IconBolt } from "../shared/icons";
 import type { ConceptScore } from "../../types";
 import { AxisRelevanceBar } from "../shared/AxisRelevanceBar";
 import { BottleneckAlert } from "./BottleneckAlert";
@@ -50,7 +51,7 @@ function AxisConceptRow({ axis, data }: { axis: string; data: ConceptScore }) {
             }}
             title={t("concept_bottleneck")}
           >
-            ⚡ {data.bottleneck.label ?? data.bottleneck.concept_id.replace(/_/g, " ")}
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><IconBolt size={12} /> {data.bottleneck.label ?? data.bottleneck.concept_id.replace(/_/g, " ")}</span>
           </span>
         )}
 

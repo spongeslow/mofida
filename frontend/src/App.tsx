@@ -21,7 +21,7 @@ import { playChime } from "./sfx";
 import {
   createProject, getDaemonControl, patchProfile, setDaemonPaused,
 } from "./api";
-import { C, F, btn } from "./theme";
+import { C, F, T, S, R } from "./theme";
 
 // Maps the app's voice state to the desktop pet's animation state.
 const COMPANION_STATE_MAP: Record<string, string> = {
@@ -128,6 +128,14 @@ function IconBook() {
   );
 }
 
+function IconSpark() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true">
+      <path d="M9 1.2l1.5 4.1a3 3 0 0 0 1.8 1.8L16.8 9l-4.5 1.5a3 3 0 0 0-1.8 1.8L9 16.8l-1.5-4.5a3 3 0 0 0-1.8-1.8L1.2 9l4.5-1.5a3 3 0 0 0 1.8-1.8z" />
+    </svg>
+  );
+}
+
 function NavItem({ icon, label, active, onClick }: {
   icon: React.ReactNode;
   label: string;
@@ -136,25 +144,23 @@ function NavItem({ icon, label, active, onClick }: {
 }) {
   return (
     <button className={`mf-nav-item${active ? " active" : ""}`} onClick={onClick}>
-      {icon}
+      <span style={{ display: "flex", flexShrink: 0, opacity: active ? 1 : 0.78 }}>{icon}</span>
       <span style={{ flex: 1 }}>{label}</span>
-      {active && (
-        <span style={{
-          width: 6, height: 6, borderRadius: "50%",
-          background: C.accent, flexShrink: 0,
-        }} />
-      )}
     </button>
   );
+}
+
+function NavGroupLabel({ children }: { children: React.ReactNode }) {
+  return <div className="mf-nav-group-label">{children}</div>;
 }
 
 function Divider() {
   return (
     <div style={{
       height: 1,
-      background: C.border,
-      margin: "12px 4px",
-      opacity: 0.6,
+      background: `linear-gradient(90deg, transparent, ${C.border}, transparent)`,
+      margin: "14px 4px",
+      opacity: 0.7,
     }} />
   );
 }
@@ -192,16 +198,12 @@ function DaemonStatusControl() {
   const dot = offline ? C.muted : paused ? C.warning : C.success;
 
   return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 8,
-      padding: "9px 12px", marginBottom: 8, borderRadius: 10,
-      background: C.surfaceHigh,
-    }}>
+    <div className="mf-status-pill" style={{ marginBottom: 8 }}>
       <span
         className={!offline && !paused ? "mf-live-dot" : undefined}
         style={{ width: 8, height: 8, borderRadius: "50%", background: dot, flexShrink: 0 }}
       />
-      <span style={{ flex: 1, fontSize: 11, color: C.muted, fontFamily: F.body }}>
+      <span style={{ flex: 1, ...T.caption, color: C.muted }}>
         {label}
       </span>
       <button
@@ -225,16 +227,12 @@ function SSEIndicator() {
   const t = useT();
   const connected = useStore((s) => s.sseConnected);
   return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 8,
-      padding: "7px 12px", marginBottom: 8, borderRadius: 10,
-      background: C.surfaceHigh,
-    }}>
+    <div className="mf-status-pill" style={{ marginBottom: 8 }}>
       <span
         className={connected ? "mf-live-dot" : undefined}
         style={{ width: 7, height: 7, borderRadius: "50%", background: connected ? C.success : C.muted, flexShrink: 0 }}
       />
-      <span style={{ flex: 1, fontSize: 11, color: C.muted, fontFamily: F.body }}>
+      <span style={{ flex: 1, ...T.caption, color: C.muted }}>
         {connected ? t("sse_live") : t("sse_offline")}
       </span>
     </div>
@@ -264,69 +262,70 @@ function LandingScreen({
       position: "relative",
       overflow: "hidden",
     }}>
-      {/* Warm radial glow decorations */}
+      {/* Stage spotlight behind the mascot (global aurora drifts behind this) */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "radial-gradient(ellipse 60% 50% at 50% 55%, rgba(201,106,45,0.09) 0%, transparent 70%)",
+        background: "radial-gradient(ellipse 58% 48% at 50% 42%, rgba(201,106,45,0.12) 0%, transparent 70%)",
         pointerEvents: "none",
       }} />
-      <div style={{
-        position: "absolute", width: 360, height: 360, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(111,78,55,0.07) 0%, transparent 70%)",
-        bottom: "-10%", right: "5%", pointerEvents: "none",
-      }} />
-      <div style={{
-        position: "absolute", width: 240, height: 240, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(201,106,45,0.06) 0%, transparent 70%)",
-        top: "5%", left: "8%", pointerEvents: "none",
-      }} />
 
-      {/* Character — pixel art hero, gently floating on a glow pedestal */}
-      <div className="mf-float" style={{ position: "relative", marginBottom: 4 }}>
-        <div style={{
-          position: "absolute", left: "50%", bottom: -6, transform: "translateX(-50%)",
-          width: 180, height: 34, borderRadius: "50%",
-          background: "radial-gradient(ellipse, rgba(201,106,45,0.28), transparent 70%)",
-          filter: "blur(6px)", pointerEvents: "none",
+      {/* Eyebrow */}
+      <p style={{
+        ...T.eyebrow, color: C.accent, margin: "0 0 4px", position: "relative", zIndex: 1,
+      }}>
+        {t("tagline_short")}
+      </p>
+
+      {/* Character — pixel-art hero on an animated glow pedestal */}
+      <div className="mf-float" style={{ position: "relative", margin: "2px 0 2px", zIndex: 1 }}>
+        <div className="mf-halo" style={{
+          position: "absolute", left: "50%", bottom: -10,
+          width: 220, height: 44, borderRadius: "50%",
+          background: "radial-gradient(ellipse, rgba(201,106,45,0.32), transparent 70%)",
+          filter: "blur(10px)", pointerEvents: "none",
         }} />
-        <div style={{ filter: "drop-shadow(0 16px 34px rgba(111,78,55,0.32))" }}>
-          <PixelMoufida state="idle" cssScale={2.2} showName />
+        <div style={{ filter: "drop-shadow(0 20px 40px rgba(58,38,24,0.34))" }}>
+          <PixelMoufida state="idle" cssScale={2.3} showName />
         </div>
       </div>
 
-      {/* Heading + tagline */}
+      {/* Display wordmark + tagline */}
       <h1 className="mf-wordmark" style={{
-        fontFamily: F.heading, fontSize: 56,
-        margin: "8px 0 6px", fontWeight: 700, letterSpacing: "-0.03em",
+        ...T.display, fontSize: 66, margin: "10px 0 8px", position: "relative", zIndex: 1,
       }}>
         Moufida
       </h1>
       <p style={{
-        fontFamily: F.body, color: C.muted, fontSize: 15.5,
-        margin: "0 0 34px", textAlign: "center", maxWidth: 340, lineHeight: 1.7,
+        ...T.body, color: C.muted, fontSize: 16,
+        margin: "0 0 32px", textAlign: "center", maxWidth: 380,
+        position: "relative", zIndex: 1,
       }}>
         {t("tagline")}
       </p>
 
       {/* "Got any idea?" creation flow */}
-      <div style={{ width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{
+        width: "100%", maxWidth: 440, display: "flex", flexDirection: "column",
+        gap: S.md, position: "relative", zIndex: 1,
+      }}>
         {!ideaMode ? (
           <button
             className="mf-btn-primary mf-cta-glow"
             onClick={() => setIdeaMode(true)}
-            style={{ fontSize: 16, padding: "15px 32px" }}
+            style={{ fontSize: 16, padding: "16px 32px" }}
           >
-            ✨ {t("creation_got_idea")}
+            <IconSpark /> {t("creation_got_idea")}
           </button>
         ) : (
           <div className="mf-glass mf-anim-scale" style={{
-            display: "flex", flexDirection: "column", gap: 10,
-            borderRadius: 18, padding: 18,
+            display: "flex", flexDirection: "column", gap: S.md,
+            borderRadius: R.xl, padding: S.xl,
           }}>
-            <p style={{ margin: 0, fontSize: 14, color: C.primary, fontFamily: F.heading, fontWeight: 700 }}>
+            <p style={{ ...T.h3, margin: 0, color: C.primary, fontFamily: F.heading, fontSize: 16 }}>
               {t("creation_got_idea_question")}
             </p>
             <textarea
+              className="mf-input"
               value={ideaText}
               onChange={(e) => setIdeaText(e.target.value)}
               placeholder={t("creation_idea_placeholder")}
@@ -338,51 +337,48 @@ function LandingScreen({
                 }
               }}
               style={{
-                width: "100%", background: C.surface,
-                border: `2px solid ${C.accent}`,
-                borderRadius: 12, color: C.text, fontSize: 14,
-                padding: "12px 16px", boxSizing: "border-box",
+                width: "100%", background: C.paper,
+                border: `1.5px solid ${C.border}`,
+                borderRadius: R.md, color: C.text, fontSize: 14.5,
+                padding: "13px 16px", boxSizing: "border-box",
                 fontFamily: F.body, resize: "vertical", outline: "none",
-                lineHeight: 1.6,
+                lineHeight: 1.65,
               }}
             />
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: S.sm }}>
               <button
                 className="mf-btn-primary"
                 onClick={() => ideaText.trim() && onNewIdea(ideaText.trim())}
                 disabled={!ideaText.trim()}
-                style={{ flex: 1 }}
+                style={{ flex: 1, opacity: ideaText.trim() ? 1 : 0.55 }}
               >
                 {t("creation_build")} →
               </button>
               <button
+                className="mf-icon-btn"
                 onClick={() => { setIdeaMode(false); setIdeaText(""); }}
-                style={{ ...btn(false), padding: "10px 16px" }}
+                aria-label="Cancel"
+                style={{ width: 46, height: "auto", border: `1px solid ${C.border}` }}
               >
                 ✕
               </button>
             </div>
-            <p style={{ margin: 0, fontSize: 11, color: C.muted, fontFamily: F.body }}>
-              Ctrl+Enter {t("creation_shortcut_hint")}
+            <p style={{ ...T.caption, margin: 0, color: C.muted }}>
+              <kbd style={{
+                fontFamily: F.body, fontSize: 10, fontWeight: 700, padding: "1px 6px",
+                borderRadius: 5, background: C.bgDeep, border: `1px solid ${C.border}`, color: C.muted,
+              }}>Ctrl + Enter</kbd> {t("creation_shortcut_hint")}
             </p>
           </div>
         )}
 
-        <button
-          onClick={onViewProjects}
-          style={{
-            ...btn(false),
-            padding:  "10px 28px",
-            fontSize: 14,
-            border:   `1.5px solid ${C.accent}`,
-            color:    C.accent,
-          }}
-        >
-          📁 {t("nav_projects")}
+        <button onClick={onViewProjects} className="mf-btn-ghost" style={{ justifyContent: "center", padding: "11px 28px" }}>
+          <IconFolder /> {t("nav_projects")}
         </button>
       </div>
 
-      <p style={{ marginTop: 22, fontSize: 12, color: C.muted, fontFamily: F.body, letterSpacing: "0.01em" }}>
+      <p className="mf-chip" style={{ marginTop: 24, position: "relative", zIndex: 1, color: C.muted }}>
+        <span className="mf-live-dot" style={{ width: 6, height: 6, background: C.accent, display: "inline-block" }} />
         {t("wake_prompt")}
       </p>
     </div>
@@ -609,7 +605,7 @@ export default function App() {
     voiceState !== "idle"        ? "…"             : null;
 
   return (
-    <div style={{
+    <div className="mf-grain" style={{
       display: "flex",
       height: "100vh",
       overflow: "hidden",
@@ -628,65 +624,69 @@ export default function App() {
       </div>
 
       {/* ── Sidebar ─────────────────────────────────────────── */}
-      <aside style={{
-        width:        220,
+      <aside className="mf-scroll" style={{
+        width:        236,
         flexShrink:   0,
-        background:   "linear-gradient(180deg, rgba(237,224,206,0.92) 0%, rgba(243,232,216,0.86) 100%)",
-        backdropFilter: "blur(14px) saturate(1.2)",
-        WebkitBackdropFilter: "blur(14px) saturate(1.2)",
-        borderRight:  `1px solid ${C.border}`,
+        background:   "linear-gradient(185deg, rgba(255,252,247,0.82) 0%, rgba(239,227,211,0.78) 45%, rgba(236,223,204,0.74) 100%)",
+        backdropFilter: "blur(18px) saturate(1.25)",
+        WebkitBackdropFilter: "blur(18px) saturate(1.25)",
+        borderRight:  `1px solid ${C.borderSoft}`,
         display:      "flex",
         flexDirection:"column",
-        padding:      "20px 10px",
-        boxShadow:    "2px 0 24px rgba(111,78,55,0.08)",
+        padding:      "22px 16px 18px",
+        boxShadow:    "1px 0 0 rgba(255,255,255,0.5) inset, 4px 0 30px rgba(58,38,24,0.07)",
         overflowY:    "auto",
         position:     "relative",
         zIndex:       2,
       }}>
 
-        {/* Brand */}
-        <div style={{ padding: "6px 12px 20px" }}>
-          <h1 className="mf-wordmark" style={{
-            margin: 0,
-            fontFamily: F.heading,
-            fontSize: 22,
-            fontWeight: 700,
-            letterSpacing: "-0.02em",
+        {/* Brand nameplate — monogram tile + animated wordmark */}
+        <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "2px 8px 18px" }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: 13, flexShrink: 0,
+            background: "linear-gradient(140deg, #D98A3A 0%, #C96A2D 55%, #A8521F 100%)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#FFF7EE", fontFamily: F.heading, fontSize: 22, fontWeight: 700,
+            boxShadow: "0 6px 16px rgba(201,106,45,0.40), inset 0 1px 0 rgba(255,255,255,0.3)",
           }}>
-            Moufida
-          </h1>
-          <p style={{
-            margin: "3px 0 0",
-            fontSize: 11,
-            color: C.muted,
-            fontFamily: F.body,
-            letterSpacing: "0.03em",
-          }}>
-            {t("tagline_short")}
-          </p>
+            M
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <h1 className="mf-wordmark" style={{ ...T.h2, margin: 0, fontSize: 21 }}>
+              Moufida
+            </h1>
+            <p style={{ ...T.caption, margin: "1px 0 0", color: C.muted, letterSpacing: "0.04em" }}>
+              {t("tagline_short")}
+            </p>
+          </div>
         </div>
 
-        <Divider />
-
-        {/* Navigation — hidden during intake and creation flows */}
+        {/* Navigation — grouped; hidden during intake and creation flows */}
         {projectId && view !== "intake" && view !== "creation" && (
           <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <NavGroupLabel>{t("nav_group_workspace")}</NavGroupLabel>
             <NavItem icon={<IconFolder />}    label={t("nav_projects")}
               active={view === "projects"}  onClick={() => setView("projects")} />
             <NavItem icon={<IconDashboard />} label={t("nav_dashboard")}
               active={view === "dashboard"} onClick={() => setView("dashboard")} />
             <NavItem icon={<IconChat />}      label={t("nav_hud")}
               active={view === "hud"}       onClick={() => setView("hud")} />
+
+            <NavGroupLabel>{t("nav_group_build")}</NavGroupLabel>
             <NavItem icon={<IconUsers />}     label={t("nav_personas")}
               active={view === "personas"}  onClick={() => setView("personas")} />
             <NavItem icon={<IconBriefcase />} label={t("nav_pitch")}
               active={view === "pitch"}     onClick={() => setView("pitch")} />
             <NavItem icon={<IconBranch />}    label={t("nav_scenarios")}
               active={view === "scenarios"} onClick={() => setView("scenarios")} />
+
+            <NavGroupLabel>{t("nav_group_knowledge")}</NavGroupLabel>
             <NavItem icon={<IconBook />}      label={t("nav_kb")}
               active={view === "kb"}        onClick={() => setView("kb")} />
             <NavItem icon={<IconChart />}     label={t("history")}
               active={view === "parcours"}  onClick={() => setView("parcours")} />
+
+            <NavGroupLabel>{t("nav_group_system")}</NavGroupLabel>
             <NavItem icon={<IconGear />}      label={t("nav_settings")}
               active={view === "settings"}  onClick={() => setView("settings")} />
           </nav>
@@ -703,24 +703,16 @@ export default function App() {
 
         {/* Voice state indicator */}
         {voiceLabel && (
-          <div style={{
-            display:     "flex",
-            alignItems:  "center",
-            gap:          8,
-            padding:     "9px 14px",
+          <div className="mf-status-pill" style={{
             marginBottom: 8,
-            borderRadius: 10,
-            background:  `${C.accent}18`,
+            background: `rgba(var(--mf-accent-rgb), 0.12)`,
+            borderColor: `rgba(var(--mf-accent-rgb), 0.32)`,
           }}>
             <span className="mf-voice-pulse" style={{
               width: 8, height: 8, borderRadius: "50%",
-              background: C.accent, flexShrink: 0,
-              display: "block",
+              background: C.accent, flexShrink: 0, display: "block",
             }} />
-            <span style={{
-              fontSize: 12, color: C.accent,
-              fontWeight: 500, fontFamily: F.body,
-            }}>
+            <span style={{ ...T.caption, color: C.accent, fontWeight: 600 }}>
               {voiceLabel}
             </span>
           </div>
@@ -729,38 +721,16 @@ export default function App() {
         <Divider />
 
         {/* Language selector (FR / EN / AR) */}
-        <div style={{
-          display: "flex",
-          gap: 4,
-          marginTop: 4,
-          background: C.surfaceHigh,
-          borderRadius: 9,
-          padding: 3,
-        }}>
-          {LANGS.map((l) => {
-            const active = lang === l.code;
-            return (
-              <button
-                key={l.code}
-                onClick={() => setLang(l.code)}
-                style={{
-                  flex: 1,
-                  border: "none",
-                  borderRadius: 7,
-                  padding: "6px 4px",
-                  fontSize: 12,
-                  fontFamily: F.body,
-                  fontWeight: active ? 700 : 500,
-                  cursor: "pointer",
-                  background: active ? C.primary : "transparent",
-                  color: active ? C.bg : C.muted,
-                  transition: "all 0.16s ease",
-                }}
-              >
-                {t(l.key)}
-              </button>
-            );
-          })}
+        <div className="mf-segment">
+          {LANGS.map((l) => (
+            <button
+              key={l.code}
+              className={`mf-segment-btn${lang === l.code ? " active" : ""}`}
+              onClick={() => setLang(l.code)}
+            >
+              {t(l.key)}
+            </button>
+          ))}
         </div>
       </aside>
 
@@ -777,14 +747,16 @@ export default function App() {
           <div
             key="projects"
             className="mf-view-enter mf-scroll mf-textured"
-            style={{ flex: 1, overflowY: "auto", padding: "28px 36px 120px" }}
+            style={{ flex: 1, overflowY: "auto", padding: "32px 40px 120px" }}
           >
-            <ProjectsPage
-              onOpen={handleOpenProject}
-              onDiagnose={handleDiagnoseProject}
-              onUpdateProfile={handleUpdateProfile}
-              onNewProject={clearProject}
-            />
+            <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+              <ProjectsPage
+                onOpen={handleOpenProject}
+                onDiagnose={handleDiagnoseProject}
+                onUpdateProfile={handleUpdateProfile}
+                onNewProject={clearProject}
+              />
+            </div>
           </div>
         ) : !projectId ? (
           <LandingScreen
@@ -802,18 +774,20 @@ export default function App() {
           <div
             key={view}
             className="mf-view-enter mf-scroll mf-textured"
-            style={{ flex: 1, overflowY: "auto", padding: "28px 36px 120px" }}
+            style={{ flex: 1, overflowY: "auto", padding: "32px 40px 120px" }}
           >
-            {view === "dashboard" && <Dashboard />}
-            {view === "hud"       && <HUD />}
-            {view === "parcours"  && <MonParcours />}
-            {view === "settings"  && <SettingsView />}
-            {view === "personas"  && projectId && <PersonaGallery projectId={projectId} />}
-            {view === "pitch"     && projectId && <PitchSimulator projectId={projectId} />}
-            {view === "scenarios" && projectId && (
-              <ScenarioPlannerPanel projectId={projectId} onClose={() => setView("dashboard")} />
-            )}
-            {view === "kb"        && <KnowledgeBase />}
+            <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+              {view === "dashboard" && <Dashboard />}
+              {view === "hud"       && <HUD />}
+              {view === "parcours"  && <MonParcours />}
+              {view === "settings"  && <SettingsView />}
+              {view === "personas"  && projectId && <PersonaGallery projectId={projectId} />}
+              {view === "pitch"     && projectId && <PitchSimulator projectId={projectId} />}
+              {view === "scenarios" && projectId && (
+                <ScenarioPlannerPanel projectId={projectId} onClose={() => setView("dashboard")} />
+              )}
+              {view === "kb"        && <KnowledgeBase />}
+            </div>
           </div>
         )}
       </main>
@@ -836,14 +810,21 @@ export default function App() {
           className="mf-toast"
           role="status"
           style={{
-            position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)",
-            zIndex: 10000, maxWidth: 420, padding: "10px 16px", borderRadius: 12,
-            fontSize: 13, fontFamily: F.body, color: "#fff",
-            background: toast.kind === "ok" ? C.success : C.warning,
-            boxShadow: "0 6px 24px rgba(0,0,0,0.22)",
+            position: "fixed", bottom: 28, left: "50%", transform: "translateX(-50%)",
+            zIndex: 10000, maxWidth: 440, padding: "12px 18px", borderRadius: R.md,
+            fontSize: 13, fontWeight: 600, fontFamily: F.body, color: "#FFF7EE",
+            display: "flex", alignItems: "center", gap: 9,
+            background: toast.kind === "ok"
+              ? "linear-gradient(135deg, #3a9a3f, #2E7D32)"
+              : "linear-gradient(135deg, #d97f1a, #C86A00)",
+            boxShadow: "0 12px 34px rgba(58,38,24,0.30), inset 0 1px 0 rgba(255,255,255,0.2)",
           }}
         >
-          {toast.kind === "ok" ? "✅ " : "⚠️ "}{toast.text}
+          <span style={{
+            width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
+            background: "rgba(255,255,255,0.9)",
+          }} />
+          {toast.text}
         </div>
       )}
 

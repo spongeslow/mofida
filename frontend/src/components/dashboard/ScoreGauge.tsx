@@ -25,6 +25,7 @@ function useCountUp(target: number, ms = 650): number {
   return val;
 }
 import { C, SCORE_COLORS, scoreColor, card, btn } from "../../theme";
+import { IconLock, IconChevron, IconChat } from "../shared/icons";
 import type { BreakdownComponent, ScoreExplanation } from "../../types";
 
 // Inline debate chat: argue a score with Moufida (analysis §3 / §17).
@@ -73,7 +74,7 @@ function DebatePanel({ scoreName }: { scoreName: string }) {
         </div>
       )}
       {locked ? (
-        <p style={{ margin: 0, fontSize: 12, color: C.muted }}>🔒 {t("debate_locked")}</p>
+        <p style={{ margin: 0, fontSize: 12, color: C.muted, display: "flex", alignItems: "center", gap: 6 }}><IconLock size={13} /> {t("debate_locked")}</p>
       ) : (
         <div style={{ display: "flex", gap: 6 }}>
           <input
@@ -135,11 +136,11 @@ function Gauge({ name, score, breakdown, justification }: {
       </div>
 
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-        <button onClick={() => setOpen((o) => !o)} style={{ ...btn(open), fontSize: 12 }}>
-          {open ? "▲" : "▼"} Détails
+        <button onClick={() => setOpen((o) => !o)} style={{ ...btn(open), fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <IconChevron open={open} size={13} /> {t("score_details")}
         </button>
-        <button onClick={() => setDebateOpen((o) => !o)} className="mf-press" style={{ ...btn(debateOpen), fontSize: 12 }}>
-          💬 {t("debate_title")}
+        <button onClick={() => setDebateOpen((o) => !o)} className="mf-press" style={{ ...btn(debateOpen), fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <IconChat size={13} /> {t("debate_title")}
         </button>
       </div>
 

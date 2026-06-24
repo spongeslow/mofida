@@ -1,4 +1,4 @@
-"""Thin, defensive wrapper around the Composio SDK.
+"""Thin, defensive wrapper around the Composio SDK (v3 / ``composio>=0.7``).
 
 Everything Composio-specific is isolated here so the rest of Moufida talks to a
 small, stable interface and so the app degrades gracefully when:
@@ -10,9 +10,10 @@ In all those cases methods raise :class:`ComposioUnavailable` (for explicit
 caller handling) or return safe empties — they never crash the process. The
 hand-rolled token tools are unaffected by Composio being absent.
 
-> SDK-version note: this targets the ``composio`` package's ``ComposioToolSet``
-> facade (initiate_connection / get_connected_account / execute_action /
-> create_trigger). If you pin a different Composio major, adjust the calls here
+> SDK-version note: this targets the **v3** ``composio`` package's ``Composio``
+> client facade (``toolkits.authorize`` / ``connected_accounts.get`` /
+> ``triggers.create`` / ``tools.execute``). The pre-0.8 ``ComposioToolSet``
+> facade is gone. If you pin a different Composio major, adjust the calls here
 > only — nothing else imports the SDK.
 """
 from __future__ import annotations
@@ -23,16 +24,17 @@ from typing import Any
 
 logger = logging.getLogger("moufida.tools.composio")
 
-# Composio app names per Moufida slug. The "composio_" prefix keeps the slugs
-# distinct from the hand-rolled tools while mirroring them for the UI.
+# Composio toolkit slugs per Moufida slug. v3 toolkit slugs are lowercase. The
+# "composio_" prefix keeps the slugs distinct from the hand-rolled tools while
+# mirroring them for the UI.
 APP_BY_SLUG: dict[str, str] = {
-    "composio_notion": "NOTION",
-    "composio_slack":  "SLACK",
-    "composio_sheets": "GOOGLESHEETS",
-    "composio_github": "GITHUB",
+    "composio_notion": "notion",
+    "composio_slack":  "slack",
+    "composio_sheets": "googlesheets",
+    "composio_github": "github",
 }
 
-# Inbound triggers registered per app on connect (trigger name → nothing fancy).
+# Inbound trigger slugs registered per toolkit on connect.
 TRIGGERS_BY_SLUG: dict[str, list[str]] = {
     "composio_notion": ["NOTION_PAGE_UPDATED"],
     "composio_slack":  ["SLACK_RECEIVE_MESSAGE"],
@@ -40,7 +42,7 @@ TRIGGERS_BY_SLUG: dict[str, list[str]] = {
     "composio_github": ["GITHUB_COMMIT_EVENT"],
 }
 
-# Outbound action per app for push notifications (diagnostic summary / alert).
+# Outbound action (tool) slug per toolkit for push notifications.
 ACTION_BY_SLUG: dict[str, str] = {
     "composio_notion": "NOTION_CREATE_NOTION_PAGE",
     "composio_slack":  "SLACK_SENDS_A_MESSAGE_TO_A_SLACK_CHANNEL",
@@ -48,7 +50,8 @@ ACTION_BY_SLUG: dict[str, str] = {
     "composio_github": "GITHUB_CREATE_AN_ISSUE",
 }
 
-# Single shared entity id for the single-user desktop deployment.
+# Single shared user/entity id for the single-user desktop deployment. v3 calls
+# this the ``user_id``; we keep the COMPOSIO_ENTITY_ID env name for continuity.
 ENTITY_ID = os.getenv("COMPOSIO_ENTITY_ID", "default")
 
 
@@ -57,30 +60,55 @@ class ComposioUnavailable(RuntimeError):
 
 
 def is_available() -> bool:
-    """True when an API key is set and the SDK imports."""
+    """True when an API key is set and the v3 ``Composio`` client imports."""
     if not os.getenv("COMPOSIO_API_KEY"):
         return False
     try:
-        import composio  # noqa: F401
+        from composio import Composio  # noqa: F401
     except Exception:
         return False
     return True
 
 
-def _toolset():
-    """Lazily build a ComposioToolSet, or raise ComposioUnavailable."""
+def _client():
+    """Lazily build a ``Composio`` client, or raise ComposioUnavailable."""
     api_key = os.getenv("COMPOSIO_API_KEY")
     if not api_key:
         raise ComposioUnavailable("COMPOSIO_API_KEY is not set")
     try:
-        from composio import ComposioToolSet  # type: ignore
+        from composio import Composio  # type: ignore
     except Exception as exc:  # pragma: no cover - import guard
         raise ComposioUnavailable(f"composio SDK not importable: {exc}")
     try:
-        return ComposioToolSet(api_key=api_key, entity_id=ENTITY_ID)
-    except TypeError:
-        # Older/newer signatures may not accept entity_id in the ctor.
-        return ComposioToolSet(api_key=api_key)
+        return Composio(api_key=api_key)
+    except Exception as exc:
+        raise ComposioUnavailable(f"composio client init failed: {exc}")
+
+
+def _attr(obj: Any, *names: str, default: Any = None) -> Any:
+    """First present attribute/key from ``names`` (objects or dicts)."""
+    for name in names:
+        if isinstance(obj, dict):
+            if name in obj:
+                return obj[name]
+        else:
+            val = getattr(obj, name, None)
+            if val is not None:
+                return val
+    return default
+
+
+def _to_dict(obj: Any) -> dict:
+    if isinstance(obj, dict):
+        return obj
+    for meth in ("model_dump", "dict", "to_dict"):
+        fn = getattr(obj, meth, None)
+        if callable(fn):
+            try:
+                return fn()
+            except Exception:
+                pass
+    return getattr(obj, "__dict__", {}) or {}
 
 
 def app_for(slug: str) -> str | None:
@@ -88,9 +116,9 @@ def app_for(slug: str) -> str | None:
 
 
 def slug_for_app(app: str) -> str | None:
-    app_up = (app or "").upper()
+    app_lower = (app or "").lower()
     for slug, name in APP_BY_SLUG.items():
-        if name == app_up:
+        if name == app_lower:
             return slug
     return None
 
@@ -99,27 +127,59 @@ def slug_for_app(app: str) -> str | None:
 # OAuth connection lifecycle                                                   #
 # --------------------------------------------------------------------------- #
 
-def initiate_connection(slug: str, redirect_url: str) -> dict:
-    """Start a managed-OAuth connection; returns {redirect_url, connection_id}."""
-    app = app_for(slug)
-    if app is None:
-        raise ComposioUnavailable(f"no Composio app mapped for slug {slug!r}")
-    ts = _toolset()
+def _managed_auth_config_id(client, toolkit: str) -> str:
+    """Find (or create) a Composio-managed OAuth auth config for ``toolkit``.
+
+    ``toolkits.authorize`` is no longer usable for managed OAuth on orgs past the
+    legacy-endpoint cutover, so we resolve an ``auth_config_id`` ourselves and
+    drive the connection through ``connected_accounts.link``.
+    """
     try:
-        req = ts.initiate_connection(app=app, redirect_url=redirect_url, entity_id=ENTITY_ID)
-    except TypeError:
-        req = ts.initiate_connection(app=app, redirect_url=redirect_url)
-    # The request object exposes the hosted OAuth URL + pending account id.
-    redirect = (
-        getattr(req, "redirectUrl", None)
-        or getattr(req, "redirect_url", None)
-        or (req.get("redirectUrl") if isinstance(req, dict) else None)
-    )
-    conn_id = (
-        getattr(req, "connectedAccountId", None)
-        or getattr(req, "connected_account_id", None)
-        or (req.get("connectedAccountId") if isinstance(req, dict) else None)
-    )
+        res = client.auth_configs.list()
+        items = _attr(res, "items", "data", default=[]) or []
+    except Exception as exc:
+        raise ComposioUnavailable(f"auth_configs.list failed: {exc}")
+    for it in items:
+        tk = _attr(it, "toolkit")
+        tk_slug = _attr(tk, "slug") if tk is not None else _attr(it, "toolkit_slug")
+        if str(tk_slug).lower() == toolkit:
+            return str(_attr(it, "id"))
+    # None yet — create a managed-OAuth config for this toolkit.
+    try:
+        created = client.auth_configs.create(
+            toolkit=toolkit,
+            options={"type": "use_composio_managed_auth"},
+        )
+    except Exception as exc:
+        raise ComposioUnavailable(f"auth_configs.create failed for {toolkit}: {exc}")
+    ac_id = _attr(created, "id")
+    if not ac_id:
+        raise ComposioUnavailable(f"auth_configs.create returned no id for {toolkit}")
+    return str(ac_id)
+
+
+def initiate_connection(slug: str, redirect_url: str) -> dict:
+    """Start a managed-OAuth connection; returns {redirect_url, connection_id}.
+
+    Resolves a Composio-managed auth config for the toolkit, then calls
+    ``connected_accounts.link`` to get the hosted OAuth URL the user opens.
+    ``redirect_url`` is forwarded as the post-OAuth ``callback_url``.
+    """
+    toolkit = app_for(slug)
+    if toolkit is None:
+        raise ComposioUnavailable(f"no Composio toolkit mapped for slug {slug!r}")
+    client = _client()
+    auth_config_id = _managed_auth_config_id(client, toolkit)
+    try:
+        req = client.connected_accounts.link(
+            user_id=ENTITY_ID,
+            auth_config_id=auth_config_id,
+            callback_url=redirect_url or None,
+        )
+    except Exception as exc:
+        raise ComposioUnavailable(f"connected_accounts.link failed: {exc}")
+    redirect = _attr(req, "redirect_url", "redirectUrl")
+    conn_id = _attr(req, "id", "connectedAccountId", "connected_account_id")
     if not redirect or not conn_id:
         raise ComposioUnavailable("Composio did not return a redirect URL / connection id")
     return {"redirect_url": redirect, "connection_id": str(conn_id)}
@@ -127,21 +187,13 @@ def initiate_connection(slug: str, redirect_url: str) -> dict:
 
 def connection_status(connection_id: str) -> dict:
     """Return {connected, status, account_id} for a pending/active connection."""
-    ts = _toolset()
+    client = _client()
     try:
-        acct = ts.get_connected_account(connection_id)
+        acct = client.connected_accounts.get(connection_id)
     except Exception as exc:
         raise ComposioUnavailable(f"status query failed: {exc}")
-    status = (
-        getattr(acct, "status", None)
-        or (acct.get("status") if isinstance(acct, dict) else None)
-        or "UNKNOWN"
-    )
-    account_id = (
-        getattr(acct, "id", None)
-        or (acct.get("id") if isinstance(acct, dict) else None)
-        or connection_id
-    )
+    status = _attr(acct, "status", default="UNKNOWN")
+    account_id = _attr(acct, "id", default=connection_id)
     return {
         "connected": str(status).upper() == "ACTIVE",
         "status": str(status),
@@ -158,20 +210,17 @@ def enable_triggers(slug: str, connection_id: str) -> list[str]:
     triggers = TRIGGERS_BY_SLUG.get(slug, [])
     if not triggers:
         return []
-    ts = _toolset()
+    client = _client()
     enabled: list[str] = []
     for name in triggers:
         try:
-            res = ts.create_trigger(
+            res = client.triggers.create(
+                name,
                 connected_account_id=connection_id,
-                trigger_name=name,
-                config={},
+                user_id=ENTITY_ID,
+                trigger_config={},
             )
-            tid = (
-                getattr(res, "triggerId", None)
-                or (res.get("triggerId") if isinstance(res, dict) else None)
-                or name
-            )
+            tid = _attr(res, "trigger_id", "triggerId", "id", default=name)
             enabled.append(str(tid))
         except Exception as exc:
             logger.warning("enable trigger %s for %s failed: %s", name, slug, exc)
@@ -184,34 +233,31 @@ def fetch_recent_trigger_events(limit: int = 50) -> list[dict]:
     Returns a list of normalised dicts:
         {event_id, app, trigger_name, payload}
     Best-effort: returns [] when unavailable or unsupported by the SDK version.
+    The v3 SDK favours realtime ``triggers.subscribe`` (websocket) over a
+    pull-recent endpoint, so this stays a safe no-op unless a list method is
+    exposed.
     """
     if not is_available():
         return []
     try:
-        ts = _toolset()
-        client = getattr(ts, "client", None)
-        if client is None:
-            return []
+        client = _client()
         triggers = getattr(client, "triggers", None)
-        if triggers is None:
-            return []
-        # The exact method name varies across SDK minors; try the common ones.
-        getter = getattr(triggers, "get_trigger_logs", None) or getattr(triggers, "list_events", None)
+        getter = getattr(triggers, "list_active", None) if triggers else None
         if getter is None:
             return []
         raw = getter()
-        items = raw if isinstance(raw, list) else getattr(raw, "data", []) or []
+        items = raw if isinstance(raw, list) else (_attr(raw, "items", "data", default=[]) or [])
     except Exception as exc:
         logger.info("fetch_recent_trigger_events unavailable: %s", exc)
         return []
 
     out: list[dict] = []
     for it in items[:limit]:
-        d = it if isinstance(it, dict) else getattr(it, "__dict__", {})
+        d = _to_dict(it)
         out.append({
             "event_id":     str(d.get("id") or d.get("eventId") or ""),
-            "app":          str(d.get("appName") or d.get("app") or ""),
-            "trigger_name": str(d.get("triggerName") or d.get("trigger") or ""),
+            "app":          str(d.get("toolkit") or d.get("appName") or d.get("app") or ""),
+            "trigger_name": str(d.get("triggerName") or d.get("trigger") or d.get("slug") or ""),
             "payload":      d.get("payload") or d,
         })
     return out
@@ -226,11 +272,12 @@ def execute_action(slug: str, params: dict, connection_id: str | None = None) ->
     action = ACTION_BY_SLUG.get(slug)
     if action is None:
         raise ComposioUnavailable(f"no Composio action mapped for slug {slug!r}")
-    ts = _toolset()
+    client = _client()
     try:
         if connection_id:
-            return ts.execute_action(action=action, params=params, connected_account_id=connection_id)
-        return ts.execute_action(action=action, params=params, entity_id=ENTITY_ID)
-    except TypeError:
-        # Fall back to the minimal signature.
-        return ts.execute_action(action=action, params=params)
+            res = client.tools.execute(action, arguments=params, connected_account_id=connection_id)
+        else:
+            res = client.tools.execute(action, arguments=params, user_id=ENTITY_ID)
+    except Exception as exc:
+        raise ComposioUnavailable(f"action {action} failed: {exc}")
+    return _to_dict(res)

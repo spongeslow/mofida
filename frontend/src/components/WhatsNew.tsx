@@ -7,12 +7,7 @@ import { useT } from "../i18n";
 import { getWhatsNew } from "../api";
 import { C, F, card, btn } from "../theme";
 import type { WhatsNewResult } from "../types";
-
-const SEVERITY_ICON: Record<string, string> = {
-  critical: "🔴",
-  warning:  "🟡",
-  info:     "🔵",
-};
+import { SeverityDot, IconSparkle } from "./shared/icons";
 
 interface Props {
   projectId: string;
@@ -50,7 +45,9 @@ export function WhatsNew({ projectId, lang }: Props) {
           fontSize: 12, color: C.muted, fontFamily: F.body,
           textTransform: "uppercase", letterSpacing: 1, fontWeight: 700,
         }}>
-          ✨ {t("whats_new_title")}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 7, color: C.accent }}>
+            <IconSparkle size={14} /> {t("whats_new_title")}
+          </span>
         </span>
         <button
           onClick={() => load(since)}
@@ -98,8 +95,8 @@ export function WhatsNew({ projectId, lang }: Props) {
                   padding: "6px 0",
                   borderBottom: `1px solid ${C.border}`,
                 }}>
-                  <span style={{ fontSize: 13, flexShrink: 0 }}>
-                    {SEVERITY_ICON[ev.severity] ?? "●"}
+                  <span style={{ flexShrink: 0, marginTop: 3 }}>
+                    <SeverityDot sev={ev.severity} size={8} />
                   </span>
                   <div style={{ flex: 1 }}>
                     <span style={{ fontSize: 13, color: C.text, fontFamily: F.body, lineHeight: 1.4 }}>

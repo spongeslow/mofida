@@ -4,6 +4,8 @@ import { useT } from "../../i18n";
 import { listTools } from "../../api";
 import { ToolCard } from "./ToolCard";
 import { C, F, card } from "../../theme";
+import { PageHeader } from "../shared/PageHeader";
+import { IconLock } from "../shared/icons";
 
 function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => void }) {
   return (
@@ -12,16 +14,18 @@ function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => voi
       aria-checked={value}
       onClick={onChange}
       style={{
-        width: 40, height: 22, borderRadius: 11,
-        background: value ? C.primary : C.border,
+        width: 44, height: 24, borderRadius: 12,
+        background: value ? "linear-gradient(135deg, #D98A3A, #C96A2D)" : C.border,
         border: "none", cursor: "pointer", position: "relative",
-        transition: "background 0.2s", flexShrink: 0,
+        transition: "background 0.24s var(--mf-ease)", flexShrink: 0,
+        boxShadow: value ? "0 2px 8px rgba(201,106,45,0.35), inset 0 1px 0 rgba(255,255,255,0.2)" : "inset 0 1px 2px rgba(58,38,24,0.12)",
       }}
     >
       <span style={{
-        position: "absolute", top: 3, left: value ? 21 : 3,
-        width: 16, height: 16, borderRadius: "50%", background: "#fff",
-        transition: "left 0.2s",
+        position: "absolute", top: 3, left: value ? 23 : 3,
+        width: 18, height: 18, borderRadius: "50%", background: "#fff",
+        transition: "left 0.24s var(--mf-spring)",
+        boxShadow: "0 2px 5px rgba(58,38,24,0.28)",
       }} />
     </button>
   );
@@ -53,37 +57,21 @@ export function SettingsView() {
   return (
     <div>
       {/* Header */}
-      <div style={{ marginBottom: 24 }}>
-        <h2 style={{ margin: 0, color: C.text, fontSize: 22, fontWeight: 700 }}>
-          {t("settings_title")}
-        </h2>
-        <p style={{ color: C.muted, marginTop: 6, fontSize: 14 }}>
-          {t("settings_subtitle")}
-        </p>
-        {enabledCount > 0 && (
-          <div
-            style={{
-              display: "inline-block",
-              marginTop: 4,
-              padding: "3px 10px",
-              borderRadius: 20,
-              background: `${C.primary}22`,
-              color: C.primary,
-              fontSize: 12,
-              fontWeight: 600,
-            }}
-          >
-            {enabledCount} {t("tools_enabled")}
-          </div>
-        )}
+      <div style={{ marginBottom: 28 }}>
+        <PageHeader
+          title={t("settings_title")}
+          subtitle={t("settings_subtitle")}
+          badge={enabledCount > 0 ? (
+            <span className="mf-chip" style={{ color: C.primary }}>
+              {enabledCount} {t("tools_enabled")}
+            </span>
+          ) : undefined}
+        />
       </div>
 
       {/* Preferences */}
       <section style={{ marginBottom: 32 }}>
-        <h3 style={{
-          fontSize: 13, fontWeight: 600, textTransform: "uppercase",
-          letterSpacing: "0.08em", color: C.muted, margin: "0 0 12px",
-        }}>
+        <h3 className="mf-section-title" style={{ marginBottom: 12 }}>
           {t("settings_preferences")}
         </h3>
         <div style={{ ...card, display: "flex", alignItems: "center", gap: 12 }}>
@@ -108,16 +96,7 @@ export function SettingsView() {
           {/* Group by domain */}
           {groupByDomain(tools).map(([domain, domainTools]) => (
             <section key={domain} style={{ marginBottom: 32 }}>
-              <h3
-                style={{
-                  fontSize: 13,
-                  fontWeight: 600,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  color: C.muted,
-                  margin: "0 0 12px",
-                }}
-              >
+              <h3 className="mf-section-title" style={{ marginBottom: 12 }}>
                 {t(`tools_domain_${domain}`) ?? domain}
               </h3>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -132,8 +111,9 @@ export function SettingsView() {
           <div
             style={{
               marginTop: 16,
-              padding: "12px 16px",
-              borderRadius: 8,
+              display: "flex", alignItems: "flex-start", gap: 9,
+              padding: "13px 16px",
+              borderRadius: 12,
               background: C.surfaceHigh,
               border: `1px solid ${C.border}`,
               fontSize: 12,
@@ -141,7 +121,8 @@ export function SettingsView() {
               lineHeight: 1.6,
             }}
           >
-            🔒 {t("tools_privacy_note")}
+            <span style={{ color: C.primary, flexShrink: 0, marginTop: 1 }}><IconLock size={15} /></span>
+            {t("tools_privacy_note")}
           </div>
         </>
       )}

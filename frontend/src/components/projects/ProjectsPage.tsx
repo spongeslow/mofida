@@ -13,8 +13,9 @@ import {
   createProject, deleteProject, getDaemonControl, getRecentProjects,
   patchProfile, setDaemonFocus,
 } from "../../api";
-import { C, F, card, btn, setAccent } from "../../theme";
+import { C, F, T, card, btn, setAccent } from "../../theme";
 import { SkeletonCard } from "../shared/SkeletonCard";
+import { IconBolt, IconEdit, IconEye, IconTrash } from "../shared/icons";
 import type { Project } from "../../types";
 
 interface Props {
@@ -98,17 +99,18 @@ export function ProjectsPage({ onOpen, onDiagnose, onUpdateProfile, onNewProject
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-        <div style={{ flex: 1 }}>
-          <h2 style={{ margin: 0, color: C.text, fontSize: 20 }}>📁 {t("nav_projects")}</h2>
-          <p style={{ margin: "4px 0 0", fontSize: 13, color: C.muted, fontFamily: F.body }}>{t("projects_subtitle")}</p>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 12, flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: 220 }}>
+          <p style={{ ...T.eyebrow, color: C.accent, margin: "0 0 4px" }}>{t("tagline_short")}</p>
+          <h2 style={{ ...T.h1, margin: 0, color: C.ink }}>{t("nav_projects")}</h2>
+          <p style={{ ...T.small, margin: "6px 0 0", color: C.muted }}>{t("projects_subtitle")}</p>
         </div>
         <input ref={fileRef} type="file" accept="application/json,.json"
           onChange={(e) => { void handleFile(e); }} style={{ display: "none" }} />
-        <button onClick={() => fileRef.current?.click()} className="mf-press" style={btn(false)}>
-          📂 {t("import_project")}
+        <button onClick={() => fileRef.current?.click()} className="mf-btn-ghost">
+          {t("import_project")}
         </button>
-        <button onClick={onNewProject} className="mf-press" style={btn(true)}>
+        <button onClick={onNewProject} className="mf-btn-accent">
           ＋ {t("projects_new")}
         </button>
       </div>
@@ -164,17 +166,18 @@ export function ProjectsPage({ onOpen, onDiagnose, onUpdateProfile, onNewProject
                   {t("projects_open")}
                 </button>
                 <button onClick={() => { setAccent(p.sector); onDiagnose(p.project_id); }} className="mf-press"
-                  style={{ ...btn(false), border: `1.5px solid ${C.accent}`, color: C.accent }}>
-                  ⚡ {t("projects_diagnose")}
+                  style={{ ...btn(false), border: `1.5px solid ${C.accent}`, color: C.accent, display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <IconBolt size={13} /> {t("projects_diagnose")}
                 </button>
-                <button onClick={() => onUpdateProfile(p.project_id)} className="mf-press" style={{ ...btn(false), fontSize: 12 }}>
-                  ✎ {t("projects_update_profile")}
+                <button onClick={() => onUpdateProfile(p.project_id)} className="mf-press" style={{ ...btn(false), fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <IconEdit size={13} /> {t("projects_update_profile")}
                 </button>
                 <button onClick={(e) => { void handleFocus(e, p.project_id); }} disabled={focusingId === p.project_id}
                   title={focused ? t("daemon_unfocus") : t("daemon_focus")}
-                  style={{ background: focused ? `${C.accent}22` : "none", border: focused ? `1px solid ${C.accent}` : "none",
-                    cursor: "pointer", color: focused ? C.accent : C.muted, fontSize: 15, padding: "4px 7px", borderRadius: 6, lineHeight: 1 }}>
-                  {focusingId === p.project_id ? "…" : focused ? "👁" : "👁‍🗨"}
+                  className="mf-icon-btn"
+                  style={{ background: focused ? `${C.accent}22` : undefined, border: focused ? `1px solid ${C.accent}` : "1px solid transparent",
+                    color: focused ? C.accent : C.muted, width: 32, height: 32 }}>
+                  {focusingId === p.project_id ? "…" : <IconEye size={16} />}
                 </button>
                 {deletingId === p.project_id ? (
                   <span style={{ color: C.muted, fontSize: 15, padding: "4px 7px", lineHeight: 1 }}>…</span>
@@ -195,9 +198,9 @@ export function ProjectsPage({ onOpen, onDiagnose, onUpdateProfile, onNewProject
                   </span>
                 ) : (
                   <button onClick={(e) => { e.stopPropagation(); setConfirmingId(p.project_id); }}
-                    title={t("delete_project")}
-                    style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 16, padding: "4px 7px", borderRadius: 6, lineHeight: 1 }}>
-                    🗑
+                    title={t("delete_project")} className="mf-icon-btn"
+                    style={{ color: C.muted, width: 32, height: 32 }}>
+                    <IconTrash size={15} />
                   </button>
                 )}
               </div>

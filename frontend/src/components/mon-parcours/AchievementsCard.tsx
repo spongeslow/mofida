@@ -4,13 +4,17 @@
  * in localStorage, and a celebrate pulse fires the first time one unlocks.
  */
 import { useEffect, useMemo } from "react";
+import type React from "react";
 import { useStore } from "../../store";
 import { useT } from "../../i18n";
 import { C, F, card } from "../../theme";
+import {
+  IconTarget, IconBolt, IconStar, IconShield, IconRocket, IconMap, IconTrophy, IconLock,
+} from "../shared/icons";
 
 interface BadgeDef {
   id: string;
-  icon: string;
+  icon: React.ReactNode;
   labelKey: string;
   test: (s: {
     scores: Record<string, number>;
@@ -21,17 +25,17 @@ interface BadgeDef {
 }
 
 const BADGES: BadgeDef[] = [
-  { id: "first_score", icon: "🎯", labelKey: "badge_first_score",
+  { id: "first_score", icon: <IconTarget size={24} />, labelKey: "badge_first_score",
     test: (s) => Object.keys(s.scores).length > 0 },
-  { id: "strong_axis", icon: "💪", labelKey: "badge_strong_axis",
+  { id: "strong_axis", icon: <IconBolt size={24} />, labelKey: "badge_strong_axis",
     test: (s) => Object.values(s.scores).some((v) => v >= 4) },
-  { id: "all_strong", icon: "🌟", labelKey: "badge_all_strong",
+  { id: "all_strong", icon: <IconStar size={24} />, labelKey: "badge_all_strong",
     test: (s) => Object.values(s.scores).length > 0 && Object.values(s.scores).every((v) => v >= 3.5) },
-  { id: "no_blockers", icon: "🛡️", labelKey: "badge_no_blockers",
+  { id: "no_blockers", icon: <IconShield size={24} />, labelKey: "badge_no_blockers",
     test: (s) => Object.keys(s.scores).length > 0 && s.blockers.length === 0 },
-  { id: "advanced_stage", icon: "🚀", labelKey: "badge_advanced_stage",
+  { id: "advanced_stage", icon: <IconRocket size={24} />, labelKey: "badge_advanced_stage",
     test: (s) => !!s.maturityStage && ["Fundraising", "Launch Planning", "Growth"].includes(s.maturityStage) },
-  { id: "roadmap_ready", icon: "🗺️", labelKey: "badge_roadmap_ready",
+  { id: "roadmap_ready", icon: <IconMap size={24} />, labelKey: "badge_roadmap_ready",
     test: (s) => s.roadmap != null },
 ];
 
@@ -65,8 +69,9 @@ export function AchievementsCard() {
 
   return (
     <div style={card}>
-      <h3 style={{ margin: "0 0 14px", color: C.text, fontFamily: F.heading, fontSize: 16 }}>
-        🏆 {t("badges_title")} <span style={{ color: C.muted, fontSize: 13, fontWeight: 400 }}>
+      <h3 style={{ margin: "0 0 14px", color: C.text, fontFamily: F.heading, fontSize: 16, display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ color: C.accent }}><IconTrophy size={18} /></span>
+        {t("badges_title")} <span style={{ color: C.muted, fontSize: 13, fontWeight: 400 }}>
           {unlocked.size} / {BADGES.length}
         </span>
       </h3>
@@ -82,7 +87,7 @@ export function AchievementsCard() {
               opacity: got ? 1 : 0.5, filter: got ? "none" : "grayscale(1)",
               transition: "all 0.3s ease",
             }}>
-              <span style={{ fontSize: 26, lineHeight: 1 }}>{got ? b.icon : "🔒"}</span>
+              <span style={{ lineHeight: 1, color: got ? C.accent : C.muted }}>{got ? b.icon : <IconLock size={22} />}</span>
               <span style={{ fontSize: 11, color: C.text, textAlign: "center", lineHeight: 1.3, fontFamily: F.body }}>
                 {t(b.labelKey)}
               </span>

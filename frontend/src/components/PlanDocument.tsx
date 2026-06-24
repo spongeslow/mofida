@@ -5,6 +5,7 @@
 import { useState } from "react";
 import { useT } from "../i18n";
 import { C, F, card, btn } from "../theme";
+import { IconDownload } from "./shared/icons";
 import type { PlanSection } from "../types";
 import { PlanSectionView } from "./PlanSectionView";
 import { generateAxis, approveAxis } from "../api";
@@ -182,9 +183,10 @@ export function PlanDocument({ sections, projectId }: Props) {
         <button
           onClick={handleExportPdf}
           style={{ ...btn(false), padding: "8px 18px", fontSize: 13,
-            border: `1.5px solid ${C.accent}`, color: C.accent }}
+            border: `1.5px solid ${C.accent}`, color: C.accent,
+            display: "inline-flex", alignItems: "center", gap: 7 }}
         >
-          ⬇ {t("creation_export_pdf")}
+          <IconDownload size={14} /> {t("creation_export_pdf")}
         </button>
       </div>
 

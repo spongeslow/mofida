@@ -1,6 +1,7 @@
 import { useStore } from "../../store";
 import { useT } from "../../i18n";
 import { C, STAGE_COLORS, card } from "../../theme";
+import { IconWarn } from "../shared/icons";
 
 // Ordered maturity ladder — drives the "level" progression track (Phase 5).
 const STAGE_ORDER = [
@@ -88,8 +89,9 @@ export function MaturityCard() {
           fontSize: 13,
           marginBottom: 12,
           color: C.error,
+          display: "flex", alignItems: "center", gap: 7,
         }}>
-          ⚠ {t("perception_gap")} — {t("perception_gap_self")}: <strong>{selfAssessedStage}</strong>
+          <IconWarn size={14} /> <span>{t("perception_gap")} — {t("perception_gap_self")}: <strong>{selfAssessedStage}</strong></span>
         </div>
       )}
 

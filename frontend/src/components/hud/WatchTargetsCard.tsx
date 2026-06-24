@@ -10,6 +10,7 @@ import { useT } from "../../i18n";
 import { getWatchTargets, refreshWatchTargets } from "../../api";
 import type { WatchTargets } from "../../api";
 import { C, F, card, btn } from "../../theme";
+import { IconEye } from "../shared/icons";
 
 async function openUrl(url: string) {
   try {
@@ -60,8 +61,8 @@ export function WatchTargetsCard() {
   return (
     <div style={card}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-        <h3 style={{ margin: 0, flex: 1, color: C.text, fontFamily: F.heading, fontSize: 16 }}>
-          👁 {t("watch_title")}
+        <h3 style={{ margin: 0, flex: 1, color: C.text, fontFamily: F.heading, fontSize: 16, display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ color: C.accent }}><IconEye size={17} /></span> {t("watch_title")}
         </h3>
         <button onClick={() => { void refresh(); }} disabled={busy} className="mf-press" style={btn(false)}>
           {busy ? "…" : t("watch_refresh")}

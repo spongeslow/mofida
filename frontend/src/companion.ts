@@ -21,32 +21,44 @@ let blinking   = false;
 let wavePhase  = 0;          // 0 = no wave, 1 = arm up mid, 2 = arm up high
 
 // Timing
-let lastWalkToggle = 0;
-let lastPosUpdate  = 0;
-let lastBlink      = 0;
-let lastIdleAnim   = 0;
+let lastWalkToggle  = 0;
+let lastPosUpdate   = 0;
+let lastBlink       = 0;
+let lastIdleAnim    = 0;
+let lastInteraction = 0;    // last direct physical interaction (mouse events)
+let lastActivity    = 0;    // last any notable event (includes main-window pushes)
 let waveTimer: ReturnType<typeof setTimeout> | null = null;
+let autoTypingTimer: ReturnType<typeof setTimeout> | null = null;
+let reactTimer: ReturnType<typeof setTimeout> | null = null;
 
-const WALK_MS    = 380;   // ms between walk-frame switches
-const POS_MS     = 55;    // ms between window setPosition calls
-const BLINK_MS   = 4500; // ms between blinks (random offset added)
-const IDLE_MS    = 5000; // ms between idle animations
+const WALK_MS        = 380;      // ms between walk-frame switches
+const POS_MS         = 55;       // ms between window setPosition calls
+const BLINK_MS       = 4500;     // ms between blinks (random offset added)
+const IDLE_MS        = 5000;     // ms between idle animations
+const TYPING_IDLE_MS = 55_000;   // no-interaction time before auto-typing kicks in
+const TYPING_DUR_MS  = 10_000;   // how long she types before returning to walk
+const SLEEP_MS       = 180_000;  // no-activity time before she falls asleep
+
+// How long each reactive state plays before auto-reverting to walk.
+const REACT_DUR: Partial<Record<State, number>> = {
+  cool:     4500,
+  facepalm: 3000,
+  crying:   5500,
+};
 
 // Roaming: only move 200 logical px left from the right edge.
 let ROAM_RIGHT = 0;
 let ROAM_LEFT  = 0;
 
 // ── Drag-to-move ──────────────────────────────────────────────────
-// The companion window is borderless/transparent, so we move it ourselves by
-// tracking the cursor in *screen* coordinates (stable while the window moves).
-const ROAM_HALF_SPAN = 110;   // logical px the roam strip extends each side of the drop point
-const DRAG_THRESHOLD = 4;     // px the pointer must travel before it counts as a drag (vs. a click)
+const ROAM_HALF_SPAN = 110;
+const DRAG_THRESHOLD = 4;
 let pointerDown   = false;
 let isDragging    = false;
-let dragStartX    = 0;        // pointer screen X at press
-let dragStartY    = 0;        // pointer screen Y at press
+let dragStartX    = 0;
+let dragStartY    = 0;
 let stateBeforeDrag: State = 'walk';
-let suppressClickUntil = 0;   // ignore the synthetic click the browser fires after a drag
+let suppressClickUntil = 0;
 
 // ─────────────────────────────────────────────────────────────────
 // Bounce animation for startled state
@@ -84,16 +96,104 @@ function playWave() {
 }
 
 // ─────────────────────────────────────────────────────────────────
+// Stretch — Y-arms reach, slow breath float; returns to idle.
+// ─────────────────────────────────────────────────────────────────
+function playStretch() {
+  cState = 'stretching';
+  setTimeout(() => {
+    if (cState === 'stretching') cState = 'idle';
+  }, 2400);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Shrug — ¿ pose with floating "?"; returns to idle.
+// ─────────────────────────────────────────────────────────────────
+function playShrug() {
+  cState = 'shrug';
+  setTimeout(() => {
+    if (cState === 'shrug') cState = 'idle';
+  }, 1800);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Idle animation pool — wave / stretch / shrug, weighted randomly.
+// ─────────────────────────────────────────────────────────────────
+function playIdleAnim() {
+  const r = Math.random();
+  if (r < 0.5)       playWave();
+  else if (r < 0.75) playStretch();
+  else               playShrug();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Reactive states (cool / facepalm / crying) — auto-revert to walk.
+// ─────────────────────────────────────────────────────────────────
+function playReaction(state: State) {
+  cState = state;
+  if (reactTimer) clearTimeout(reactTimer);
+  reactTimer = setTimeout(() => {
+    if (cState === state) { cState = 'walk'; walkFrame = 0; }
+    reactTimer = null;
+  }, REACT_DUR[state] ?? 3000);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Apply an incoming state from the main window.
+// Reactive states auto-revert; everything else is a direct assignment.
+// ─────────────────────────────────────────────────────────────────
+function applyIncomingState(state: State) {
+  if (REACT_DUR[state] !== undefined) {
+    playReaction(state);
+  } else {
+    cState = state;
+    if (state === 'walk') { walkFrame = 0; wavePhase = 0; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Auto-typing — fires after TYPING_IDLE_MS with no interaction.
+// Resets lastActivity so she doesn't immediately sleep after typing.
+// ─────────────────────────────────────────────────────────────────
+function startTyping() {
+  cState = 'typing';
+  lastActivity = performance.now();
+  if (autoTypingTimer) clearTimeout(autoTypingTimer);
+  autoTypingTimer = setTimeout(() => {
+    if (cState === 'typing') {
+      cState = 'walk';
+      walkFrame = 0;
+      // Reset lastInteraction so she doesn't immediately type again.
+      lastInteraction = performance.now();
+    }
+    autoTypingTimer = null;
+  }, TYPING_DUR_MS);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// interact() — call on any direct user interaction with the companion.
+// Resets idle timers and wakes her from sleep / cancels typing.
+// ─────────────────────────────────────────────────────────────────
+function interact() {
+  const now = performance.now();
+  lastInteraction = now;
+  lastActivity    = now;
+
+  if (cState === 'sleeping') {
+    cState = 'startled';
+    playBounce(() => { cState = 'walk'; });
+  } else if (cState === 'typing' && autoTypingTimer) {
+    clearTimeout(autoTypingTimer);
+    autoTypingTimer = null;
+    cState = 'walk';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
 // Drag helpers
 // ─────────────────────────────────────────────────────────────────
-/**
- * Read the window's real position back from the OS (it moved under us during a
- * compositor-driven drag) and re-anchor the roaming strip around where she
- * landed. Best-effort: position queries can be limited on some platforms.
- */
 async function syncPosFromWindow(win: ReturnType<typeof getCurrentWindow>) {
   try {
-    const phys = await win.outerPosition();      // physical pixels
+    const phys = await win.outerPosition();
     const sf   = await win.scaleFactor();
     posX = phys.x / sf;
     posY = phys.y / sf;
@@ -118,28 +218,20 @@ async function main() {
   const ctx = canvas.getContext('2d')!;
   ctx.imageSmoothingEnabled = false;
 
-  // ── Async init (failures don't block animation) ─────────────────
   const win = getCurrentWindow();
 
-  // ── Pointer drag-to-move + click handlers (synchronous) ─────────
-  // Registered before any await so they're always live. A press becomes a
-  // *drag* only once the pointer travels past DRAG_THRESHOLD; otherwise it
-  // stays a click (open main window) / double-click (quick diagnostic).
-  //
-  // We move the window via win.startDragging(): on Wayland an app cannot set
-  // its own absolute position (setPosition is ignored), so we hand the move off
-  // to the compositor. This works on X11/macOS/Windows too.
   canvas.style.cursor = 'grab';
 
-  /** Called once the user releases after a drag (or the window loses focus). */
+  // Seed idle timers so she doesn't type or sleep on the first frame.
+  lastInteraction = performance.now();
+  lastActivity    = performance.now();
+
   function endDrag() {
     if (!isDragging) return;
     isDragging  = false;
     pointerDown = false;
     canvas.style.cursor = 'grab';
-    // Swallow the synthetic click some platforms emit after a drag.
     suppressClickUntil = performance.now() + 400;
-    // Resync to where the compositor left the window, then settle + resume.
     void syncPosFromWindow(win).then(() => {
       cState = 'startled';
       playBounce(() => {
@@ -153,6 +245,7 @@ async function main() {
 
   canvas.addEventListener('pointerdown', (e) => {
     if (e.button !== 0) return;
+    interact();
     pointerDown     = true;
     isDragging      = false;
     dragStartX      = e.screenX;
@@ -166,27 +259,21 @@ async function main() {
     const dy = e.screenY - dragStartY;
     if (Math.hypot(dx, dy) <= DRAG_THRESHOLD) return;
 
-    // Promote to a drag: grab her, freeze roaming/idle, hand off to the OS.
     isDragging          = true;
     cState              = 'dragging';
     wavePhase           = 0;
     canvas.style.cursor = 'grabbing';
     win.startDragging().catch((err) => {
       console.warn('[companion] startDragging:', err);
-      // Fallback for platforms where it fails: keep her grabbed-looking,
-      // but immediately settle so she isn't stuck in the dragging pose.
       endDrag();
     });
   });
 
-  // The compositor owns the drag once it starts, so the reliable "drop" signal
-  // is a window/document pointer-release or focus loss — listen broadly.
   canvas.addEventListener('pointerup', () => { if (!isDragging) pointerDown = false; });
   window.addEventListener('pointerup', endDrag);
   window.addEventListener('pointercancel', endDrag);
   window.addEventListener('blur', endDrag);
 
-  // Click → open main window. Double-click → quick diagnostic.
   canvas.addEventListener('click', () => {
     if (performance.now() < suppressClickUntil) return;
     void handleClick();
@@ -196,8 +283,9 @@ async function main() {
     void handleDblClick();
   });
 
-  // Hover: pause walking so the user can interact (but never while dragging).
+  // Hover: pause walking, wake from sleep, cancel typing.
   canvas.addEventListener('mouseenter', () => {
+    interact();
     if (!isDragging && cState === 'walk') cState = 'idle';
   });
   canvas.addEventListener('mouseleave', () => {
@@ -207,11 +295,10 @@ async function main() {
   const sw = window.screen.width;
   const sh = window.screen.height;
 
-  // Roam only within a 200px strip at the bottom-right
   ROAM_RIGHT = sw - CANVAS_W - 20;
   ROAM_LEFT  = Math.max(0, sw - CANVAS_W - 220);
   posX = ROAM_RIGHT;
-  posY = sh - CANVAS_H - 48;   // above taskbar
+  posY = sh - CANVAS_H - 48;
 
   try {
     await win.setPosition(new LogicalPosition(Math.round(posX), Math.round(posY)));
@@ -219,8 +306,6 @@ async function main() {
     console.warn('[companion] setPosition:', e);
   }
 
-  // Drag-and-drop PDF ingestion: Moufida reacts (surprised → chewing →
-  // celebrate/worried) locally and notifies the main window to refresh the KB.
   const dragDrop = setupDragDrop({
     setState: (s) => { cState = s; },
     rest:     () => { cState = 'walk'; walkFrame = 0; wavePhase = 0; },
@@ -228,10 +313,30 @@ async function main() {
 
   try {
     await listen<string>('companion_state', (ev) => {
-      // Local ingest reactions take priority over mood pushed from the main window.
       if (dragDrop.isBusy()) return;
-      cState = ev.payload as State;
-      if (cState === 'walk') { walkFrame = 0; wavePhase = 0; }
+      const incoming = ev.payload as State;
+
+      // Any main-window push resets the sleep timer.
+      lastActivity = performance.now();
+
+      // Cancel auto-typing so the reaction is immediately visible.
+      if (autoTypingTimer) {
+        clearTimeout(autoTypingTimer);
+        autoTypingTimer = null;
+      }
+
+      // Wake from sleep with a startled bounce, then apply the new state.
+      if (cState === 'sleeping') {
+        if (incoming !== 'walk' && incoming !== 'sleeping') {
+          cState = 'startled';
+          playBounce(() => { applyIncomingState(incoming); });
+        } else {
+          cState = 'walk';
+        }
+        return;
+      }
+
+      applyIncomingState(incoming);
     });
   } catch (e) {
     console.warn('[companion] listen:', e);
@@ -258,17 +363,32 @@ async function main() {
       lastPosUpdate = ts;
     }
 
-    // Blink every ~4.5 s
-    if (!blinking && ts - lastBlink > BLINK_MS + (Math.random() * 1500 | 0)) {
+    // Blink every ~4.5 s (eyes already closed while sleeping)
+    if (!blinking && cState !== 'sleeping' && ts - lastBlink > BLINK_MS + (Math.random() * 1500 | 0)) {
       blinking = true;
       lastBlink = ts;
       setTimeout(() => { blinking = false; }, 120);
     }
 
-    // Idle random actions (wave or another blink) when standing still
+    // Idle random animations: wave / stretch / shrug
     if (cState === 'idle' && ts - lastIdleAnim > IDLE_MS && wavePhase === 0) {
       lastIdleAnim = ts;
-      playWave();
+      playIdleAnim();
+    }
+
+    // Auto-typing: she starts typing when ignored for TYPING_IDLE_MS.
+    if ((cState === 'walk' || cState === 'idle')
+        && wavePhase === 0
+        && autoTypingTimer === null
+        && ts - lastInteraction > TYPING_IDLE_MS) {
+      startTyping();
+    }
+
+    // Auto-sleep: she nods off after SLEEP_MS of no activity.
+    if ((cState === 'walk' || cState === 'idle')
+        && autoTypingTimer === null
+        && ts - lastActivity > SLEEP_MS) {
+      cState = 'sleeping';
     }
 
     // Body bob: 1px down on walk-frame 1 to simulate stepping

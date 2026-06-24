@@ -4,6 +4,7 @@ import { useT } from "../../i18n";
 import { approveAxis, finalizeProject, generateAxis, retryAxis } from "../../api";
 import { C, F, card, btn } from "../../theme";
 import { PixelMoufida } from "../companion/PixelMoufida";
+import { IconDoc } from "../shared/icons";
 import type { AxisProposal, PlanSection } from "../../types";
 import { PlanSectionView } from "../PlanSectionView";
 import { PlanDocument } from "../PlanDocument";
@@ -552,9 +553,10 @@ export function CreationFlow({ onComplete }: Props) {
                 <button
                   onClick={() => setShowPlan(true)}
                   style={{ ...btn(false), padding: "12px 28px", fontSize: 14,
-                    border: `1.5px solid ${C.accent}`, color: C.accent }}
+                    border: `1.5px solid ${C.accent}`, color: C.accent,
+                    display: "inline-flex", alignItems: "center", gap: 7 }}
                 >
-                  📄 {t("creation_view_plan")}
+                  <IconDoc size={15} /> {t("creation_view_plan")}
                 </button>
                 <button
                   onClick={onComplete}

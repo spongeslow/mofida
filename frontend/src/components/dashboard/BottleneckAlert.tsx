@@ -4,6 +4,7 @@
  */
 import { useT } from "../../i18n";
 import { C, F, scoreColor } from "../../theme";
+import { IconBolt } from "../shared/icons";
 import type { ConceptBottleneck } from "../../types";
 
 export function BottleneckAlert({
@@ -33,7 +34,7 @@ export function BottleneckAlert({
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <span style={{ fontSize: 14 }}>⚡</span>
+        <span style={{ display: "inline-flex", color: C.accent }}><IconBolt size={14} /></span>
         <span style={{ fontSize: 13, fontWeight: 700, color: C.text, fontFamily: F.body }}>
           {t("concept_bottleneck")}: {label}
         </span>

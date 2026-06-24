@@ -32,9 +32,8 @@ export function Footer() {
               title="Resources"
               links={[
                 { label: "FAQ", href: "#faq" },
-                { label: "GitHub", href: "https://github.com" },
-                { label: "Documentation", href: "https://github.com" },
-                { label: "Demo video", href: "#top" },
+                { label: "GitHub", href: "https://github.com/ghassenov/moufidaa" },
+                { label: "Documentation", href: "https://github.com/ghassenov/moufidaa/tree/main/docs" },
               ]}
             />
             <FooterCol

@@ -1,0 +1,563 @@
+%% interpretability.tex  —  Moufida Interpretability Framework
+%% pdflatex interpretability.tex
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{microtype}
+\usepackage{titlesec}
+\tcbuselibrary{skins,breakable}
+
+%% ── Palette (section titles and box borders/backgrounds only) ───────────────
+\definecolor{IntBlue}{RGB}{25,84,163}
+\definecolor{IntTeal}{RGB}{0,115,100}
+\definecolor{IntViolet}{RGB}{90,50,165}
+\definecolor{IntSlate}{RGB}{50,62,75}
+\definecolor{IntAmber}{RGB}{175,100,0}
+\definecolor{BlueBg}{RGB}{240,246,255}
+\definecolor{TealBg}{RGB}{238,248,245}
+\definecolor{VioletBg}{RGB}{245,241,255}
+\definecolor{AmberBg}{RGB}{255,248,235}
+\definecolor{BoxBg}{RGB}{250,251,252}
+
+%% ── Spacing ─────────────────────────────────────────────────────────────────
+\setlength{\parskip}{4pt plus 1pt}
+\setlength{\parindent}{0pt}
+\setlist{itemsep=2pt, topsep=3pt, parsep=0pt, leftmargin=1.4em}
+\setlist[enumerate]{itemsep=2pt, topsep=3pt}
+
+%% ── Section styling ─────────────────────────────────────────────────────────
+\titlespacing*{\section}{0pt}{14pt}{5pt}
+\titlespacing*{\subsection}{0pt}{10pt}{3pt}
+\titleformat{\section}{\large\bfseries\color{IntBlue}}{{\thesection}}{0.6em}{}[\vspace{-2pt}\color{IntBlue}\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries\color{IntSlate}}{{\thesubsection}}{0.6em}{}
+
+%% ── Colour boxes ─────────────────────────────────────────────────────────────
+\tcbset{
+  base/.style={
+    boxrule=0.6pt, arc=3pt,
+    boxsep=4pt, top=4pt, bottom=4pt, left=6pt, right=6pt,
+    coltitle=white, fonttitle=\small\bfseries, breakable
+  }
+}
+\newtcolorbox{conceptbox}[1]{base,
+  colback=BlueBg, colframe=IntBlue!75,
+  title={#1}}
+\newtcolorbox{mathbox}[1]{base,
+  colback=TealBg, colframe=IntTeal!80,
+  title={#1}}
+\newtcolorbox{implbox}[1]{base,
+  colback=VioletBg, colframe=IntViolet!70,
+  title={#1}}
+\newtcolorbox{notebox}{base,
+  colback=AmberBg, colframe=IntAmber!80,
+  coltitle=white, title={Note}}
+
+%% ── Title ───────────────────────────────────────────────────────────────────
+\title{%
+  {\color{IntBlue}\rule{\linewidth}{1.5pt}}\\[6pt]
+  \textbf{\Large Interpretability in Moufida}\\[4pt]
+  {\normalsize Three Interlocking Layers of Transparent AI Reasoning}\\[6pt]
+  {\color{IntBlue}\rule{\linewidth}{0.8pt}}
+}
+\author{Team Makrouna Kadheba}
+\date{AINS 2026}
+
+\begin{document}
+\maketitle\thispagestyle{empty}
+
+\begin{abstract}\small
+Most AI scoring tools produce a number with no auditable chain of reasoning.
+Moufida treats interpretability as a first-class system requirement: every axis score
+must be decomposable, every retrieved evidence chunk must carry a relevance justification,
+and every intake question must be selectable by a computable criterion.
+Three interlocking techniques address these requirements at different pipeline layers —
+\textbf{Concept Bottleneck Models} (why did this axis score $s$?),
+\textbf{Contrastive Axis Direction Probes} (why was this evidence retrieved?),
+and \textbf{Computerized Adaptive Testing / IRT} (why was this question asked?).
+This document explains the academic foundation, the mathematics, and the concrete
+implementation of each technique in Moufida.
+\end{abstract}
+
+\tableofcontents
+\vspace{6pt}
+\noindent\color{IntBlue}\rule{\linewidth}{0.4pt}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{The Interpretability Problem}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+Startup scoring tools, whether LLM-based or regression-based, typically reduce a rich
+profile to a single scalar. That number carries no causal structure: the founder cannot
+trace which sub-dimension drove the outcome, why a particular document was cited,
+or whether the questions asked were the right ones for their stage.
+
+\begin{itemize}
+  \item For high-stakes decisions — applying for a grant, hiring a CTO, pivoting the model —
+        an unexplained recommendation is professionally insufficient.
+  \item Tunisian founders who share Moufida's output with investors, incubators (APII,
+        Smart Capital), or government bodies expect a traceable, auditable report.
+  \item A score of ``58/100'' is useless without knowing: \emph{which concept} is suppressing
+        it, \emph{which evidence} justifies the assessment, and \emph{how} the profile
+        was understood in the first place.
+\end{itemize}
+
+Moufida's design principle is that every score must come with a \textbf{decomposable
+audit trail}. This is enforced architecturally: three separate services each own one
+interpretability layer.
+
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Layer} & \textbf{Question answered} & \textbf{Service} \\
+\midrule
+Score decomposition & Why is axis $A$ scoring $s$? & \texttt{signal/} (Rust) \\
+Evidence relevance  & Why was chunk $c$ retrieved for axis $A$? & \texttt{rag/} (Python) \\
+Intake transparency & Why was question $j$ selected? & \texttt{orchestrator/} (Python) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Layer 1 — Concept Bottleneck Model}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Academic Foundation}
+
+\textbf{Koh et al.} — \textit{Concept Bottleneck Models.} ICML 2020.\\
+\textbf{Oikarinen et al.} — \textit{Label-Free Concept Bottleneck Models.} ICLR 2023.
+
+\begin{conceptbox}{The Core Idea}
+A standard model maps input $x$ directly to output $y$ through opaque learned weights.
+A \textbf{Concept Bottleneck Model} inserts a layer of human-named concepts
+$\mathbf{c} = (c_1, \dots, c_k)$ as an obligatory intermediate: the model must first
+score each concept, then combine those scores to produce $y$.
+Because every concept has a human-readable name, you can inspect which one is holding
+the score back and project the gain from improving it.
+\end{conceptbox}
+
+\begin{notebox}
+Standard CBMs require a large labelled dataset of $(x_i, \mathbf{c}_i, y_i)$ triples.
+Moufida has no historical corpus of Tunisian startups with ground-truth concept ratings.
+\textbf{Label-Free CBM} (Oikarinen et al.) removes this requirement: an LLM acts as a
+zero-shot concept scorer, replacing the annotation bottleneck.
+\end{notebox}
+
+\subsection{The Scoring Formula}
+
+For each diagnostic axis, the orchestrator prompts the LLM to score 4–7 named concepts
+for the current profile ($\hat{c}_i \in [0,1]$), then passes those scores to the
+Affinitree scoring engine which computes the axis score deterministically:
+
+\begin{mathbox}{Affinitree Score Formula}
+\[
+  S_\text{axis} \;=\; \sum_{i=1}^{k} w_i \cdot v_i \cdot m_i
+\]
+\begin{itemize}
+  \item $w_i$ — concept weight (pre-calibrated constant, updated by ridge regression)
+  \item $v_i$ — concept value from LLM scoring: $\hat{c}_i \in [0,1]$
+  \item $m_i$ — evidence-tier multiplier: $0.6$ (T1, self-reported),
+        $1.0$ (T2, artefact-backed), $1.2$ (T3, daemon-observed)
+\end{itemize}
+\end{mathbox}
+
+\begin{itemize}
+  \item The formula is a \emph{transparent linear combination}: every concept contributes
+        a readable term $w_i \cdot v_i \cdot m_i$ whose value can be printed individually.
+  \item The evidence-tier multiplier $m_i$ creates a direct incentive for founders to
+        connect real tools. Linking GitHub makes a product concept T3, increasing its
+        contribution by 100\% over the self-reported T1 baseline.
+  \item The score is \textbf{fully deterministic}: given the same inputs the same result
+        always follows. This allows Score Debate (human override vs.\ baseline) to be
+        meaningful, since the baseline never fluctuates randomly.
+\end{itemize}
+
+\subsection{Bottleneck Identification}
+
+The bottleneck is the concept with the smallest marginal contribution:
+\[
+  \text{bottleneck} \;=\; \arg\min_{i} \; (w_i \cdot v_i \cdot m_i)
+\]
+
+\begin{itemize}
+  \item This identifies not the concept with the lowest absolute score, but the one
+        that suppresses the axis total the most relative to its weight — the true weak link.
+  \item Moufida surfaces this in the dashboard as: \emph{``Your weakest concept in [Axis]
+        is [name]: contributing X\% of its potential. Improving it from 0.18 to 0.60
+        would move your score from 2.3 to 3.1.''}
+  \item The projected lift is computed by holding all other terms constant and solving
+        for the new $S_\text{axis}$ at an improved $v_i$.
+\end{itemize}
+
+\subsection{Weight Calibration via Ridge Regression}
+
+As the founder accumulates diagnostic history and a human reviewer locks score overrides,
+the Signal service re-estimates concept weights to better reflect ground truth:
+
+\begin{mathbox}{Ridge Calibration}
+\[
+  \hat{\mathbf{w}} \;=\; \arg\min_{\mathbf{w}}\;\left\| X\mathbf{w} - \mathbf{y} \right\|_2^2
+  \;+\; \lambda\,\|\mathbf{w}\|_2^2
+\]
+\begin{itemize}
+  \item $X \in \mathbb{R}^{n \times k}$ — matrix of concept scores across $n$ past diagnostics
+  \item $\mathbf{y} \in \mathbb{R}^n$ — human-locked scores (expert override ground truth)
+  \item $\lambda$ — ridge penalty that prevents weight collapse when data is sparse
+\end{itemize}
+\end{mathbox}
+
+\begin{itemize}
+  \item Ridge regression was chosen over plain least squares because early in a startup's
+        history there are very few locked overrides ($n \ll k$). Ridge regularisation keeps
+        weights well-conditioned and avoids fitting noise.
+  \item After calibration, the Signal service updates weights in memory and persists them
+        to disk. Future diagnostics automatically use the improved weights — a self-improving
+        feedback loop tied directly to human expert judgement.
+\end{itemize}
+
+\subsection{How CBM Differs from LIME and SHAP}
+
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+& \textbf{LIME / SHAP} & \textbf{Moufida CBM} \\
+\midrule
+Explanation unit        & Raw input features         & Human-named concepts \\
+Causal structure        & Post-hoc approximation     & Intrinsic intermediate layer \\
+Requires model internals & Yes (gradient/perturbation) & No \\
+Adapts with feedback    & No                          & Yes (ridge recalibration) \\
+Actionable output       & ``Field X matters''         & ``Improve concept Y by Z to gain $+P$ points'' \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{implbox}{Implementation in Moufida}
+\begin{itemize}[leftmargin=1em]
+  \item Each axis service defines 4–7 concepts in natural language as part of its rubric schema.
+  \item The orchestrator sends a structured concept-scoring prompt to \texttt{llama3.1:8b}
+        with \texttt{temperature=0} and \texttt{seed=42} to ensure deterministic concept scores.
+  \item The Affinitree engine (embedded in each axis service) receives the concept scores
+        and evidence tiers, applies the formula, and returns the full breakdown alongside the score.
+  \item The Signal service handles calibration and exposes \texttt{GET /cbm/weights/\{axis\}}
+        and \texttt{POST /cbm/calibrate} to trigger a re-estimation pass when a new locked
+        snapshot is recorded.
+  \item The admin panel's LLM Calls view lets a judge verify that concept-scoring calls
+        are real: one call per axis per diagnostic, with readable prompt preview and response.
+\end{itemize}
+\end{implbox}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Layer 2 — Contrastive Axis Direction Probe}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Academic Foundation}
+
+\textbf{Zou et al.} — \textit{Representation Engineering: A Top-Down Approach to AI Transparency.}
+arXiv 2023.\\
+\textbf{Park et al.} — \textit{The Linear Representation Hypothesis and the Geometry of
+Large Language Models.} arXiv 2023.
+
+\begin{conceptbox}{The Core Idea}
+Representation Engineering (RepE) proposes that high-level concepts are \emph{linearly
+encoded} in the embedding space of a language model: there exists a unit direction vector
+$\mathbf{d} \in \mathbb{R}^d$ such that documents about a concept project positively onto
+$\mathbf{d}$ and unrelated documents project near zero.
+Moufida applies this to the bge-m3 embedding space (1024-dim): one direction vector is
+learned per diagnostic axis, encoding ``axis relevance'' as a geometric direction in the
+shared multilingual embedding space.
+\end{conceptbox}
+
+\begin{notebox}
+Standard RAG ranks chunks by cosine similarity to the query.
+A document about ``startup funding rounds'' scores high for any query containing ``startup''
+— even when the current axis is legal-compliance and the query is about IP.
+Axis directions encode \emph{diagnostic relevance}, not topical overlap.
+\end{notebox}
+
+\subsection{Direction Extraction}
+
+For each diagnostic axis, a set of contrastive document pairs is assembled:
+$\{(x_j^+, x_j^-)\}_{j=1}^{N}$ where $x_j^+$ is clearly axis-relevant and $x_j^-$ is
+a plausible but axis-irrelevant document (e.g., a legal text used as a negative example
+for the market-intelligence axis).
+
+The direction is extracted by contrasting the centroid embeddings:
+
+\begin{mathbox}{Axis Direction Vector}
+\[
+  \boldsymbol{\mu}^+ = \frac{1}{N}\!\sum_j \phi(x_j^+),
+  \qquad
+  \boldsymbol{\mu}^- = \frac{1}{N}\!\sum_j \phi(x_j^-)
+\]
+\[
+  \mathbf{d}_\text{axis} \;=\;
+  \frac{\boldsymbol{\mu}^+ - \boldsymbol{\mu}^-}{\|\boldsymbol{\mu}^+ - \boldsymbol{\mu}^-\|_2}
+  \;\in\; \mathbb{R}^{1024}
+\]
+where $\phi(\cdot)$ denotes the bge-m3 embedding function.
+\end{mathbox}
+
+\begin{itemize}
+  \item The unit vector $\mathbf{d}_\text{axis}$ points in the direction of maximum contrast
+        between axis-positive and axis-negative documents.
+  \item Using centroid difference (mean of positives minus mean of negatives) makes the
+        direction robust to individual outlier documents in the training corpus.
+  \item Nine direction vectors are computed — one per diagnostic axis — and stored
+        in memory inside the Signal service as 36 KB of floats at startup.
+\end{itemize}
+
+\subsection{Axis Relevance Scoring}
+
+Given a candidate chunk embedding $\phi(c)$, the axis relevance score is:
+
+\begin{mathbox}{Axis Relevance Score}
+\[
+  r_\text{axis}(c) \;=\;
+  \sigma\!\!\left(\frac{\phi(c)\cdot\mathbf{d}_\text{axis} - b_\text{axis}}{\tau}\right)
+  \;\in\; [0,1]
+\]
+where $b_\text{axis}$ is the mean dot product of neutral documents (calibrated bias),
+$\sigma$ is the sigmoid function, and $\tau = 0.1$ is a temperature constant.
+\end{mathbox}
+
+\begin{itemize}
+  \item The bias term $b_\text{axis}$ centres the score so that documents unrelated to any
+        axis produce $r \approx 0.5$ rather than clustering at an arbitrary baseline.
+  \item Temperature $\tau = 0.1$ was chosen to produce a sharp, discriminative distribution:
+        axis-relevant chunks score $>0.8$ and irrelevant ones score $<0.3$.
+\end{itemize}
+
+\subsection{Hybrid RAG Re-ranking}
+
+The RAG pipeline first retrieves top-$K$ candidates using Reciprocal Rank Fusion (RRF)
+over dense (Qdrant) and sparse (BM25) rankings, then applies a final blend:
+
+\begin{mathbox}{Final Re-ranking Score}
+\[
+  \text{score}_\text{final}(c) \;=\; 0.7 \cdot \text{RRF}(c) \;+\; 0.3 \cdot r_\text{axis}(c)
+\]
+Chunks matching the founder's sector tag receive an additional $1.3\times$ boost.
+\end{mathbox}
+
+\begin{itemize}
+  \item The 70/30 split preserves retrieval diversity (RRF) while meaningfully shifting
+        ranking toward diagnostically relevant documents.
+  \item A pure axis-direction ranking would favour documents that are axis-relevant but
+        not directly useful for the specific query — the blend prevents this regression.
+  \item The sector boost applies as a multiplier on the final score, not as a hard filter,
+        so non-sector documents remain retrievable when sector-specific evidence is absent.
+\end{itemize}
+
+\subsection{Two Uses in Moufida}
+
+\begin{enumerate}
+  \item \textbf{RAG re-ranking at diagnosis time.} Every axis service calls the RAG service
+        with the current axis tag. The RAG service calls the Signal service
+        (\texttt{POST /probe/project}) to score all candidate chunks against all 9 axes
+        simultaneously, then blends the axis-specific score into the final ranking.
+
+  \item \textbf{Auto-tagging at ingest time.} When a new document enters the knowledge
+        base (via the admin panel or a file-drop from the companion), the top-2 axis
+        relevance scores are stored as payload tags in Qdrant:
+        \[
+          \text{tags}(c) = \mathop{\mathrm{top}}_2\bigl\{r_\text{axis}(c) : \text{axis} \in A\bigr\}
+        \]
+        These tags act as fast pre-filters in subsequent retrievals.
+\end{enumerate}
+
+\begin{implbox}{Implementation in Moufida}
+\begin{itemize}[leftmargin=1em]
+  \item Direction vectors are computed offline by a one-time script using the curated KB
+        as the positive corpus and cross-axis documents as negatives.
+  \item They are stored on disk and loaded into the Signal service Rust process at startup.
+        No re-computation occurs during a diagnostic — the probe lookup is a single dot
+        product per chunk, O(1) in time and negligible in latency.
+  \item bge-m3 was chosen because it is multilingual (Arabic, French, English) and
+        produces 1024-dim embeddings with strong cross-lingual alignment. A Darija query
+        and a French document co-exist in the same geometric space, so the direction vectors
+        work across all three languages Moufida supports.
+  \item The Signal service exposes \texttt{POST /probe/project} to score a batch of chunk
+        embeddings for all 9 axes in a single call, minimising network round-trips.
+\end{itemize}
+\end{implbox}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Layer 3 — Computerized Adaptive Testing (CAT / IRT)}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Academic Foundation}
+
+\textbf{Lord} — \textit{Applications of Item Response Theory to Practical Testing Problems.} 1977.\\
+\textbf{Bock \& Mislevy} — \textit{Adaptive EAP Estimation of Ability in a Microcomputer
+Environment.} Applied Psychological Measurement, 1982.\\
+\textbf{Wainer et al.} — \textit{Computerized Adaptive Testing: A Primer.} 2nd ed., 2000.
+
+\begin{conceptbox}{The Core Idea}
+Traditional questionnaires ask every founder the same fixed set of questions.
+Item Response Theory (IRT) observes that different questions are informative at different
+ability levels: a question about cap-table structure is nearly irrelevant for an
+ideation-stage founder, while a question about whether the founder has a co-founder
+tells an advanced team nothing new.
+Computerized Adaptive Testing (CAT) selects each next question to \emph{maximally
+reduce uncertainty} about the founder's latent startup maturity $\theta$, producing a
+more precise estimate in fewer questions.
+\end{conceptbox}
+
+\subsection{Two-Parameter Logistic Model (2PL IRT)}
+
+The probability that a founder with latent maturity $\theta$ gives a positive answer to
+item $j$ follows a logistic curve:
+
+\begin{mathbox}{2PL Item Response Function}
+\[
+  P(u_j = 1 \mid \theta) \;=\; \frac{1}{1 + e^{-a_j(\theta - b_j)}}
+\]
+\begin{itemize}
+  \item $\theta \in \mathbb{R}$ — founder's latent startup maturity (prior mean at $0$)
+  \item $a_j > 0$ — discrimination: how sharply item $j$ separates founders around $b_j$
+  \item $b_j \in \mathbb{R}$ — difficulty: $\theta$ at which the founder has a 50\% chance
+        of a positive answer
+\end{itemize}
+\end{mathbox}
+
+\begin{itemize}
+  \item The 2PL model was chosen over the simpler 1PL (Rasch) model because items vary
+        significantly in how sharply they discriminate: a question about revenue
+        ($a_j \approx 2.1$) separates founders much more cleanly than one about business
+        name registration ($a_j \approx 0.8$).
+  \item Items with high discrimination and matched difficulty provide the most information
+        about the current ability estimate — which is exactly what CAT exploits.
+\end{itemize}
+
+\subsection{Item Selection via Fisher Information}
+
+\begin{mathbox}{Fisher Information and Selection Rule}
+\[
+  I_j(\theta) \;=\; a_j^2 \cdot P_j(\theta) \cdot \bigl[1 - P_j(\theta)\bigr]
+\]
+\[
+  j^* \;=\; \arg\max_{j \,\notin\, \text{administered}}\; I_j(\hat{\theta}_n)
+\]
+\end{mathbox}
+
+\begin{itemize}
+  \item Fisher information peaks when $P_j(\theta) = 0.5$, i.e., when the item difficulty
+        matches the current ability estimate. This is why CAT never asks questions that are
+        too easy or too hard: they add little information.
+  \item Maximising Fisher information at each step is equivalent to minimising expected
+        posterior variance, making the procedure Bayesian-consistent.
+\end{itemize}
+
+\subsection{Bayesian EAP Estimation}
+
+After each response, the ability estimate is updated using the Expected A Posteriori rule:
+
+\begin{mathbox}{EAP Update}
+\[
+  \hat{\theta}_{n+1} \;=\;
+  \frac{%
+    \displaystyle\int \theta \cdot L(\mathbf{u}_n \mid \theta) \cdot p(\theta)\, d\theta
+  }{%
+    \displaystyle\int L(\mathbf{u}_n \mid \theta) \cdot p(\theta)\, d\theta
+  }
+\]
+\[
+  L(\mathbf{u}_n \mid \theta) \;=\; \prod_{j=1}^n P_j(\theta)^{u_j}\,[1-P_j(\theta)]^{1-u_j}
+\]
+Prior: $p(\theta) \sim \mathcal{N}(0,1)$.
+Integral approximated on a 61-point quadrature grid $\theta \in [-4,\,4]$.
+\end{mathbox}
+
+\begin{itemize}
+  \item The standard normal prior represents the assumption that Tunisian founders are
+        broadly distributed around an average maturity level — neither systematically
+        advanced nor systematically nascent.
+  \item Bayesian EAP was chosen over Maximum Likelihood Estimation because MLE is undefined
+        when all early responses are consistently positive or negative, which happens
+        frequently with ideation-stage founders. EAP handles this gracefully via the prior.
+  \item The 61-point quadrature provides sufficient numerical precision for the 0–12 item
+        range used in practice while remaining fast enough to recompute on every request.
+\end{itemize}
+
+\subsection{Stopping Rule and Two-Phase Item Bank}
+
+The session stops when either:
+\begin{enumerate}
+  \item $\text{SE}(\hat{\theta}) < 0.40$ — posterior uncertainty is sufficiently low, \emph{or}
+  \item $n \geq 12$ — hard cap to prevent session fatigue.
+\end{enumerate}
+
+This yields \textbf{8–15 questions} in practice, vs.\ 30+ for a fixed survey
+at equivalent measurement precision.
+
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Phase} & \textbf{Items} & \textbf{Purpose} \\
+\midrule
+Stage discriminators & 15 binary items & Coarse placement: ideation / MVP / growth / scale \\
+Axis-specific items  & 8–12 per axis  & Fine-grained targeting given the stage estimate \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{implbox}{Implementation in Moufida}
+\begin{itemize}[leftmargin=1em]
+  \item The CAT engine lives entirely inside the orchestrator and is \textbf{stateless}:
+        the client sends the full response history $(j_1,u_1),\dots,(j_n,u_n)$ on every
+        call to \texttt{POST /intake/next}. There is no server-side session. This was a
+        deliberate architectural choice for horizontal scalability — any orchestrator
+        replica can serve the same session without shared state.
+  \item The item bank is a static JSON file loaded into memory at startup. Each item
+        carries its $a_j$ and $b_j$ parameters, phase tag, and axis affiliation.
+  \item The orchestrator maps the final $\hat{\theta}$ to a discrete maturity stage using
+        fixed thresholds, then converts the answer history into a profile patch that
+        pre-fills structured fields before the founder continues to the dashboard.
+  \item The intake session is interpretable in a strict sense: every question selection
+        is provably optimal given the response history. An auditor can replay the selection
+        algorithm with the same history and verify that the same question would have been chosen.
+\end{itemize}
+\end{implbox}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{How the Three Layers Reinforce Each Other}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+The three interpretability mechanisms operate at different stages and compound:
+
+\begin{center}\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Layer} & \textbf{Pipeline stage} & \textbf{Output} & \textbf{Consumed by} \\
+\midrule
+CAT/IRT  & Intake (pre-diagnosis) & Richer profile patch, $\hat{\theta}$ & CBM concept scoring \\
+Probe    & RAG retrieval          & Axis-relevant chunks                 & All axis LLM prompts \\
+CBM      & Post-scoring           & Bottleneck + calibrated score        & Dashboard UI \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+  \item A better intake (CAT) produces more informative profile fields, which yields
+        more coherent LLM concept scores in the CBM pass and more precise axis queries
+        for the Probe to re-rank.
+  \item Better retrieved evidence (Probe) improves the quality of LLM justifications,
+        making the concept scores in the CBM pass more grounded in real Tunisian resources.
+  \item Calibrated weights (CBM) reflect the Tunisian ecosystem context over time —
+        concepts that genuinely predict success in Tunisia earn higher weights, creating
+        a virtuous cycle as more diagnostics accumulate.
+\end{itemize}
+
+The combination is what produces full interpretability: the founder can trace from the
+questions asked, through the evidence retrieved, through the concept breakdown, all the
+way to the final score and projected improvement path — at every step with a computable,
+auditable justification.
+
+\end{document}

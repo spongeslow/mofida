@@ -6,6 +6,7 @@ import { C, F, btn, card, inputStyle } from "../../theme";
 import { startListening } from "../../voice/stt";
 import { speak } from "../../voice/tts";
 import { PixelMoufida } from "../companion/PixelMoufida";
+import { IconMic } from "../shared/icons";
 import type { VoiceState } from "../../types";
 
 interface Message {
@@ -207,16 +208,19 @@ export function ChatPanel() {
           onClick={() => { void handleVoice(); }}
           disabled={voiceState !== "idle"}
           title={t("start_voice")}
+          className={voiceState === "listening" ? "mf-voice-pulse" : undefined}
           style={{
             ...btn(voiceState !== "idle"),
+            display:      "inline-flex",
+            alignItems:   "center",
+            justifyContent: "center",
             padding:      "0 14px",
             height:       40,
-            fontSize:     18,
             borderRadius: 10,
             flexShrink:   0,
           }}
         >
-          🎤
+          <IconMic size={18} />
         </button>
         <input
           className="mf-input"

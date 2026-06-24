@@ -12,6 +12,7 @@ import type { CloseStrategy, Persona, PersonaChatTurn } from "../../types";
 import { PixelMoufida } from "../companion/PixelMoufida";
 import type { CharacterState } from "../../pixelArt/moufida";
 import { CloseStrategyCard } from "./CloseStrategyCard";
+import { IconCheck } from "../shared/icons";
 
 // Persona archetype → character hue rotation for visual identity.
 function personaHue(archetype: string): number {
@@ -100,10 +101,16 @@ export function PersonaChat({ projectId, persona, onBack }: {
             const done = resolved.has(o);
             return (
               <span key={o} style={{
+                display: "inline-flex", alignItems: "center", gap: 5,
                 fontSize: 11, padding: "3px 9px", borderRadius: 20,
                 background: done ? `${C.success}22` : `${C.error}18`,
                 color: done ? C.success : C.error, border: `1px solid ${done ? C.success : C.error}44`,
-              }}>{done ? "✅" : "🔴"} {o.slice(0, 40)}</span>
+              }}>
+                {done
+                  ? <IconCheck size={12} />
+                  : <span style={{ width: 7, height: 7, borderRadius: "50%", background: C.error, flexShrink: 0 }} />}
+                {o.slice(0, 40)}
+              </span>
             );
           })}
         </div>

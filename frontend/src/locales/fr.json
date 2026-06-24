@@ -2,12 +2,15 @@
   "app_title": "Moufida",
   "tagline": "Votre copilote entrepreneurial, 100% local.",
   "tagline_short": "co-fondatrice IA",
+  "nav_group_workspace": "Espace de travail",
+  "nav_group_build": "Préparer",
+  "nav_group_knowledge": "Connaissances",
+  "nav_group_system": "Système",
   "switch_language": "English",
   "menu_new": "Nouveau projet",
   "menu_diagnose": "Diagnostiquer un projet existant",
   "menu_settings": "Paramètres",
   "menu_quit": "Quitter",
-
   "nav_dashboard": "Tableau de bord",
   "nav_hud": "Assistant",
   "nav_personas": "Personas Client",
@@ -41,7 +44,6 @@
   "kb_read_more": "Lire la suite",
   "kb_open_source": "Ouvrir la source",
   "history": "Mon Parcours",
-
   "maturity_stage": "Stade de maturité",
   "confidence": "Confiance",
   "perception_gap": "Écart de perception détecté",
@@ -49,68 +51,57 @@
   "no_diagnostic": "Aucun diagnostic disponible",
   "run_diagnostic": "Lancer le diagnostic",
   "running_diagnostic": "Diagnostic en cours…",
-
   "score_market": "Score Marché",
   "score_commercial_offer": "Offre Commerciale",
   "score_innovation": "Innovation",
   "score_scalability": "Scalabilité",
   "score_green": "Score Green",
   "score_out_of": "/ 5",
+  "score_details": "Détails",
   "sub_dimension": "Sous-dimension",
   "weight": "Poids",
   "value": "Valeur",
   "tier": "Palier",
   "contribution": "Contribution",
   "improve": "Améliorer",
-
   "blockers_critical": "Bloquants critiques",
   "blockers_none": "Aucun bloquant identifié",
   "see_roadmap": "Voir dans le roadmap",
   "axis": "Axe",
-
   "roadmap_title": "Feuille de route",
   "roadmap_immediate": "Immédiat (0–2 sem.)",
   "roadmap_short": "Court terme (1–3 mois)",
   "roadmap_medium": "Moyen terme (3–12 mois)",
   "roadmap_empty": "Aucune feuille de route disponible — lancez le diagnostic.",
   "source": "Source",
-
   "chat_placeholder": "Posez une question à Moufida…",
   "send": "Envoyer",
   "you": "Vous",
   "moufida": "Moufida",
-
   "approve": "Approuver",
   "retry": "Réessayer",
   "edit": "Modifier",
   "edit_placeholder": "Saisissez votre correction…",
   "review_title": "Résultat en attente d'approbation",
-
   "alerts_title": "Alertes",
   "no_alerts": "Aucune alerte",
   "dismiss": "Ignorer",
-
   "score_history": "Historique des scores",
   "no_history": "Aucune donnée — relancez le diagnostic.",
   "diagnostic_history": "Historique des diagnostics",
   "no_diagnostic_history": "Aucun diagnostic passé.",
-
   "listening": "J'écoute…",
   "speaking": "Moufida répond…",
   "wake_prompt": "Dites « Hey Moufida » ou appuyez sur Ctrl+Espace",
   "start_voice": "Parler",
   "stop_voice": "Arrêter",
-
   "perception_gap_self": "Auto-évalué",
   "critical": "Critique",
   "warning": "Avertissement",
   "info": "Info",
-
   "nav_settings": "Intégrations",
-
   "settings_title": "Intégrations d'outils",
   "settings_subtitle": "Connectez Moufida aux outils que vous utilisez déjà. Toutes les intégrations sont optionnelles et désactivées par défaut.",
-
   "tools_enabled": "active(s)",
   "tools_loading": "Chargement des intégrations…",
   "tools_unavailable": "Aucune intégration disponible.",
@@ -133,18 +124,15 @@
   "tools_last_error": "Dernière erreur",
   "tools_last_sync": "Dernière sync",
   "tools_privacy_note": "Aucune donnée ne quitte votre machine sans votre consentement explicite. Les intégrations désactivées ne transmettent rien.",
-
   "tools_domain_communication": "Communication",
   "tools_domain_documentation": "Documentation",
   "tools_domain_finance": "Finance",
   "tools_domain_marketing": "Marketing",
   "tools_domain_development": "Développement",
-
   "landing_back": "Retour",
   "landing_recent_title": "Diagnostiquer un projet existant",
   "landing_recent_loading": "Chargement des projets…",
   "landing_no_recent": "Aucun projet enregistré. Créez d'abord un nouveau projet.",
-
   "intake_title": "Création de votre profil",
   "intake_subtitle": "Quelques questions pour calibrer l'analyse",
   "intake_loading": "Préparation du questionnaire…",
@@ -154,7 +142,6 @@
   "intake_input_placeholder": "Votre réponse…",
   "intake_yes": "Oui",
   "intake_no": "Non",
-
   "creation_title": "Analyse de votre startup",
   "creation_in_progress": "Analyse en cours…",
   "creation_complete_title": "Profil créé avec succès !",
@@ -164,7 +151,6 @@
   "creation_starting": "Démarrage de l'analyse…",
   "creation_awaiting_desc": "En attente des résultats du prochain axe.",
   "creation_start_error": "Impossible de démarrer l'analyse",
-
   "axis_ideation": "Idéation",
   "axis_market": "Marché",
   "axis_product": "Produit",
@@ -174,12 +160,10 @@
   "axis_operations": "Opérations",
   "axis_marketing": "Marketing",
   "axis_sales": "Commercial",
-
   "recommendations_title": "Pistes d'amélioration",
   "recommendations_empty": "Aucune amélioration prioritaire identifiée.",
   "recommendation_priority_high": "Priorité haute",
   "recommendation_priority_medium": "Priorité moyenne",
-
   "intake_update_title": "Mise à jour du contexte",
   "intake_update_subtitle": "Actualisez les données de votre projet avant le diagnostic",
   "quick_diagnostic": "Diagnostic rapide",
@@ -191,13 +175,11 @@
   "lang_fr": "Français",
   "lang_en": "English",
   "lang_ar": "العربية",
-
   "settings_preferences": "Préférences",
   "companion_show": "Afficher la compagne",
   "companion_show_desc": "Affiche le personnage Moufida sur le bureau.",
   "import_project": "Importer un fichier projet",
   "import_error": "Échec de l'import",
-
   "creation_got_idea": "Vous avez une idée ?",
   "creation_got_idea_question": "Décrivez votre idée de startup",
   "creation_idea_placeholder": "Ex: Une app pour aider les artisans tunisiens à vendre en ligne…",
@@ -216,22 +198,17 @@
   "creation_export_pdf": "Exporter PDF",
   "creation_plan_empty": "Aucune section de plan disponible.",
   "creation_edit_hint": "Décrivez ce que vous souhaitez modifier…",
-
   "axis_roadmap": "Feuille de route",
-
   "mode_creation": "Création",
   "mode_diagnosis": "Diagnostic",
-
   "delete_project": "Supprimer",
   "delete_project_confirm": "Supprimer ce projet définitivement ?",
   "delete_confirm_yes": "Supprimer",
-
   "debate_title": "Débattre du score",
   "debate_placeholder": "Expliquez pourquoi ce score devrait changer…",
   "debate_send": "Envoyer",
   "debate_locked": "Score verrouillé",
   "debate_score_changed": "Score mis à jour",
-
   "compare_title": "Comparer deux diagnostics",
   "compare_score_deltas": "Évolution des scores",
   "compare_resolved": "Bloquants résolus",
@@ -264,7 +241,6 @@
   "kb_add_placeholder": "Collez une note ou un lien que Moufida devrait connaître…",
   "kb_add_button": "Ajouter",
   "kb_added": "Ajouté à la base de connaissances",
-
   "event_feed_title": "Flux d'événements",
   "event_feed_empty": "Aucun événement pour ce projet.",
   "event_source_manual": "Modification manuelle",
@@ -281,22 +257,18 @@
   "event_status_new": "Nouveau",
   "event_status_acted": "Appliqué",
   "event_status_ignored": "Ignoré",
-
   "roadmap_stale_warning": "La feuille de route est peut-être obsolète suite à des changements récents.",
   "roadmap_regenerate": "Régénérer la feuille de route",
   "roadmap_advance": "Passer à l'horizon suivant",
   "roadmap_provenance": "Provenance de la feuille de route",
   "roadmap_regen_confirm": "Régénérer la feuille de route avec les données actuelles ?",
-
   "whats_new_title": "Quoi de neuf ?",
   "whats_new_refresh": "Actualiser",
   "whats_new_loading": "Moufida synthétise les derniers événements…",
   "whats_new_no_events": "Aucun événement récent.",
   "horizon_complete_celebrate": "Horizon complété ! Moufida prépare le suivant…",
-
   "score_delta_warning": "Score en baisse pour :",
   "score_delta_review": "Passez en revue les actions correspondantes en priorité.",
-
   "roadmap_provenance_version": "Version",
   "roadmap_provenance_kb": "Version KB",
   "roadmap_provenance_trigger": "Déclencheur",
@@ -305,7 +277,6 @@
   "evidence_sources": "Sources",
   "source_kb": "Base",
   "source_web": "Web",
-
   "daemon_watching": "Veille active",
   "daemon_paused": "Veille en pause",
   "daemon_offline": "Veille hors ligne",
@@ -314,7 +285,6 @@
   "daemon_focus": "Surveiller ce projet",
   "daemon_focused": "Projet surveillé",
   "daemon_unfocus": "Arrêter de surveiller",
-
   "competitor_board_title": "Tableau concurrentiel",
   "competitor_dimension": "Dimension",
   "competitor_you": "Vous",
@@ -326,13 +296,11 @@
   "competitor_swot_weaknesses": "Faiblesses",
   "competitor_swot_opportunities": "Opportunités",
   "competitor_swot_threats": "Menaces",
-
   "opportunity_radar_title": "Radar des financements",
   "opportunity_deadline": "Échéance",
   "opportunity_apply": "Postuler",
   "opportunity_dismiss": "Ignorer",
   "opportunity_match": "Pertinence",
-
   "concept_breakdown_title": "Décomposition par concepts",
   "concept_breakdown_subtitle": "Chaque score d'axe est décomposé en concepts nommés. Le goulot d'étranglement est le concept qui pèse le plus sur le score.",
   "concept_bottleneck": "Goulot d'étranglement",
@@ -343,9 +311,7 @@
   "concept_axis_score": "Score de l'axe",
   "concept_improve_hint": "Améliorer ce concept de",
   "concept_would_lift": "ferait passer le score de",
-
   "evidence_trace": "Sources",
-
   "pitch_title": "Simulateur de pitch investisseur",
   "pitch_subtitle": "Affrontez un investisseur IA dont les questions sont fondées uniquement sur votre diagnostic.",
   "pitch_profile_seed_vc": "VC Seed",
@@ -366,7 +332,6 @@
   "pitch_push_roadmap": "Ajouter à la feuille de route",
   "pitch_evidence_index": "Sources utilisées",
   "pitch_pushed": "Actions ajoutées à la feuille de route",
-
   "persona_title": "Personas clients",
   "persona_generate": "Générer les personas",
   "persona_regenerate": "Régénérer",
@@ -383,7 +348,6 @@
   "persona_close_title": "Comment conclure",
   "persona_triggers": "Déclencheurs clés",
   "persona_objections_addr": "Objections à traiter",
-
   "scenario_whatif": "Et si… ?",
   "scenario_title": "Planificateur de scénarios",
   "scenario_subtitle": "Testez des pivots et voyez leur impact projeté sur les neuf axes, avec niveau de confiance et sources.",
@@ -399,7 +363,6 @@
   "scenario_best": "Le scénario le plus prometteur est",
   "scenario_no_clear_win": "Aucun scénario ne se démarque nettement.",
   "scenario_adopt": "Adopter",
-
   "dash_greeting": "Voici l'état de votre projet",
   "dash_health": "Santé globale",
   "dash_summary_loading": "Je passe votre projet au crible…",
@@ -418,5 +381,20 @@
   "section_deep": "Analyse détaillée",
   "section_market": "Marché & opportunités",
   "section_roadmap": "Feuille de route",
-  "section_activity": "Activité récente"
+  "section_activity": "Activité récente",
+  "persona_intro_title": "Vos clients, simulés",
+  "persona_intro_desc": "Moufida génère des profils d'acheteurs à partir de votre diagnostic. Choisissez-en un pour engager la conversation et tester vos arguments.",
+  "persona_count": "personas générés",
+  "persona_goal": "Objectif",
+  "persona_budget": "Budget",
+  "pitch_choose": "Choisissez votre investisseur",
+  "pitch_profile_seed_vc_desc": "Croissance, traction et taille de marché.",
+  "pitch_profile_angel_desc": "Vision, équipe et passion du fondateur.",
+  "pitch_profile_impact_fund_desc": "Impact social, durabilité et mission.",
+  "pitch_profile_strategic_desc": "Synergies, défense et avantage concurrentiel.",
+  "pitch_how_title": "Comment ça se passe",
+  "pitch_how_1": "Des questions fondées sur votre diagnostic",
+  "pitch_how_2": "L'investisseur réagit en direct à vos réponses",
+  "pitch_how_3": "Un rapport de préparation à la fin",
+  "scenario_run_hint": "Lancez une projection pour comparer vos scénarios ici."
 }

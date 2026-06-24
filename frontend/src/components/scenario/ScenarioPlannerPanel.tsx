@@ -9,10 +9,12 @@ import { useEffect, useState } from "react";
 import { useStore } from "../../store";
 import { useT } from "../../i18n";
 import { adoptScenario, projectScenario } from "../../api";
-import { C, F, btn, scoreColor } from "../../theme";
+import { C, T, card, btn, scoreColor } from "../../theme";
 import type { AxisProjection, Confidence, ScenarioProjection } from "../../types";
 import { EvidenceTrace } from "../shared/EvidenceTrace";
 import { PixelMoufida } from "../companion/PixelMoufida";
+import { PageHeader } from "../shared/PageHeader";
+import { IconBranch } from "../shared/icons";
 
 interface Draft {
   label: string;
@@ -103,34 +105,34 @@ export function ScenarioPlannerPanel({ projectId, onClose }: { projectId: string
   const selAxis = sel && selProjection ? selProjection.axis_projections[sel.axis] : null;
 
   return (
-    <div className="mf-overlay-backdrop" style={{
-      position: "fixed", inset: 0, background: "rgba(44,30,23,0.45)", zIndex: 1000, display: "flex",
-      justifyContent: "flex-end",
-    }} onClick={onClose}>
-      <div className="mf-overlay-panel mf-scroll" onClick={(e) => e.stopPropagation()} style={{
-        background: C.bg, width: "min(520px, 100%)", height: "100%", overflowY: "auto",
-        padding: 20, boxShadow: "-12px 0 40px rgba(0,0,0,0.35)",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-          <h2 style={{ flex: 1, margin: 0, color: C.text, fontFamily: F.heading, fontSize: 19 }}>
-            {t("scenario_title")}
-          </h2>
-          <button onClick={onClose} className="mf-press" style={btn(false)}>✕</button>
-        </div>
-        <p style={{ color: C.muted, fontSize: 12.5, margin: "0 0 14px" }}>{t("scenario_subtitle")}</p>
+    <div style={{ display: "flex", flexDirection: "column", gap: 18, minHeight: "calc(100vh - 180px)" }}>
+      <PageHeader
+        title={t("scenario_title")}
+        subtitle={t("scenario_subtitle")}
+        icon={<IconBranch size={22} />}
+      />
 
-        {/* Scenario editors */}
+      <div className="mf-planner-grid" style={{ flex: 1 }}>
+        {/* ── Editors column ─────────────────────────────────────── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {drafts.map((d, i) => (
-            <div key={i} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 12 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <strong style={{ color: C.text }}>{t("scenario_label")} </strong>
+            <div key={i} style={{
+              background: `linear-gradient(168deg, ${C.paper} 0%, ${C.surface} 100%)`,
+              border: `1px solid ${C.borderSoft}`, borderRadius: 16, padding: 16,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                <span style={{ ...T.eyebrow, color: C.muted }}>{t("scenario_label")}</span>
                 <input value={d.label} onChange={(e) => update(i, { label: e.target.value })}
-                  style={{ width: 60, background: C.surfaceHigh, border: `1px solid ${C.border}`,
-                           borderRadius: 6, color: C.text, padding: "3px 8px", fontSize: 13 }} />
+                  className="mf-input"
+                  style={{ width: 56, background: C.paper, border: `1.5px solid ${C.border}`,
+                           borderRadius: 8, color: C.text, padding: "4px 8px", fontSize: 13, fontWeight: 700, textAlign: "center" }} />
                 {d.projection && (
-                  <span style={{ marginLeft: "auto", fontSize: 12.5,
-                                 color: d.projection.overall_delta >= 0 ? "hsl(120,55%,38%)" : "hsl(0,72%,52%)" }}>
+                  <span style={{
+                    marginInlineStart: "auto", fontSize: 12.5, fontWeight: 700,
+                    padding: "2px 10px", borderRadius: 999,
+                    background: d.projection.overall_delta >= 0 ? "hsl(120,55%,38%)18" : "hsl(0,72%,52%)18",
+                    color: d.projection.overall_delta >= 0 ? "hsl(120,55%,34%)" : "hsl(0,72%,48%)",
+                  }}>
                     Δ {d.projection.overall_delta >= 0 ? "+" : ""}{d.projection.overall_delta}
                   </span>
                 )}
@@ -138,93 +140,107 @@ export function ScenarioPlannerPanel({ projectId, onClose }: { projectId: string
               {d.params.map((p, j) => (
                 <div key={j} style={{ display: "flex", gap: 6, marginBottom: 6 }}>
                   <input value={p.key} onChange={(e) => setParam(i, j, "key", e.target.value)}
-                    placeholder={t("scenario_param")} style={paramInput} />
+                    className="mf-input" placeholder={t("scenario_param")} style={paramInput} />
                   <input value={p.value} onChange={(e) => setParam(i, j, "value", e.target.value)}
-                    placeholder={t("scenario_value")} style={paramInput} />
+                    className="mf-input" placeholder={t("scenario_value")} style={paramInput} />
                 </div>
               ))}
-              <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                 <button onClick={() => addParam(i)} className="mf-press" style={{ ...btn(false), fontSize: 12 }}>
                   + {t("scenario_add_param")}
                 </button>
-                <button onClick={() => project(i)} disabled={d.loading} className="mf-press" style={{ ...btn(true), fontSize: 12 }}>
+                <button onClick={() => project(i)} disabled={d.loading} className="mf-btn-accent"
+                  style={{ fontSize: 12.5, padding: "8px 16px" }}>
                   {d.loading ? t("scenario_projecting") : `▶ ${t("scenario_project")}`}
                 </button>
               </div>
             </div>
           ))}
           {drafts.length < 3 && (
-            <button onClick={() => setDrafts((d) => [...d, emptyDraft(d.length)])} className="mf-press"
-              style={{ ...btn(false), alignSelf: "flex-start" }}>+ {t("scenario_add")}</button>
+            <button onClick={() => setDrafts((d) => [...d, emptyDraft(d.length)])} className="mf-btn-ghost"
+              style={{ alignSelf: "flex-start" }}>+ {t("scenario_add")}</button>
           )}
         </div>
 
-        {/* Comparison table */}
-        {projected.length > 0 && (
-          <div style={{ marginTop: 18 }}>
-            <h3 style={{ fontSize: 14, color: C.text, margin: "0 0 8px" }}>{t("scenario_results")}</h3>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5 }}>
-              <thead>
-                <tr style={{ color: C.muted, textAlign: "left" }}>
-                  <th style={cellTh}>{t("axis")}</th>
-                  {projected.map((d) => <th key={d.label} style={cellTh}>{d.label}</th>)}
-                </tr>
-              </thead>
-              <tbody>
-                {axes.map((axis) => (
-                  <tr key={axis} style={{ borderTop: `1px solid ${C.border}` }}>
-                    <td style={{ ...cellTd, color: C.text }}>{t(`axis_${axis.replace(/-/g, "_")}`)}</td>
-                    {projected.map((d) => {
-                      const p = d.projection!.axis_projections[axis];
-                      if (!p) return <td key={d.label} style={cellTd}>—</td>;
-                      const dc = deltaCell(p);
-                      const active = sel?.label === d.label && sel?.axis === axis;
-                      return (
-                        <td key={d.label} onClick={() => setSel({ label: d.label, axis })}
-                          style={{ ...cellTd, cursor: "pointer", background: active ? C.surfaceHigh : "transparent" }}>
-                          <span style={{ color: scoreColor(p.projected_score), fontWeight: 600 }}>{p.projected_score}</span>{" "}
-                          <span style={{ color: dc.color }}>{dc.arrow}</span>
-                        </td>
-                      );
-                    })}
+        {/* ── Results column ─────────────────────────────────────── */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {projected.length === 0 ? (
+            <div style={{ ...card, display: "flex", flexDirection: "column", alignItems: "center",
+              justifyContent: "center", textAlign: "center", gap: 14, minHeight: 280 }}>
+              <div className="mf-float" style={{ filter: "drop-shadow(0 12px 24px rgba(58,38,24,0.24))" }}>
+                <PixelMoufida state="idle" cssScale={0.75} theme="purple" />
+              </div>
+              <p style={{ ...T.small, color: C.muted, margin: 0, maxWidth: 280, lineHeight: 1.6 }}>
+                {t("scenario_run_hint")}
+              </p>
+            </div>
+          ) : (
+            <div style={{ ...card }}>
+              <h3 style={{ ...T.h3, color: C.ink, margin: "0 0 12px" }}>{t("scenario_results")}</h3>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5 }}>
+                <thead>
+                  <tr style={{ color: C.muted, textAlign: "start" }}>
+                    <th style={cellTh}>{t("axis")}</th>
+                    {projected.map((d) => <th key={d.label} style={{ ...cellTh, textAlign: "center" }}>{d.label}</th>)}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {axes.map((axis) => (
+                    <tr key={axis} style={{ borderTop: `1px solid ${C.borderSoft}` }}>
+                      <td style={{ ...cellTd, color: C.text }}>{t(`axis_${axis.replace(/-/g, "_")}`)}</td>
+                      {projected.map((d) => {
+                        const p = d.projection!.axis_projections[axis];
+                        if (!p) return <td key={d.label} style={{ ...cellTd, textAlign: "center" }}>—</td>;
+                        const dc = deltaCell(p);
+                        const active = sel?.label === d.label && sel?.axis === axis;
+                        return (
+                          <td key={d.label} onClick={() => setSel({ label: d.label, axis })}
+                            style={{ ...cellTd, textAlign: "center", cursor: "pointer", borderRadius: 8,
+                              background: active ? "rgba(var(--mf-accent-rgb),0.12)" : "transparent" }}>
+                            <span style={{ color: scoreColor(p.projected_score), fontWeight: 700 }}>{p.projected_score}</span>{" "}
+                            <span style={{ color: dc.color }}>{dc.arrow}</span>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-            {/* Reasoning panel */}
-            {selAxis && (
-              <div className="mf-anim-fade" style={{ marginTop: 12, background: C.surface, border: `1px solid ${C.border}`,
-                borderRadius: 10, padding: 12 }}>
-                <div style={{ fontSize: 13, color: C.text, fontWeight: 600, marginBottom: 4 }}>
-                  {t(`axis_${sel!.axis.replace(/-/g, "_")}`)} — {sel!.label}
+              {/* Reasoning panel */}
+              {selAxis && (
+                <div className="mf-anim-fade" style={{ marginTop: 14, background: C.surfaceHigh,
+                  border: `1px solid ${C.borderSoft}`, borderRadius: 12, padding: 14 }}>
+                  <div style={{ fontSize: 13, color: C.text, fontWeight: 700, marginBottom: 4 }}>
+                    {t(`axis_${sel!.axis.replace(/-/g, "_")}`)} — {sel!.label}
+                  </div>
+                  <div style={{ fontSize: 12, marginBottom: 6 }}>
+                    <span style={{ color: C.muted }}>{t("scenario_confidence")}: </span>
+                    <span style={{ color: CONF_COLOR[selAxis.confidence], fontWeight: 700 }}>{selAxis.confidence}</span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: 12.5, color: C.muted, lineHeight: 1.55 }}>{selAxis.reasoning}</p>
+                  {selAxis.sources.length > 0 && <EvidenceTrace refs={selAxis.sources} />}
                 </div>
-                <div style={{ fontSize: 12, marginBottom: 6 }}>
-                  <span style={{ color: C.muted }}>{t("scenario_confidence")}: </span>
-                  <span style={{ color: CONF_COLOR[selAxis.confidence], fontWeight: 600 }}>{selAxis.confidence}</span>
-                </div>
-                <p style={{ margin: 0, fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>{selAxis.reasoning}</p>
-                {selAxis.sources.length > 0 && <EvidenceTrace refs={selAxis.sources} />}
-              </div>
-            )}
+              )}
 
-            {/* Adopt */}
-            {bestDraft && (
-              <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 10 }}>
-                <PixelMoufida state={bestDraft.projection!.overall_delta > 0.5 ? "presenting" : "idle"} cssScale={0.48} theme="purple" />
-                <div style={{ flex: 1, fontSize: 12.5, color: C.muted }}>
-                  {bestDraft.projection!.overall_delta > 0.5
-                    ? `${t("scenario_best")} ${bestDraft.label}.`
-                    : t("scenario_no_clear_win")}
+              {/* Adopt */}
+              {bestDraft && (
+                <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${C.borderSoft}`,
+                  display: "flex", alignItems: "center", gap: 12 }}>
+                  <PixelMoufida state={bestDraft.projection!.overall_delta > 0.5 ? "presenting" : "idle"} cssScale={0.5} theme="purple" />
+                  <div style={{ flex: 1, fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
+                    {bestDraft.projection!.overall_delta > 0.5
+                      ? `${t("scenario_best")} ${bestDraft.label}.`
+                      : t("scenario_no_clear_win")}
+                  </div>
+                  <button onClick={() => adopt(bestDraft.label)} disabled={adopting !== null} className="mf-btn-accent">
+                    {adopting ? "…" : `${t("scenario_adopt")} ${bestDraft.label} →`}
+                  </button>
                 </div>
-                <button onClick={() => adopt(bestDraft.label)} disabled={adopting !== null} className="mf-press"
-                  style={btn(true)}>
-                  {adopting ? "…" : `${t("scenario_adopt")} ${bestDraft.label} →`}
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

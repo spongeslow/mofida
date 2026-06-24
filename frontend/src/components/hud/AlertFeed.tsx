@@ -1,6 +1,7 @@
 import { useStore } from "../../store";
 import { useT } from "../../i18n";
-import { C, card, severityColor, severityIcon } from "../../theme";
+import { C, card, severityColor } from "../../theme";
+import { SeverityDot } from "../shared/icons";
 
 export function AlertFeed() {
   const t            = useT();
@@ -28,7 +29,7 @@ export function AlertFeed() {
                 padding: "10px 0",
                 borderBottom: `1px solid ${C.border}`,
               }}>
-                <span style={{ fontSize: 16, marginTop: 1 }}>{severityIcon(alert.severity)}</span>
+                <span style={{ marginTop: 5 }}><SeverityDot sev={alert.severity} /></span>
                 <div style={{ flex: 1 }}>
                   <p style={{ margin: "0 0 2px", fontWeight: 600, color, fontSize: 14 }}>{alert.title}</p>
                   <p style={{ margin: "0 0 4px", color: C.muted, fontSize: 13, lineHeight: 1.4 }}>{alert.body}</p>

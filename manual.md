@@ -1,615 +1,397 @@
-# Moufida — Desktop App User Manual
+# Moufida — User Manual
 
-This manual walks through **every screen and control** of the Moufida desktop app,
-and — for each one — explains *what happens in the background* in plain language.
-It also explains the **2D character** (the little companion) and how it is wired
-to the always-on **Go daemon**.
-
-> New here? See the [README](README.md) for installation and how to start the
-> backend + app. In short: `docker compose up --build` (backend), then
-> `cd frontend && npm run tauri dev` (the desktop app). The app talks to the
-> orchestrator at `localhost:8001` over HTTP and a live **SSE** event stream.
+*This manual is written for entrepreneurs, not engineers. You do not need to understand how any of this works under the hood — just what each screen does and what you can expect from it.*
 
 ---
 
-## 0. The big picture (read this first)
+## Before you begin
 
-Moufida has **two windows**, **one background brain**, and **one optional admin
-panel**:
+Moufida runs entirely on your computer. Your startup data — your idea, your numbers, your plans — never leaves your machine. No subscription, no cloud account, no data harvesting. When the app is running, a small animated character named Moufida will appear at the bottom-right corner of your screen. That character is always watching over your project in the background.
 
-- **The main window** — the dashboard/chat/settings app you interact with.
-- **The companion window** — a small, frameless 2D character ("Moufida") that
-  roams along the bottom of your screen. It is the *face* of the system.
-- **The Go daemon** — a 24/7 background process (inside Docker) that keeps
-  watching the world for your project even when the app is closed.
-- **The admin / observability panel** — a separate, read-only web page
-  (`localhost:3002`) for watching the system's internals live (see §16).
-
-Everything you see in the UI is backed by the **orchestrator** (a FastAPI
-service). When something changes in the background, the orchestrator pushes a
-live **event** down an SSE stream and the UI updates itself without a refresh.
-
-Three ideas recur throughout this manual:
-
-- **Project** — one startup. You can have many; one is "open" in the app, and
-  (separately) one is "focused" by the daemon.
-- **Event** — an interpreted change from any of four sources (you, chat, a
-  connected tool, or the daemon). Events appear in the **Event Feed** with a
-  diff and an Apply / Handle / Ignore choice.
-- **Axis** — one of the nine analysis areas (ideation, market, product, brand,
-  business-model, legal, operations, marketing, sales). Scores and plan sections
-  are produced per axis; when one changes, only the *dependent* axes re-run.
+To get started: your technical team runs `docker compose up --build` (the backend) and then `npm run tauri dev` (the desktop app). Once those are running, you interact with Moufida entirely through the graphical interface.
 
 ---
 
-## 1. The landing page
+## The two windows
 
-When no project is open, you see the hero screen: the **2D character**, the
-"Moufida" title, a tagline, and two main actions.
+**The main window** — the app you interact with: dashboard, chat, analysis, history, settings.
 
-### Button 1 — "Got an idea?" (creation mode)
+**The companion window** — the small animated Moufida character in the corner of your screen. She is the "face" of the system. When she is walking and awake, the system is actively monitoring your project in the background. When she is sleeping, monitoring is paused.
 
-- **What you see:** clicking it reveals a text box asking you to describe your
-  idea. Type it, then press **Build →** (or `Ctrl/Cmd + Enter`).
-- **What happens in the background:**
-  - A new project is created (`POST /api/v1/project/new`) in **creation state**.
-  - Your raw idea is saved into the project profile
-    (`PATCH /api/v1/project/{id}/profile` with `{ raw_idea }`).
-  - The app switches to the **Creation flow** (see §4).
-
-### Button 2 — "📁 Mes Projets" (the secondary button)
-
-- **What you see:** it opens the **Projects** page (your portfolio).
-- **What happens in the background:** the app fetches your project list
-  (`GET /api/v1/projects`) and your daemon's current focus
-  (`GET /api/v1/daemon/control`) so it can mark which project is being watched.
-- This same page is now reachable **any time** from the sidebar (📁 Mes Projets),
-  not only from the landing screen — so you can switch projects without leaving.
-
-### Bottom hint
-
-- A line reminding you that you can summon Moufida by voice ("Hey Moufida").
-  This is handled by the local wake-word listener (no audio leaves your machine).
+You open the main window by:
+- Clicking the Moufida icon in your system tray (bottom-right of your taskbar)
+- Clicking on the companion character
+- Pressing **Ctrl + Shift + M** on your keyboard
 
 ---
 
-## 2. The Projects page (your portfolio)
+## The companion character — what her behaviour means
 
-A list of your projects with explicit actions, reachable from the sidebar (📁
-**Mes Projets**) at any time — or from the landing screen before any project is open.
+The character communicates the system's status through her animations. You do not need to open the app to know what's happening:
 
-- **Open** — the project becomes the open project and you go **straight to its
-  Dashboard** (no forced questionnaire). Switching to a different project here
-  re-points the whole app — scores, live SSE stream, and the companion all
-  re-bind — with **no page refresh**.
-- **⚡ Diagnose** — opens the project *and* immediately runs a fresh full
-  diagnostic.
-- **✎ Update profile** — the only place that now routes you through the
-  **adaptive intake** (§3, *update* mode) before returning to the Dashboard.
-- **＋ New project** — returns to the landing "Got an idea?" entry to start fresh.
-- **Mode & stage badges:** each card shows whether the project is in *creation*
-  or *diagnosis* mode and its latest maturity stage (if any).
-- **👁 Focus button — this is how you point the daemon at a project:**
-  - Clicking it calls `POST /api/v1/daemon/control { focus_project_id }`.
-  - The background daemon then **hot-swaps** its watchers onto that project
-    (no restart) and starts monitoring competitors, funding deadlines, legal
-    changes, trends, etc. *for that specific project*.
-  - Click again to **unfocus** (the daemon parks itself). The currently-watched
-    project is highlighted with a filled icon/badge.
-  - This replaces the old "set a project ID in a config file" approach entirely.
-- **📂 Import project:** load a project from a JSON file. The app creates a
-  project and merges the file's profile into it.
-- **🗑 Delete:** permanently removes the project (`DELETE /api/v1/project/{id}`),
-  cascading its plan sections, events, scores, and history. You're asked to
-  confirm first.
+| What you see | What it means |
+|---|---|
+| Walking / roaming | System is active, monitoring your project |
+| Thinking (hand on chin) | Running a diagnosis or processing your request |
+| Celebrating (arms raised) | A milestone was completed or a diagnosis finished successfully |
+| Worried (hand on cheek) | Something needs your attention — a score dropped or an alert arrived |
+| Alert (eyes wide) | A critical signal from the background — open the app to check |
+| Listening (leaning forward) | She heard "Hey Moufida" or you pressed the voice button |
+| Speaking (mouth open) | Moufida is reading her response aloud |
+| Sleeping (zzz) | Background monitoring is paused |
+
+**Double-clicking the character** runs a quick diagnosis on your current project.
+
+**Dragging a PDF file onto the character** adds that document (business plan, market study, pitch deck) to your project's knowledge base.
 
 ---
 
-## 3. The adaptive intake (questionnaire)
+## Opening the app for the first time
 
-Reached via **✎ Update profile** on the Projects page (and at the start of
-creation when needed). Opening a project no longer forces this — it's an explicit
-choice when you want to refresh the project's context.
+When no project exists yet, you see the welcome screen with two options:
 
-- **What you see:** one question at a time — multiple-choice, yes/no, number, or
-  free text — that **adapts** based on your previous answers and sector.
-- **What happens in the background:**
-  - The questionnaire is **stateless on the server**: the app sends the full
-    answers map each step (`POST /api/v1/intake/answer`) and gets the next
-    question or a completion signal back.
-  - On completion, the collected answers are merged into your project profile.
-  - You're then taken to the **Dashboard** (existing project) or the **Creation
-    flow** (new idea).
+### "Got an idea?" — Create a new startup plan
+
+Choose this if you have an idea but no formal plan yet. You will be guided through a nine-step process that builds a complete startup plan with evidence, citations, and a roadmap.
+
+Click the button, describe your idea in a sentence or two (or say it out loud), and press **Build**.
+
+### "Mes Projets" — Open your portfolio
+
+Choose this if you have already created projects. Your projects appear here as cards with their latest scores and status.
 
 ---
 
-## 4. The Creation flow (build a plan from an idea)
+## Your project portfolio (Mes Projets)
 
-A guided, **nine-step** generator. A stepper at the top shows progress through
-the axes: ideation → market → product → brand → business-model → legal →
-operations → marketing → sales.
+This page lists all your startup projects. You can reach it anytime from the sidebar on the left.
 
-For each axis you get a generated **proposal** and three choices:
+Each project card shows:
+- The project name and sector
+- Whether it's in **creation mode** (building a plan) or **diagnosis mode** (evaluating an existing startup)
+- The latest maturity stage (if a diagnosis has been run)
 
-- **Approve** — accept the section.
-  - Background: `POST /api/v1/project/{id}/generate/{axis}/approve` persists the
-    section, then the next axis is generated automatically.
-- **Edit with constraints** — type guidance and regenerate.
-  - Background: re-calls `generate` with your constraints so the new draft
-    respects them.
-- **Retry** — regenerate the same axis from scratch.
+### Actions on each project card
 
-Before each axis, **Moufida narrates** (in a speech bubble) what that axis checks
-and why it matters, so the plan reads like a guided conversation rather than a
-silent form. Every proposal is **grounded**: the generator pulls evidence from
-the local knowledge base (per-axis RAG collections) plus free live web search,
-and shows **citations** for what it used (referenced inline as `[n]` where the
-text cites a source).
+**Open** — opens the project and takes you to the Dashboard. No questionnaire is forced.
 
-If you close the app mid-plan, the flow **resumes where you left off** on reopen
-(approved sections persist server-side; your position is restored locally). When
-the ninth axis is approved, Moufida **celebrates** on the completion screen.
+**Diagnose** — opens the project and immediately runs a full fresh diagnosis.
 
-- **Finishing:** after the ninth axis is approved, the app calls
-  `POST /api/v1/project/{id}/finalize`, which assembles a **roadmap** from real
-  Tunisian support programmes. You land on a completion screen with the full
-  **plan document** and a **PDF export**.
+**Update profile** — opens the adaptive questionnaire so you can update the project's information before running a new diagnosis.
+
+**Focus (eye icon)** — tells the background monitoring system to watch *this specific project*. The daemon hot-swaps its attention to this project's competitors, funding sources, and regulatory feeds. The character wakes up if she was sleeping.
+
+**Import** — loads a project from a JSON file.
+
+**Delete** — permanently removes the project and all its data.
 
 ---
 
-## 5. The main layout: sidebar + content
+## The adaptive intake questionnaire
 
-Once a project is open, the window is a left **sidebar** + a main **content area**.
+This is the adaptive question-and-answer session that collects information about your startup before running a diagnosis.
 
-### Sidebar (top → bottom)
+What makes it "adaptive": the questions are chosen based on your previous answers. If your first answers clearly indicate an early-stage project, you will not be asked about things that only apply to revenue-stage companies. The system typically reaches a reliable assessment in **8–15 questions** rather than the 30+ questions a fixed form would require.
 
-- **Navigation** (hidden during intake/creation): **Mes Projets**, **Dashboard**,
-  **Chat (HUD)**, **Personas**, **Pitch**, **Scénarios**, **Base de Connaissances**,
-  **History (Mon Parcours)**, **Settings**. (Personas / Pitch / Scénarios are now
-  dedicated pages — see §15 — not dashboard cards.)
-- **Daemon status control** *(this is the character switch — see §9):*
-  - A colored dot + label: **Watching** (green), **Paused** (amber), or
-    **Offline** (grey, no heartbeat in ~90s).
-  - A **⏸ / ▶ button** to pause or resume the daemon's work.
-  - It's **disabled until you've focused a project** (the 👁 button in §2),
-    because there's nothing to watch otherwise.
-  - Background: pressing it calls `POST /api/v1/daemon/control { paused }`; the
-    daemon picks the flag up on its next heartbeat and stops/starts doing work.
-- **Voice state indicator:** shows *Listening / Speaking / …* when voice is active.
-- **Real-time indicator:** a small dot + label (*Temps réel actif* / *Hors ligne*)
-  showing whether the live SSE connection to the backend is up.
-- **Language selector:** FR / EN / AR (Arabic flips the whole UI to right-to-left).
+Answer each question honestly. The quality of the diagnosis depends on the accuracy of what you provide.
 
-### Keyboard shortcuts (global)
-
-- `Ctrl/Cmd + Shift + M` — show/hide the main window.
-- `Ctrl/Cmd + Shift + D` — run a diagnostic.
-- `Ctrl/Cmd + Shift + V` — start voice.
+When the questionnaire ends, the system merges your answers into your project profile and you are taken to the Dashboard.
 
 ---
 
-## 6. The Dashboard
+## Creation flow — building a plan from scratch
 
-The home screen for an open project. It auto-runs a diagnostic the first time if
-none exists yet.
+The creation flow guides you through nine axes of your startup, one at a time:
 
-- **Run diagnostic / Quick diagnostic buttons:**
-  - Background: `POST /api/v1/project/{id}/run-diagnostic` fans the profile out
-    across the nine axes in three dependency-ordered waves, computes the five
-    composite scores, detects anomalies, and **streams results live** over SSE as
-    each wave finishes. "Quick" is a lighter pass.
-- **📎 Upload document button** *(dashboard header):* attach a PDF or text/
-  markdown file (business plan, market study…). Its text is extracted and added
-  to the project knowledge base (`POST /documents`) to enrich analysis.
-- **Maturity card:** your stage (Ideation → … → Growth) shown on a **stage
-  "level" ladder** (with the next stage to reach), plus evidence and the gap
-  between self-assessed and computed stage.
-- **Score gauges:** the five composite scores (Market, Commercial Offer,
-  Innovation, Scalability, Green). The number **animates (counts up)** on update;
-  each gauge expands to its sub-dimensions, weights, evidence tiers, and a
-  plain-language justification — and has a **💬 Débattre du score** button that
-  opens an inline chat to argue the score (`POST /axis/{axis}/debate`); if your
-  case lands, the score updates live.
-- **Concept breakdown** *(interpretability — see §15):* below the gauges, each of
-  the nine axes can be expanded to show its score broken into named
-  micro-concepts (e.g. *market* → TAM evidence, ICP specificity, WTP signal…).
-  Moufida marks the **bottleneck** — the single concept holding the axis back —
-  and tells you the projected score if you fixed it. A "calibrated / prior" chip
-  shows whether the weights were learned from your own history yet.
-- **"What If?" button** *(top of the dashboard):* opens the **Scénarios** page
-  (the Scenario Planner — see §15).
-- **Blockers:** ranked critical / warning / info issues.
-- **Recommendations:** prioritized actions tied to the weakest sub-dimensions.
-- **"What's new?":** a one-paragraph LLM digest of recent activity
-  (`GET /api/v1/project/{id}/whats-new`). This is where daemon and tool activity
-  gets summarized for you.
-- **Opportunity Radar** *(fed by the daemon — see §10):* funding/grant cards
-  sorted by deadline, colored red when an apply-by date is within 14 days, each
-  with a match score, an **Apply** link, and a **Dismiss** button.
-- **Competitor Board** *(fed by the daemon — see §10):* a "You vs each
-  competitor" table (positioning, pricing, funding) plus a SWOT card per
-  competitor. It refreshes itself whenever the daemon reports a competitor change.
-- *(Customer Personas and the Pitch Simulator are no longer dashboard cards —
-  they're now their own sidebar pages, **Personas** and **Pitch**. See §15.)*
-- **Roadmap timeline:** three horizons (immediate / short-term / medium-term).
-  Checking off all actions in the active horizon generates the next one. A
-  **stale** banner appears when underlying data changed; you can **Regenerate**
-  and inspect **provenance** (which KB version and trigger produced it).
-- **Event Feed:** the running log of changes (see §8).
+**Ideation → Market → Product → Brand → Business Model → Legal → Operations → Marketing → Sales**
 
-Every claim in the four analytical features above (concept bottleneck, scenario
-reasoning, persona replies, investor questions) ships with an **Evidence trace** —
-a small expandable "Sources" line showing exactly which axis field, KB document,
-competitor snapshot, or signal it came from. Nothing is an unverifiable guess.
+For each axis, Moufida generates a proposal that is grounded in real Tunisian ecosystem resources and live web search. She narrates what each step is about and why it matters.
+
+For each generated section, you have three choices:
+
+**Approve** — accept the section and move to the next axis automatically.
+
+**Edit with constraints** — type guidance (e.g., "focus more on mobile users" or "emphasise the export opportunity") and Moufida regenerates the section respecting your guidance.
+
+**Retry** — regenerate the section from scratch.
+
+If you close the app mid-plan, it resumes exactly where you left off when you reopen.
+
+When the ninth axis is approved, Moufida generates your **personalised roadmap** — a time-horizoned action plan linked to real Tunisian support programmes, funding sources, and legal frameworks. You can export the full plan as a PDF.
 
 ---
 
-## 7. The Chat (HUD)
+## The Dashboard — your project's health overview
 
-Reached via **Chat** in the sidebar.
+The dashboard is the home screen once a project is open. It gives you a complete picture of your startup's current state.
 
-- **Review card:** surfaces any axis proposals waiting for your review.
-- **Chat panel:** a **grounded** assistant — it answers from *your* diagnostic
-  results and scores, not generic advice.
-  - **Update intent detection:** if you state a change ("we pivoted to B2B", "we
-    hired a CTO"), Moufida recognizes it, logs an **event**, and proposes which
-    axes to re-run — instead of just chatting. You stay in control via the Event
-    Feed.
-  - Voice in/out is available here (speech-to-text and text-to-speech run
-    locally). Chat history is **persisted per project** (survives navigation/refresh).
-- **Alert feed:** live alerts pushed from the background.
-- **👁 Watch targets:** what the daemon monitors for this project (news feeds,
-  legal sources, keywords, competitors), with a **Refresh** button
-  (`GET`/`POST /project/{id}/watch-targets`).
-- **📚 Add knowledge:** paste a note or link for Moufida to learn (`POST /kb`);
-  it enriches RAG and bumps the project's knowledge-base version.
+### Maturity stage
 
----
+A card showing which stage your startup is in: Ideation, Market Validation, Structuration, Fundraising, Launch Planning, or Growth.
 
-## 8. The Event Feed & the four update sources
+It shows:
+- The **computed stage** (what the system determined from your data)
+- Your **self-assessed stage** (what you said in the questionnaire)
+- The **gap** between the two — many founders overestimate their stage; this is normal and the system flags it
 
-Moufida treats every change as an **event** so nothing happens silently.
+### The five composite scores
 
-Events come from **four sources**, each shown with an icon:
+Five numbers (each out of 5) measuring your startup from different angles:
 
-- **✎ Manual** — you edited a plan section in the UI.
-- **💬 Chat** — you described a change in conversation.
-- **📡 Tool** — a connected integration (Notion/Slack/Sheets/GitHub/Analytics)
-  reported a change.
-- **🛰️ Daemon** — the background watcher detected a market/legal/trend/competitor
-  signal.
+| Score | What it measures |
+|---|---|
+| **Market** | How well you understand your market: size, customers, competition, timing |
+| **Commercial Offer** | How strong your product/service is: value proposition, maturity, pricing, differentiation |
+| **Innovation** | How novel your approach is: product novelty, market novelty, brand distinctiveness |
+| **Scalability** | How well the business can grow: unit economics, revenue model, operations, funding readiness |
+| **Green** | Legal compliance and sustainability: GDPR, AI Act, IP protection, SDG alignment |
 
-For each event card you can:
+Click any score to expand it. You will see:
+- The sub-dimensions and their weights
+- The quality of evidence behind the score (declared vs. verified vs. observed by the system)
+- A plain-language explanation of why the score is what it is
+- A **Debate** button — if you disagree with a score, you can argue your case. If your argument is convincing, the score updates.
 
-- **⚡ Apply** — accept and auto-re-run the affected downstream axes as proposals.
-- **✎ Handle myself** — mark it; you'll deal with it manually.
-- **✕ Ignore** — dismiss it.
+### Concept breakdown — what is holding your score back?
 
-Every card carries a **field-level diff** (what changed, before → after). Under
-the hood, a **dependency engine** computes the *transitive* set of axes to re-run
-from whatever changed — so a change to "business-model" correctly cascades to
-operations, legal, marketing, sales, and the roadmap, but nothing unrelated.
+Below the score gauges, each axis can be expanded to show a detailed breakdown of named concepts. For example, the Market axis breaks into: TAM Evidence, ICP Specificity, WTP Signal, Competitive Differentiation, Market Timing.
 
-You can filter the feed by **status** (new/acted/ignored) and **source**.
+The system identifies the **bottleneck** — the single concept that is holding the score down the most — and tells you: "Fixing this concept from 0.18 to 0.60 would move your market score from 2.3 to 3.1."
 
----
+This tells you exactly where to focus your energy. Not "improve your market score" but "sharpen your Ideal Customer Profile description."
 
-## 9. The 2D character and how it relates to the Go daemon
+### Blockers
 
-This is the part that ties the visible app to the invisible background work.
+A ranked list of critical issues the system detected. Three severity levels:
 
-### What the character is
+- **Critical** (red) — must address before moving to the next stage
+- **Warning** (orange) — should address soon
+- **Info** (blue) — worth noting
 
-- **One character, everywhere — the pixel-art Moufida.** There is a single
-  renderer now (the older SVG character was retired), so she looks consistent on
-  the landing screen, in the creation flow, on every page, and as the desktop pet.
-- A small, frameless **desktop companion window** with the pixel character that
-  walks/roams along the bottom of your screen — the always-visible "face" of Moufida.
-- An **in-app floating companion** also appears bottom-right of the main window
-  on every page, reacting to what's happening (see below).
-- You can **show/hide** the companion from **Settings → Preferences** (the toggle
-  also gates the in-app companion and its sound cues).
+### Anomaly alerts
 
-### What the character does
+The system detects 10 types of internal contradictions in your data. Examples:
+- Revenue claimed but zero customer interviews conducted
+- LTV (lifetime value) reported without any CAC (customer acquisition cost) data
+- AI product with no GDPR or AI Act compliance measures mentioned
 
-- **Click it** → brings the main window to the front.
-- **Double-click it** → runs a quick diagnostic on the open project.
-- It has a **full expression system**: idle/walk, *listening / thinking /
-  speaking* during voice, plus **celebrating** (with confetti), **alert**,
-  **worried** (sweat drop), **surprised**, **sleeping** (z z z), and role poses
-  **skeptic** (briefcase), **presenting** (pointer) and **pointing/reading**
-  (book) — each with mouth, arm and accessory changes.
-- It is **reactive**: a running diagnostic makes her *think*; a completed
-  diagnostic or unlocked milestone makes her *celebrate*; a score drop or error
-  makes her *worried*; a critical alert makes her *alert*; a paused daemon makes
-  her *sleep*. Subtle Web-Audio **chimes** accompany celebrate / alert / surprised.
-- **Per-page costume:** she changes palette by context — professional **blue** on
-  the Pitch page, **purple** on Scénarios, **green** on Mon Parcours.
+These appear as red-flag cards and deserve immediate attention.
 
-### How it's wired to the Go daemon (the key relationship)
+### "What's new?" digest
 
-The character is the **switch and status light for the 24/7 daemon**:
+A one-paragraph summary of everything that changed since your last visit — daemon observations, tool integrations, score updates — written in plain language.
 
-- The daemon continuously sends a **heartbeat** to the orchestrator. The
-  orchestrator broadcasts a `daemon_status` event (paused? alive? which project?)
-  over SSE to the app.
-- The sidebar **daemon status control** (§5) reflects that status and lets you
-  **pause/resume** the daemon.
-- **When you pause the daemon** (watching off), the orchestrator records it and
-  broadcasts the new status → the app tells the companion window to **fall
-  asleep** (the character literally sleeps, with "z z z").
-- **When the daemon is watching** (alive and not paused), the character is awake
-  and roaming.
-- So, in plain terms: **an awake, roaming character = Moufida is actively
-  watching your focused project in the background. A sleeping character =
-  watching is paused.** "Offline" (grey) means the daemon process isn't
-  heartbeating at all (e.g. backend not running).
+### Opportunity Radar
 
-### Which project the daemon watches
+Funding cards from the background grant-watching system. Each card shows:
+- The programme name and source
+- How well it matches your project (match score out of 1.0)
+- The application deadline (turns red when within 14 days)
+- A direct Apply link
 
-- The daemon watches the **focused** project — the one you picked with the **👁
-  Focus** button in the project list (§2). This is independent of which project
-  is merely "open" in the app.
-- Changing focus makes the daemon **hot-swap** its watchers onto the new project
-  at runtime (no restart). Before the new watchers start, the orchestrator
-  re-derives that project's **watch targets** (see §10) so monitoring is tailored
-  to it.
+### Competitor Board
+
+A live board of competitor observations from the background monitoring. For each tracked competitor:
+- Latest positioning and pricing
+- SWOT analysis
+- An indication of what changed since the last check
+
+### Roadmap
+
+A three-horizon action plan (Immediate / Short-term / Medium-term) with each action linked to a real Tunisian support resource. Check off completed actions. When all actions in the active horizon are done, click **Advance horizon** to generate the next set of actions.
+
+A **Stale** banner appears when underlying data changed and the roadmap should be regenerated.
 
 ---
 
-## 10. What the daemon actually does in the background
+## The Chat (HUD) — talking with Moufida
 
-Once a project is focused and watching is on, the daemon runs several
-**adaptive watchers**. "Adaptive" means their targets are derived from *your*
-project's sector and profile — an agri-food project watches agri-food sources, a
-fintech project watches different ones.
+Reached via **Chat (HUD)** in the sidebar.
 
-- **Competitor watcher** → **Competitor Board.**
-  - Detects when a tracked competitor's page changes or they're mentioned in
-    sector news. It sends the page text to the orchestrator, which uses the local
-    LLM to extract **pricing, positioning, funding**, computes a **diff** vs the
-    last snapshot, and regenerates a **SWOT**. The board then refreshes live
-    (via a `competitor_update` event).
-- **Grant / deadline radar** → **Opportunity Radar.**
-  - Scans curated Tunisian/EU funding sources, and for each candidate the
-    orchestrator LLM-scores how well it fits your project and extracts the
-    **apply-by date**. Good matches appear as cards (via an `opportunity_new`
-    event), sorted by deadline.
-- **Legal, trend, milestone, budget watchers** → **Event Feed / "What's new?".**
-  - Detect regulatory updates, market trend shifts, milestone/budget signals.
-    Each is persisted as a **daemon event** so it survives and feeds the digest.
-- **Adaptive watch-targets (the "smart" layer).**
-  - Each project gets a deterministic, sector-based set of sources as a floor,
-    plus an **LLM-derived, cached** set of niche-specific feeds/regulators/
-    keywords/competitors. This is recomputed when you focus the project or when
-    its profile changes — and cached so it doesn't re-run the LLM every cycle.
-- **Knowledge-base staleness checker** (always on, project-independent).
-- **Composio poll** (always on) — see §11.
+This is where you have a conversation with Moufida. Every answer she gives is grounded in your own diagnostic data — she does not give generic startup advice; she answers based on your specific scores, blockers, and profile.
 
-**Pause semantics:** pausing stops the *work*, not the process. Heartbeats keep
-flowing, so the UI can tell "paused" apart from "offline", and the character
-sleeps rather than disappearing.
+### Telling Moufida about a change
+
+If you say something like "we pivoted to B2B" or "we just hired a CTO," the system detects that this is a real update, not just a question. It logs an **Event Card** and asks you which analyses should be re-run in light of the change. You stay in control — nothing changes automatically without your permission.
+
+### Voice input / output
+
+Click the microphone button or press **Ctrl + Shift + V** to speak. Moufida transcribes your voice locally (using Whisper, a local speech recognition model). She responds in text and optionally reads her response aloud.
+
+Language is auto-detected per utterance — you can switch between French and Arabic mid-conversation.
+
+### Watch targets
+
+A card showing what the background monitoring system is currently watching for your project: competitor URLs, news keywords, legal feeds. Click **Refresh** to update these based on your latest profile.
+
+### Add knowledge
+
+Paste a note, a link, or text that Moufida should know about. This is added to your project's knowledge base and enriches future diagnoses and conversations.
 
 ---
 
-## 11. Settings & tool integrations
+## The Event Feed — understanding what changed
 
-Reached via **Settings** in the sidebar.
+Every meaningful change to your project is recorded as an **Event Card**. This includes changes you made, things you told Moufida in chat, data from your connected tools, and observations from the background monitoring daemon.
 
-### Preferences
+Each event card shows:
+- The source (Manual edit / Chat / Tool integration / Background daemon)
+- The severity (Critical / Warning / Info)
+- Which axes are affected
+- A field-level diff showing exactly what changed
 
-- **Show companion** — show/hide the 2D character window.
+For each event, you choose:
+
+**Apply** — accept the change and let the system re-run the affected analyses.
+
+**Handle myself** — mark the event as noted; you will deal with the underlying change manually.
+
+**Ignore** — dismiss the event.
+
+Filtering: you can filter the feed by status (new/acted/ignored) and by source.
+
+---
+
+## Background monitoring — what the daemon does
+
+Once you focus a project (the eye icon in the project list), a background service begins watching the world on your project's behalf. It adapts to your specific sector and profile.
+
+| What it watches | How often | Where you see it |
+|---|---|---|
+| Competitors (web pages, news) | Every 12 hours | Competitor Board on Dashboard |
+| Funding & grants (APII, BFPME, EU calls…) | Daily | Opportunity Radar on Dashboard |
+| Legal & regulatory updates (JORT, INNORPI…) | Daily | Event Feed |
+| Market trends (your keywords in news) | Weekly | Event Feed / "What's new?" |
+| Roadmap milestones | Daily | Event Feed (reminders) |
+| Budget alerts (burn rate, runway) | Every 6 hours | Event Feed |
+
+**Pausing monitoring:** Press the ⏸ button in the sidebar to pause the daemon. The character goes to sleep. The monitoring stops but the system stays running. Press ▶ to resume.
+
+---
+
+## Advanced tools
+
+### Investor Pitch Simulator (Pitch page)
+
+Practice your pitch against an AI investor. Choose a persona:
+- **Seed VC** — focused on market size, growth potential, team
+- **Angel investor** — focused on founder story, product vision, early traction
+- **Impact fund** — focused on social impact, SDG alignment, sustainability
+- **Strategic investor** — focused on synergies, market positioning, partnerships
+
+The AI asks tough questions **based only on your actual diagnostic data** — if your market score is low, it will ask about that. If you have a competitor with stronger pricing, it will ask about your differentiation.
+
+The session ends with a **Readiness Report**: your overall pitch readiness score, the questions that exposed your weakest points, and preparation actions you can push directly to your roadmap.
+
+### Pivot Scenario Planner (Scénarios page)
+
+A "what if" tool for de-risking decisions before you make them. Define parameter overrides — for example:
+- "What if we change target segment from B2C to B2B?"
+- "What if we switch from a one-time fee to a subscription model?"
+- "What if we focus on the export market instead of domestic?"
+
+The system projects the impact of each change on all nine axes of your startup, with confidence levels and reasons. The comparison shows exactly which axes would improve, which would decline, and by how much.
+
+Click **Adopt** on the best scenario to apply the changes to your profile and run a new diagnosis.
+
+### Customer Persona Simulator (Personas page)
+
+Generates three realistic Tunisian customer personas based on your market and product data. Each persona has a name, archetype, age range, region, income level, goals, top objections, and buying triggers — all grounded in your diagnostic data and the knowledge base.
+
+Click a persona to **chat with them**. The AI responds in character, expressing that persona's objections and buying signals. An objection tracker shows which objections have been addressed in the conversation. After a few exchanges, click **How to close them?** for a tailored close strategy.
+
+### Knowledge Base browser (Base de Connaissances page)
+
+Browse the 83 curated resources about the Tunisian entrepreneurship ecosystem:
+- Financing institutions (Smart Capital, BFPME, BTS, Carthage Business Angels)
+- Legal frameworks (StartupAct, INNORPI, APII registration)
+- Training and accelerators (Flat6Labs, Orange Digital Center)
+- Export support (CEPEX)
+
+Filter by your stage, sector, and resource type. Read the full resource inline with the source link.
+
+---
+
+## History (Mon Parcours)
+
+Your startup journey over time.
+
+**Achievements** — milestone badges that unlock as you progress: first diagnosis, first strong score, all axes healthy, advanced stage, roadmap completed. Moufida celebrates when you earn a new badge.
+
+**Score chart** — your five composite scores plotted over time, showing progress across diagnostic runs.
+
+**Compare diagnostics** — select any two past diagnoses and see a side-by-side comparison: how each score moved, which blockers were resolved, which new ones appeared.
+
+**History list** — every past diagnostic with its date, maturity stage, and top blockers.
+
+**Completed actions** — the roadmap actions you have checked off.
+
+---
+
+## Settings
+
+**Show companion** — toggle the desktop companion character on or off.
+
+**Language** — French, English, or Arabic (Arabic flips the entire interface to right-to-left).
 
 ### Tool integrations
 
-Integrations are grouped by domain. There are **two kinds**, and they can coexist:
+Connect Moufida to the tools you already use. There are two types:
 
-**A) Manual-token tools** (Slack, Notion, Google Sheets, GitHub, Google
-Analytics):
+**Manual-token tools** — paste a credential (API key, bot token), test the connection, and save. Simple but one-directional.
 
-- Expand the card, paste the required credentials, **Test** the connection,
-  **Save**, and (for outgoing tools) **Sync now**.
-- These are **one-directional** (Moufida pushes summaries out).
+**Composio tools** — click Connect and authorise in a browser popup. No credentials to manage. These are **bidirectional**: changes in your connected tool (a Notion page updated, a new GitHub commit) flow back into Moufida and appear as Event Cards.
 
-**B) Composio tools** (Notion / Slack / Google Sheets / GitHub, each labeled
-"(Composio)") — **no credentials to paste**:
-
-- **Connect button:**
-  - Background: `POST /api/v1/tools/{slug}/connect` asks Composio (a managed
-    OAuth broker) to start a connection and returns a hosted **OAuth URL**.
-  - The app opens that URL in your browser; you authorize there.
-  - The app then **polls** `GET /api/v1/tools/{slug}/connection` until the
-    connection is active, then shows a **Connected** badge.
-- **Connected = bidirectional:**
-  - **Outbound:** diagnostic summaries/alerts are pushed out through Composio
-    actions.
-  - **Inbound:** a change on the other side (e.g. a Notion page edited, a Slack
-    message, a new Sheet row) becomes a **trigger** → lands as a `tool_signals`
-    record → is routed to the affected axes → appears in the **Event Feed** with
-    a diff, exactly like any other update. This is the "a change in Notion flows
-    back into Moufida" loop.
-- **Disconnect** turns the tool off locally.
-
-**How inbound reaches a desktop behind a router:** a desktop usually can't
-receive webhooks. So the Go daemon **polls** the orchestrator every ~5 minutes
-(`POST /api/v1/integrations/poll`); the orchestrator pulls any new Composio
-trigger events and ingests them. Your Composio API key stays server-side and is
-never exposed to the desktop.
-
-### The one local-first exception
-
-Everything in Moufida runs **on your machine** — the LLM, scoring, RAG, voice.
-The **only** deliberate exception is the Composio integration edge: the OAuth
-popup and trigger broker are hosted by Composio (the managed "middle party" the
-product brief asked for). Leave `COMPOSIO_API_KEY` empty and Composio tools
-simply report *unavailable*; the manual-token tools and the entire local
-pipeline keep working.
-
----
-
-## 12. History (Mon Parcours)
-
-Reached via **History** in the sidebar.
-
-- **🏆 Achievements:** milestone badges (first diagnostic, strong axis, all axes
-  healthy, no blockers, advanced stage, roadmap ready) that unlock from your live
-  state — Moufida celebrates the first time one unlocks.
-- **Score chart:** your composite scores over time (across diagnostic runs).
-- **Compare diagnostics:** a card with a **Compare** button that diffs the two
-  latest runs (`GET /history/compare`) — per-score deltas plus which blockers were
-  resolved or newly appeared.
-- **History list:** every past diagnostic with its stage and blockers.
-- **Completed actions:** the roadmap actions you've checked off.
-
----
-
-## 13. How live updates reach the screen (SSE)
-
-Whenever a project is open, the app holds an **SSE connection** to
-`/api/v1/project/{id}/events/stream` (a dedicated stream path, separate from the
-REST `/events` list). The backend pushes typed events and the UI reacts (the
-sidebar real-time indicator and the companion's reactions are driven from here):
-
-- `score_update`, `maturity_update`, `roadmap_update`, `review_ready` — diagnostic
-  results stream in.
-- `event_new` — a new Event Card (from any of the four sources).
-- `daemon_status` — pause/alive/focus changes → drives the status pill **and the
-  sleeping/awake character**.
-- `competitor_update` — refreshes the Competitor Board.
-- `opportunity_new` — refreshes the Opportunity Radar.
-- `watch_targets_updated` — the daemon's adaptive targets were re-derived.
-- `concept_update` — the concept breakdown / bottlenecks were refreshed (e.g.
-  after a daemon-triggered re-run).
-- `kb_updated` / `horizon_complete` — roadmap staleness / horizon celebration.
-
-You never need to refresh — the screen reflects background work as it happens.
-
----
-
-## 14. Quick reference — "if I click X, then Y"
-
-| You do this | What happens in the background |
+| Tool | What it does for your diagnosis |
 |---|---|
-| **Got an idea? → Build** | Create project (creation state) + save idea → Creation flow |
-| **📁 Mes Projets** | Fetch project list + daemon focus → Projects page |
-| **Open a project** | Switch project (no refresh) → Dashboard; auto-diagnostic if no scores |
-| **⚡ Diagnose (Projects)** | Open the project + immediately run a full diagnostic |
-| **✎ Update profile (Projects)** | Adaptive intake (update mode) → back to Dashboard |
-| **👁 Focus a project** | Daemon hot-swaps watchers onto it + re-derives its watch targets |
-| **⏸ / ▶ in sidebar** | Pause/resume daemon work → character sleeps/wakes via `daemon_status` |
-| **Run diagnostic** | 3-wave axis fan-out → scores/blockers/roadmap streamed over SSE |
-| **Approve (creation)** | Persist section → auto-generate next axis |
-| **Apply an event** | Re-run downstream axes as proposals |
-| **Connect (Composio tool)** | OAuth popup → poll until active → bidirectional triggers + actions |
-| **Double-click the character** | Run a quick diagnostic on the open project |
-| **Pause the daemon** | Watching stops, heartbeat continues → character sleeps (z z z) |
-| **Expand an axis (concept breakdown)** | Shows named concepts + the bottleneck + projected fix |
-| **What If? → Project** | 9 parallel RAG-grounded axis projections with confidence + sources |
-| **Adopt a scenario** | Patches the profile with the overrides → re-runs the diagnostic |
-| **Generate personas** | LLM builds 3 evidence-grounded personas from your diagnostic |
-| **Talk to a persona** | Role-play chat; objections tracked; close-strategy after a few rounds |
-| **Start a pitch session** | AI investor questions grounded in your data → readiness report |
-| **Open `localhost:3002`** | Admin panel: health, request traces, LLM calls, daemon log, live logs |
+| **GitHub** | Upgrades product and operations evidence tiers from "self-reported" to "observed" based on your actual commit and PR activity |
+| **Notion** | Reads your spec documents and customer notes to enrich ideation, market, and product analyses |
+| **Google Sheets** | Reads your financial metrics; pushes score summaries to your tracking sheet |
+| **Google Analytics** | Reads your traffic and conversion data to enrich market and sales analyses |
+| **Slack** | Posts diagnostic briefings and score alerts to your team channel |
+
+**Why connecting tools improves your scores:** Moufida uses a three-tier evidence model. Data you provide yourself counts at 0.6× weight. Data from uploaded documents counts at 1.0×. Data observed directly from connected tools counts at 1.2×. A founder who says "we have strong engineering" scores lower on the product axis than one whose connected GitHub shows 200 commits in the last month. The tool integrations make your evidence more credible.
 
 ---
 
-## 15. The analytical features (Pitch · Scenario · Persona · Concepts)
+## The admin panel (for technical users)
 
-These features turn your diagnostic into something you can *rehearse and
-interrogate*. **Personas, Pitch, and Scénarios are now their own sidebar pages**
-(not dashboard cards); the concept breakdown stays on the dashboard. They share
-one rule: **every output is evidence-grounded** — each claim carries a "Sources"
-trace pointing at a real axis field, KB document, competitor snapshot,
-opportunity, or background signal.
+Open a browser and go to **http://localhost:3002** while the backend is running.
 
-### Investor Pitch Simulator — **Pitch** page
-- Pick an investor persona (Seed VC, Angel, Impact fund, Strategic) and press
-  **Start session**. The character takes the **skeptic** pose (blue costume).
-- The investor asks one tough question at a time, **only** about things it can
-  see in your diagnostic (a low score, a critical blocker, a competitor's
-  pricing, a missed grant). Each question shows its evidence trace.
-- You type (or dictate) answers. Strong answers visibly relax the character;
-  weak/evasive ones make it push harder.
-- **End & assess** produces a **readiness report**: an overall 0–100 ring,
-  per-axis readiness with gaps, the hardest questions you faced, and prep
-  actions you can push to the roadmap.
+This panel lets you see exactly what Moufida is doing internally: every HTTP request, every LLM call (with duration and token counts), every background daemon activity, and a live log stream.
 
-### Pivot Scenario Planner — **Scénarios** page
-- Opened from the sidebar (or the dashboard **What If?** button). Define up to
-  three scenarios; each is a set of parameter overrides (e.g. `target_segment →
-  B2B`, `pricing → SaaS`). Your drafts are **persisted per project**.
-- **Project** runs nine axis projections in parallel, each grounded in a KB query
-  for your sector. The comparison table shows the projected score and a ▲/▼/─
-  delta per axis per scenario.
-- Click any cell to see the **reasoning**, a **confidence** level (high/medium/
-  low), and the KB sources behind it.
-- **Adopt** the strongest scenario: it patches your profile and re-runs the
-  diagnostic so the dashboard reflects the pivot.
-
-### Customer Persona Simulator — **Personas** page
-- **Generate personas** builds three realistic customers from your market/
-  product/brand axes + KB (name, archetype, region, budget, top objection,
-  buying triggers) — each field annotated with where it came from.
-- Click a persona to **chat**. It stays in character; every substantive reply
-  lists its claim sources. Raised objections appear in a tracker (🔴) and turn
-  green (✅) as the conversation resolves them.
-- After a few exchanges, **How to close them?** produces a tailored
-  close-strategy (key triggers + objections to address).
-
-### Concept breakdown & bottleneck (on the dashboard)
-- Under the score gauges, expand any axis to see its score decomposed into named
-  concepts scored 0–1. The **bottleneck** (⚡) is the one concept dragging the
-  score down the most, with the projected score if you lifted it to 0.80.
-- The weights start from sensible defaults ("prior") and **calibrate to your own
-  history** over repeated diagnostics ("calibrated").
-
-### Knowledge Base browser — **Base de Connaissances** page
-- Browse what Moufida knows: the curated Tunisian-ecosystem resources, with
-  filters by **stage / type / sector** and inline reading (title, provider,
-  body, source link, last-verified date). Backed by `GET /kb/resources`.
+It is read-only — nothing in this panel changes application data. It is useful for checking that all services are healthy, verifying that a diagnosis worked end-to-end, and understanding how the system used your data.
 
 ---
 
-## 16. The admin / observability panel (browser, port 3002)
+## Keyboard shortcuts
 
-A separate, **read-only** web panel for inspecting Moufida's internals — useful
-for demos, debugging, and trust. Open **http://localhost:3002** in any browser
-(it talks to the orchestrator at `localhost:8001`). If an `ADMIN_TOKEN` was set in
-`.env`, paste it into the Connect field once.
-
-Tabs:
-- **Health** — live status + latency of Postgres, Redis, Qdrant, Ollama,
-  SearXNG, the signal service, and the daemon, plus per-collection KB health.
-- **Requests** — every orchestrator request (method, path, status, duration).
-  Click **Trace →** to see the request's correlated **LLM calls** (model, token
-  counts, prompt/response previews) — a distributed trace of one operation.
-- **LLM Calls** — every Ollama call across the app; click a row for prompt and
-  response previews.
-- **Daemon** — the background watcher activity log (competitor changes, grants
-  found, signals published).
-- **Logs** — a real-time, colour-coded log stream (filter by level).
-
-Nothing here changes application state; it only observes.
+| Shortcut | Action |
+|---|---|
+| **Ctrl + Shift + M** | Show / hide the main window |
+| **Ctrl + Shift + D** | Run a full diagnosis |
+| **Ctrl + Shift + V** | Start voice input |
+| **Ctrl + Enter** | Submit (in forms, chat) |
+| **Double-click companion** | Quick diagnosis |
 
 ---
 
-## 17. Behind the scenes: the interpretability service
+## Quick reference — "if I want to... then I..."
 
-Two of the features above are powered by **`moufida-signal`**, a small Rust
-service (port 8010) you never click directly:
-- **Concept Bottleneck scoring** turns each axis's concept activations into the
-  composite score and identifies the bottleneck. Its weights are recalibrated
-  from your diagnostic history by ridge regression.
-- **Axis-direction probing** makes knowledge-base retrieval *axis-aware*: a chunk
-  that is really about "business model" is down-weighted when the market axis is
-  being scored, and newly ingested documents are auto-tagged to the right axes.
-
-Both are best-effort: if the service is offline, the diagnostic and retrieval
-still work — they simply skip the extra interpretability layer.
-
----
-
-*For the architecture, services, and developer setup, see the
-[README](README.md). For build-plan detail, see
-[`docs/plan/implementation/`](docs/plan/implementation/) and the research
-write-ups in [`docs/research/`](docs/research/).*
+| Goal | Action |
+|---|---|
+| Start from a new idea | Welcome screen → "Got an idea?" |
+| Evaluate an existing startup | Projects page → "Diagnose" |
+| Update my project's information | Projects page → "Update profile" |
+| Start background monitoring for a project | Projects page → eye icon (Focus) |
+| Pause monitoring temporarily | Sidebar → ⏸ pause button |
+| Tell Moufida about a change in my startup | Chat (HUD) → describe the change in conversation |
+| Upload a business plan or pitch deck | Dashboard header → upload button, or drag onto the companion |
+| Argue with a score I disagree with | Dashboard → click the score gauge → "Debate" |
+| Practice my investor pitch | Sidebar → Pitch page |
+| Explore "what if we pivoted to B2B?" | Sidebar → Scénarios page |
+| Understand which customers to target | Sidebar → Personas page |
+| Browse Tunisian funding programmes | Sidebar → Base de Connaissances |
+| See how my scores evolved over time | Sidebar → Mon Parcours |
+| Connect GitHub / Notion / Slack | Sidebar → Settings → Tool integrations |
+| Check system health | Browser → http://localhost:3002 |

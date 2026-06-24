@@ -8,6 +8,7 @@ import { useStore } from "../../store";
 import { useT } from "../../i18n";
 import { addKbEntry } from "../../api";
 import { C, F, card, btn } from "../../theme";
+import { IconBook } from "../shared/icons";
 
 export function KbAddCard() {
   const t = useT();
@@ -29,8 +30,8 @@ export function KbAddCard() {
 
   return (
     <div style={card}>
-      <h3 style={{ margin: "0 0 12px", color: C.text, fontFamily: F.heading, fontSize: 16 }}>
-        📚 {t("kb_add_title")}
+      <h3 style={{ margin: "0 0 12px", color: C.text, fontFamily: F.heading, fontSize: 16, display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ color: C.accent }}><IconBook size={17} /></span> {t("kb_add_title")}
       </h3>
       <textarea
         value={content}
